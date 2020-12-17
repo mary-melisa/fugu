@@ -24,6 +24,7 @@ import axios from 'axios';
 import CanteenTable from '@/views/organizational/components/canteenTable/canteenTable.vue';
 import AddOrganizational from '@/views/organizational/components/addOrganizational/addOrganizational.vue';
 export default {
+    name:'organizational',
     components: {
         CanteenTable,
         AddOrganizational
@@ -117,22 +118,22 @@ export default {
                 .catch(err => console.log(err));
       },
       // 根据组织获取食堂列表
-      getCanteenByOrgId(data) {
+      async getCanteenByOrgId(data) {
            const url = this.urlPrev + `api/Restaurant/GetRestaurantServiceListByOrgId?OrgId=`+data.id;
-            axios({ method: 'post', url: url })
+            await axios({ method: 'post', url: url })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                        this.tableData = rsp.data;
-                        const childs = rsp.data.result;
-                        console.log(this.menus)
-                        const organsList = (this.menus)[0].children;
-                        (this.menus)[0].children.filter(item => {
-                            if(item.id === data.id) {
-                                item.children.push([...childs]);
-                            }
-                        })
-                       console.log(this.menus)
-                        debugger
+                        data.children = rsp.data.result
+                    //     this.tableData = rsp.data;
+                    //     const childs = rsp.data.result;
+                    //     console.log(this.menus)
+                    //     const organsList = (this.menus)[0].children;
+                    //     (this.menus)[0].children.filter(item => {
+                    //         if(item.id === data.id) {
+                    //             item.children.push([...childs]);
+                    //         }
+                    //     })
+                    //    console.log(this.menus)
                     } else {
                         console.log('获取食堂列表失败！');
                         this.$alert('发送请求获取食堂列表失败', '提示', {
