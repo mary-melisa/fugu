@@ -1,0 +1,7 @@
+/node_modules/
+/dist
+src/libs
+src/vendor
+src/proto
+src/mock/chartData
+src/views

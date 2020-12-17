@@ -1,0 +1,146 @@
+@mixin iconBg($width: 3rem, $height: 3rem, $bgUrl: 'icons.png') {
+    /*图片背景，大小作为参数传递，默认是30*30*/
+    display: inline-block;
+    width: $width;
+    height: $height;
+    cursor: pointer;
+    background-image: url('../images/'+$bgUrl);
+    background-color: transparent;
+}
+@mixin position($position: static, $top: auto, $right: auto, $bottom: auto, $left: auto) {
+    // 定位方式
+    position: $position;
+    top: $top;
+    right: $right;
+    bottom: $bottom;
+    left: $left;
+}
+@mixin boxShadow($color, $xWdh, $yWdh, $wdh) {
+    box-shadow: $color $xWdh $yWdh $wdh;
+    -webkit-box-shadow: $color $xWdh $yWdh $wdh;
+    -moz-box-shadow: $color $xWdh $yWdh $wdh;
+}
+@mixin link-colors($normal: $black-color, $hover-color: $hover-color, $visited: $black-color) {
+    /*a标签经过以及访问颜色变化混合器*/
+    color: $normal;
+    &:hover {
+        color: $hover-color;
+    }
+    &:visited {
+        color: $visited;
+    }
+}
+@mixin rounded-corners($border-radius: 5px, $border-radius1: $border-radius, $border-radius2: $border-radius, $border-radius3: $border-radius) {
+    /*圆角兼容性*/
+    -moz-border-radius: $border-radius $border-radius1 $border-radius2 $border-radius3;
+    -webkit-border-radius: $border-radius $border-radius1 $border-radius2 $border-radius3;
+    border-radius: $border-radius $border-radius1 $border-radius2 $border-radius3;
+}
+// 线性渐变
+@mixin linearGradient($point, $start, $stop) {
+    background-color: $stop;
+    background: linear-gradient($point, $start, $stop);
+    background: -moz-linear-gradient($point, $start, $stop);
+    background: -webkit-linear-gradient($point, $start, $stop);
+}
+@mixin transition-animation($property: all, $duration: 0.2s, $timing-function: linear) {
+    /*过渡动画*/
+    transition: $property $duration $timing-function;
+    -webkit-transition: $property $duration $timing-function;
+    -moz-transition: $property $duration $timing-function;
+}
+@mixin borderStyle($width: 1px, $style: solid, $color: #181d1f) {
+    border: $width $style $color;
+}
+@mixin resetElement($border: 0, $background: transparent, $radius: 0) {
+    border: $border;
+    background-color: $background;
+    border-radius: $radius;
+}
+/* 定制宽高按钮 */
+@mixin btn($width: $width, $height: $height) {
+    width: $width;
+    height: $height;
+    line-height: $height;
+    cursor: pointer;
+}
+// flex弹性布局兼容性
+@mixin flex {
+    display: -webkit-box; /* Chrome 4+, Safari 3.1, iOS Safari 3.2+ */
+    display: -moz-box; /* Firefox 17- */
+    display: -webkit-flex; /* Chrome 21+, Safari 6.1+, iOS Safari 7+, Opera 15/16 */
+    display: -moz-flex; /* Firefox 18+ */
+    display: -ms-flexbox; /* IE 10 */
+    display: flex; /* Chrome 29+, Firefox 22+, IE 11+, Opera 12.1/17/18, Android 4.4+ */
+}
+// 行内flex 弹性布局兼容性
+@mixin inlineflex {
+    display: -webkit-inline-box; /* Chrome 4+, Safari 3.1, iOS Safari 3.2+ */
+    display: -moz-inline-box; /* Firefox 17- */
+    display: -webkit-inline-flex; /* Chrome 21+, Safari 6.1+, iOS Safari 7+, Opera 15/16 */
+    display: -moz-inline-flex; /* Firefox 18+ */
+    display: -ms-inline-flexbox; /* IE 10 */
+    display: inline-flex; /* Chrome 29+, Firefox 22+, IE 11+, Opera 12.1/17/18, Android 4.4+ */
+}
+// 行内元素span强转块元素
+@mixin specailSpan($width: 50%, $height: 2.6rem) {
+    display: inline-block;
+    text-align: center;
+    float: left;
+    width: $width;
+    height: $height;
+    line-height: $height;
+    cursor: pointer;
+}
+@mixin inputStyle($height: 2.8rem, $fontSize: 1.3rem) {
+    height: $height;
+    line-height: $height;
+    border-color: $money-border-color;
+    color: $black-color;
+    font-size: $fontSize;
+    @if $skin == 'black' {
+        background-color: transparent;
+    } @else if $skin == 'white' {
+        background-color: $white-color;
+    }
+}
+@mixin ellipse {
+    // 一行显示，超过显示省略号
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+@mixin dateInputStyle($width: 12rem, $height: 2.2rem, $fontSize: 1.3rem) {
+    width: $width;
+    height: $height;
+    line-height: $height;
+    @if $skin == 'black' {
+        background-color: transparent;
+    } @else if $skin == 'white' {
+        background-color: $white-color;
+    }
+    border-color: $money-border-color;
+    font-size: $fontSize;
+}
+@mixin submitBtnStyle($width: 12rem, $height: 2.8rem, $fontSize: 1.4rem, $rounded: 2px) {
+    width: $width;
+    height: $height;
+    line-height: $height;
+    padding: 0;
+    color: $white-color;
+    background-color: $hover-color;
+    border-color: $hover-color;
+    font-size: $fontSize;
+    @include rounded-corners($rounded);
+}
+@mixin resetBtnStyle($width: 7rem, $height: 2.2rem, $fontSize: 1.3rem, $rounded: 2px) {
+    width: $width;
+    height: $height;
+    line-height: $height;
+    padding: 0;
+    color: $hover-color;
+    background-color: transparent;
+    border-color: $hover-color;
+    font-size: $fontSize;
+    @include rounded-corners($rounded);
+}

@@ -1,0 +1,301 @@
+$width: 100%;
+$height: 100%;
+body {
+    overflow: hidden;
+}
+// 表单三列布局
+.threeColumns {
+    .el-form-item {
+        width: 33% !important;
+    }
+}
+
+/*滚动条样式*/
+::-webkit-scrollbar {
+    background-color: transparent;
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: $scrollbarBg;
+    // border: $table-border-color solid 0.02rem;
+    // background-color: $grey4;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-button {
+    background-color: transparent;
+    display: none;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: $table-border-color;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-corner,
+.el-input::-webkit-scrollbar-corner {
+    // background-color: $table-border-color !important;
+    background-color: transparent;
+}
+
+// input placeholder样式重制
+:-moz-placeholder {
+    color: $grey8;
+    opacity: 1;
+}
+
+::-moz-placeholder {
+    color: $grey8;
+    opacity: 1;
+}
+
+input:-ms-input-placeholder {
+    color: $grey8;
+    opacity: 1;
+}
+
+input::-webkit-input-placeholder {
+    color: $grey8;
+    opacity: 1;
+}
+
+.el-input__inner::-webkit-input-placeholder,
+.el-textarea__inner::-webkit-input-placeholder {
+    color: $grey8;
+    opacity: 1;
+}
+// 输入框自动填充默认样式重置
+input:-webkit-autofill {
+    -webkit-text-fill-color: $lightwhite !important;
+    background-image: none;
+    -webkit-box-shadow: 0 0 0 1000px $lightfill inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: $lightwhite !important;
+}
+// 正在加载中背景色
+.el-loading-mask {
+    background: rgba($fillbg, 0);
+}
+
+.el-table__fixed-right::before,
+.el-table__fixed::before,
+.el-table::before {
+    background: transparent;
+    height: 0;
+}
+em,
+i {
+    font-style: normal;
+}
+.none {
+    display: none;
+}
+// element默认样式重置
+.el-table--border::after,
+.el-table--group::after {
+    width: 0;
+}
+// 灰色
+.grey {
+    color: $grey !important;
+}
+// 黄色
+.yellow {
+    color: $yellow !important;
+}
+
+// 黄色背景色
+.yellowbg1 {
+    background-color: $yellowbg1 !important;
+}
+// 红色
+.red {
+    color: $red !important;
+}
+
+// 绿色
+.green {
+    color: $green !important;
+}
+
+
+
+// 紫色
+.purple {
+    color: $purple !important;
+}
+
+// 浅白色
+.lightwhite {
+    color: $lightwhite !important;
+}
+// 白色
+.white {
+    color: $white !important;
+}
+// 蓝色
+.blue {
+    color: $blue !important;
+}
+
+// 蓝色背景色
+.bluebg1 {
+    background-color: $bluebg1 !important;
+}
+// 深褐色背景色
+.blackbg1 {
+    background: $submenubg !important;
+}
+
+// 绿色背景
+.greenBg {
+    background-color: $quoteRise !important;;
+}
+
+// 绿色背景
+.redBg {
+    background-color: $quoteFall !important;;
+}
+
+// margin
+.ml5 {
+    margin-left: 5px;
+}
+.ml10 {
+    margin-left: 10px;
+}
+
+.ml15 {
+    margin-left: 15px;
+}
+
+.mt10 {
+    margin-top: 10px;
+}
+
+.mt15 {
+    margin-top: 15px;
+}
+.mt30 {
+    margin-top: 30px !important;
+}
+.mt20 {
+    margin-top: 20px;
+}
+.mr10 {
+    margin-right: 10px;
+}
+.mb10 {
+    margin-bottom: 10px;
+}
+.mb0 {
+    margin-bottom: 0 !important;
+}
+.mb20 {
+    margin-bottom: 20px !important;
+}
+.pt15 {
+    padding-top: 15px;
+}
+
+.tr {
+    text-align: right !important;
+}
+.tc {
+    text-align: center !important;
+}
+
+.fl {
+    float: left;
+}
+.fr {
+    float: right;
+}
+.el-table th.is-leaf {
+    border-bottom: 1px solid $blackbg;
+}
+.el-table--border th.gutter:last-of-type {
+    width: 0 !important;
+    border-bottom: 1px solid $blackbg;
+}
+// 表格样式
+.commonTable.el-table {
+    .el-table__header-wrapper {
+        .el-table__header {
+            th {
+                padding: 0;
+                height: 40px;
+                background: #D5D4D4;
+                font-size: 16px;
+                color: black;
+                .cell {
+                    line-height: 40px;
+                    color: #101010;
+                    white-space: nowrap;
+                }
+            }
+            th.is-leaf {
+                border-bottom: 1px solid #D5D4D4;
+            }
+        }
+    }
+    .el-table__body-wrapper {
+        .el-table__body {
+            td {
+                padding: 0;
+                height: 40px;
+                font-size: 14px;
+                .cell {
+                    line-height: 40px;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    color: #101010;
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+}
+// 弹窗样式
+.commonDialog {
+    .el-dialog {
+        margin-top: 0 !important;
+        @include position(absolute, 50%, auto, auto, 50%);
+        transform: translate(-50%, -50%);
+        border: 6px solid #DCDCDC;
+        @include rounded-corners(10px);
+        .el-dialog__header {
+            padding: 0 23px;
+            height: 51px;
+            background-color: #1890FF;
+            @include rounded-corners(5px);
+            .el-dialog__title {
+                line-height: 51px;
+                font-size: 16px;
+                color: white;
+            }
+            .el-dialog__headerbtn {
+                top: 0;
+                right: 23px;
+                .el-icon-close {
+                    font-size: 25px;
+                    color: white;
+                    line-height: 51px;
+                }
+            }
+        }
+        .el-dialog__body {
+            padding: 10px 29px;
+        }
+    }
+}
+
+.dialogTabs.el-tabs {
+    .el-tabs__header {
+        
+    }
+}
