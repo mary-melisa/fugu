@@ -21,6 +21,7 @@ import(/*webpackChunkName:'familybucket'*/ 'vue')
             import(/*webpackChunkName:'vuexjs'*/ './store'),
             import(/*webpackChunkName:'familybucket'*/ 'axios').then(axios => {
                 window.$config = null;
+                console.log('1111');
                 // 配置在这里，确保拦截相应只执行一次（遇到过配置在business，请求前面配置，相应会执行两次，导致错误返回引发bug）
                 axios.interceptors.response.use(
                     function(response) {
@@ -32,6 +33,8 @@ import(/*webpackChunkName:'familybucket'*/ 'vue')
                         return Promise.reject(error);
                     },
                 );
+                axios.defaults.headers.post['Content-Type'] = 'application/json-patch+json';
+
                 Vue.prototype.$http = axios;
             }),
             import(/*webpackChunkName:'familybucket'*/ 'element-ui').then(({ default: ElementUI }) => {

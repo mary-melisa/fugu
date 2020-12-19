@@ -1,18 +1,48 @@
 <template>
     <div class="breadcrumb">
-        <el-breadcrumb separator="/">
-            <el-breadcrumb-item :to="{ path: '/' }">基础数据</el-breadcrumb-item>
-            <el-breadcrumb-item><a href="/">餐别设置</a></el-breadcrumb-item>
-        </el-breadcrumb>
+        <i class="el-icon-arrow-right"></i>
+        <i class="el-icon-s-home"></i>
+        <span class="firstMenu">{{ firstMenu }}</span>
+        <span class="space">/</span>
+        <i class="el-icon-folder-opened"></i>
+        <span class="secondMenu">{{ secondMenu }}</span>
     </div>
 </template>
 
 <script>
-export default {};
+export default {
+    props: ['firstMenu', 'secondMenu'],
+};
 </script>
 
 <style lang="scss" scoped>
 .breadcrumb {
-    margin-bottom: 20px;
+    width: 100%;
+    padding: 20px 20px 20px 5px;
+    height: 24px;
+    font-size: 16px;
+    color: black;
+    i {
+        font-size: 16px;
+        line-height: 24px;
+        color: #101010;
+    }
+    i.el-icon-s-home {
+        color: #333333;
+        margin-left: 10px;
+    }
+    i.el-icon-folder-opened {
+        color: #1890ff;
+    }
+    .space {
+        color: #333333;
+        margin: 0 10px;
+    }
+    .firstMenu {
+        color: #333333;
+    }
+    .secondMenu {
+        color: #1890ff;
+    }
 }
 </style>

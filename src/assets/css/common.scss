@@ -263,6 +263,7 @@ i {
 // 弹窗样式
 .commonDialog {
     .el-dialog {
+        min-height: 550px;
         margin-top: 0 !important;
         @include position(absolute, 50%, auto, auto, 50%);
         transform: translate(-50%, -50%);
@@ -293,9 +294,214 @@ i {
         }
     }
 }
-
+// 弹窗里的选项卡样式
 .dialogTabs.el-tabs {
     .el-tabs__header {
-        
+        border-bottom: 0;
+        .el-tabs__nav-wrap {
+            .el-tabs__nav {
+                border: 0;
+                .el-tabs__item {
+                    width: 70px;
+                    height: 24px;
+                    line-height: 24px;
+                    padding: 0;
+                    text-align: center;
+                    border: 1px solid #E4E7ED;
+                    font-size: 14px;
+                    @include rounded-corners(4px);
+                }
+                .el-tabs__item.is-active {
+                    border-color: #1890FF;
+                    color: #1890FF;
+                    border-left: 1px solid #1890FF !important;
+                }
+                .el-tabs__item+.el-tabs__item {
+                    border-left: 0;
+                }
+            }
+        }
     }
+}
+// 表单样式
+.commonForm.el-form {
+    .el-form-item {
+        margin-bottom: 19px;
+        .el-form-item__label {
+            font-size: 16px;
+            color: #101010;
+            line-height: 30px;
+        }
+        .el-form-item__content {
+            line-height: 30px;
+        }
+    }
+    .el-form-item.btnsLine {
+        .el-form-item__content {
+            margin-left: 0 !important;
+            width: 100%;
+            text-align: center;
+        }
+    }
+}
+// 输入框样式
+.commonInput.el-input {
+    width: 200px;
+    height: 30px;
+    .el-input__inner {
+        height: 30px;
+        line-height: 30px;
+    }
+}
+// 文本域样式
+.commonTextarea.el-textarea {
+    .el-textarea__inner {
+        width: 200px;
+    }
+}
+// 下拉框样式
+.commonSelect.el-select {
+    .el-input {
+        @extend .commonInput;
+        .el-input__suffix {
+            .el-select__caret {
+                line-height: 30px;
+            }
+        }
+    }
+}
+
+// 按钮样式
+.commonButton.el-button {
+    width: 80px;
+    height: 30px;
+    background: #1890FF;
+    line-height: 30px;
+    color: white;
+    font-size: 16px;
+    padding: 0;
+    @include rounded-corners(4px);
+}
+.commonButton.el-button:hover {
+    background: rgba(24, 14, 255, .8);
+}
+// 图片上传样式
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 200px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+  // 菜单样式
+  .commonMenus.el-menu {
+    .el-submenu {
+        .el-submenu__title {
+            height: 40px;
+            line-height: 40px;
+            font-size: 16px;
+        }
+        .el-submenu__title:hover {
+            background: #D5D4D4 !important;
+            > span {
+                color: #000000;
+            }
+        }
+        .el-menu--inline {
+            .el-menu-item-group {
+                .el-menu-item-group__title {
+                    padding: 0 0 0 20px;
+                    font-size: 16px;
+                }
+                .el-menu-item {
+                    height: 40px;
+                    line-height: 40px;
+                   
+                }
+                .el-menu-item:hover {
+                    a {
+                        color: #1890FF;
+                    }
+                }
+                a {
+                    color: white;
+                    font-size: 14px;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+    .el-submenu.is-opened {
+        .el-submenu__title {
+            background: #D5D4D4 !important;
+        }
+    }
+  }
+  // 操作按钮
+  .operBtns {
+    width: 100%;
+    padding: 20px 0 25px 0;
+    border-bottom: 1px solid #BBBBBB;
+    .el-button {
+        width: 80px;
+        height: 25px;
+        line-height: 25px;
+        padding: 0;
+        color: #1890FF;
+        border: 0;
+    }
+    .el-button+.el-button {
+        margin-left: 30px;
+    }
+}
+
+// 分页样式
+.pagination {
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    .el-pagination {
+        height: 28px;
+    }
+}
+// 日期样式
+.commonDatePicker {
+    .el-input__inner {
+        width: 200px;
+        height: 30px;
+    }
+    .el-input__prefix {
+        .el-icon-date {
+            line-height: 30px;
+        }
+    }
+    .el-input__suffix {
+        .el-input__icon {
+            line-height: 30px;
+        }
+    }
+}
+.mt45 {
+    margin-top: 45px;
+}
+
+.mt60 {
+    margin-top: 60px;
 }

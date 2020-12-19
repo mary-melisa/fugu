@@ -26,17 +26,17 @@
       </div>
       <div class="mainBox">
           <div class="sider">
-              <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+              <el-menu default-active="2" class="commonMenus" @open="handleOpen" @close="handleClose" background-color="#333333" text-color="#fff" active-text-color="#1890FF" unique-opened>
                   <el-submenu index="1">
                       <template slot="title">
                           <i class="el-icon-location"></i>
                           <span>运营数据</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="1-1"><router-link to="">营业数据</router-link></el-menu-item>
-                          <el-menu-item index="1-2"><router-link to="">会员数据</router-link></el-menu-item>
-                          <el-menu-item index="1-3"><router-link to="">菜品数据</router-link></el-menu-item>
-                          <el-menu-item index="1-4"><router-link to="">充值数据</router-link></el-menu-item>
+                          <router-link to=""><el-menu-item index="1-1">营业数据</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="1-2">会员数据</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="1-3">菜品数据</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="1-4">充值数据</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="2">
@@ -45,10 +45,10 @@
                           <span>备餐管理</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="2-1"><router-link to="">预定管理</router-link></el-menu-item>
-                          <el-menu-item index="2-2"><router-link to="">备菜计划</router-link></el-menu-item>
-                          <el-menu-item index="2-3"><router-link to="">套餐管理</router-link></el-menu-item>
-                          <el-menu-item index="2-4"><router-link to="">菜品管理</router-link></el-menu-item>
+                          <router-link to=""><el-menu-item index="2-1">预定管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="2-2">备菜计划</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="2-3">套餐管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="2-4">菜品管理</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="3">
@@ -57,12 +57,12 @@
                           <span>财务管理</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="3-1"><router-link to="">消费记录</router-link></el-menu-item>
-                          <el-menu-item index="3-2"><router-link to="">会员管理</router-link></el-menu-item>
-                          <el-menu-item index="3-3"><router-link to="">餐卡管理</router-link></el-menu-item>
-                          <el-menu-item index="3-4"><router-link to="">冲红记录</router-link></el-menu-item>
-                          <el-menu-item index="3-5"><router-link to="">订单管理</router-link></el-menu-item>
-                          <el-menu-item index="3-6"><router-link to="">结算管理</router-link></el-menu-item>
+                          <router-link to=""><el-menu-item index="3-1">消费记录</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="3-2">会员管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="3-3">餐卡管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="3-4">冲红记录</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="3-5">订单管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="3-6">结算管理</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="4">
@@ -71,8 +71,8 @@
                           <span>评价管理</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="4-1"><router-link to="">菜品评价</router-link></el-menu-item>
-                          <el-menu-item index="4-2"><router-link to="">意见反馈</router-link></el-menu-item>
+                          <router-link to=""><el-menu-item index="4-1">菜品评价</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="4-2">意见反馈</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="5">
@@ -81,13 +81,13 @@
                           <span>基础数据</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="5-1"><router-link to="">餐别设置</router-link></el-menu-item>
-                          <el-menu-item index="5-2"><router-link to="">营养成分</router-link></el-menu-item>
-                          <el-menu-item index="5-3"><router-link to="">物料类别</router-link></el-menu-item>
-                          <el-menu-item index="5-4"><router-link to="">物料信息</router-link></el-menu-item>
-                          <el-menu-item index="5-5"><router-link to="">用户信息</router-link></el-menu-item>
-                          <el-menu-item index="5-6"><router-link to="">设备类型</router-link></el-menu-item>
-                          <el-menu-item index="5-7"><router-link to="">菜品类别</router-link></el-menu-item>
+                          <router-link to="/mealSetting"><el-menu-item index="5-1">餐别设置</el-menu-item></router-link>
+                          <router-link to="/nutrients"><el-menu-item index="5-2">营养成分</el-menu-item></router-link>
+                          <router-link to="/matCategory"><el-menu-item index="5-3">物料类别</el-menu-item></router-link>
+                          <router-link to="/matInformation"><el-menu-item index="5-4">物料信息</el-menu-item></router-link>
+                          <router-link to="/customerType"><el-menu-item index="5-5">用户类型</el-menu-item></router-link>
+                          <router-link to="/equipmentType"><el-menu-item index="5-6">设备类型</el-menu-item></router-link>
+                          <!-- <router-link to=""><el-menu-item index="5-7">菜品类别</el-menu-item></router-link> -->
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="6">
@@ -96,9 +96,9 @@
                           <span>设备管理</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="6-1"><router-link to="/facility">设备列表</router-link></el-menu-item>
-                          <el-menu-item index="6-2"><router-link to="/maintenanceRecord">保养记录</router-link></el-menu-item>
-                          <el-menu-item index="6-3"><router-link to="">运行日志</router-link></el-menu-item>
+                          <router-link to="/facility"><el-menu-item index="6-1">设备列表</el-menu-item></router-link>
+                          <router-link to="/maintenanceRecord"><el-menu-item index="6-2">保养记录</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="6-3">运行日志</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="7">
@@ -107,11 +107,11 @@
                           <span>系统设置</span>
                       </template>
                       <el-menu-item-group>
-                          <el-menu-item index="7-1"><router-link to="/organizational">组织架构</router-link></el-menu-item>
-                          <el-menu-item index="7-2"><router-link to="">角色管理</router-link></el-menu-item>
-                          <el-menu-item index="7-3"><router-link to="">用户管理</router-link></el-menu-item>
-                          <el-menu-item index="7-4"><router-link to="">规则配置</router-link></el-menu-item>
-                          <el-menu-item index="7-5"><router-link to="">菜单管理</router-link></el-menu-item>
+                          <router-link to="/organizational"><el-menu-item index="7-1">组织架构</el-menu-item></router-link>
+                          <router-link to="/userManage"><el-menu-item index="7-2">角色管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="7-3">用户管理</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="7-4">规则配置</el-menu-item></router-link>
+                          <router-link to=""><el-menu-item index="7-5">菜单管理</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
               </el-menu>
@@ -124,6 +124,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import facility from "@/views/facility/facility.vue";
 export default {
     components:{
@@ -131,21 +132,9 @@ export default {
     },
     data() {
         return {
+          urlPrev: 'http://sysapi.free.idcfengye.com/',
           title: '智慧食堂管理系统',
-          options: [
-              {
-                  value: '1',
-                  label: '餐厅一',
-              },
-              {
-                  value: '2',
-                  label: '餐厅二',
-              },
-              {
-                  value: '3',
-                  label: '餐厅三',
-              },
-          ],
+          options: [],
           user: {
               name: '超级管理员',
               role: '管理员',
@@ -154,15 +143,29 @@ export default {
         };
     },
     mounted() {
-
+        this.getRestaurant();
     },
-     methods: {
-     handleOpen(key, keyPath) {
+    methods: {
+        //获取所属餐厅
+        getRestaurant(){
+            const url = this.urlPrev+`api/Organization/GetOrganizationByUserId`;
+            axios({method: 'post', url: url, data: this.userId})
+            .then(rsp=>{
+                if(rsp.data.status==1){
+                    console.log(rsp)
+                    this.result=rsp.data;
+                } else {
+                    console.log("获取失败")
+                }
+            })
+            .catch(err=> console.log(err));
+        },
+        handleOpen(key, keyPath) {
             console.log(key, keyPath);
-          },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
-      }
+        },
+        handleClose(key, keyPath) {
+            console.log(key, keyPath);
+        }
     }
 };
 </script>

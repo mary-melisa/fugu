@@ -3,11 +3,11 @@
     <div class="facility">
         <div class="position">设备管理/设备管理</div>
         <el-row  class="operBtns">
-            <facilityAdd />
-            <!-- <facilityUpdate :facilitySelectId="facilitySelectId" />
-            <facilityDel :facilitySelectId="facilitySelectId" /> -->
+            <FacilityAdd />
+            <FacilityUpdate :facilitySelectId="facilitySelectId" />
+            <!-- <facilityDel :facilitySelectId="facilitySelectId" /> -->
             <!-- <el-button  icon="el-icon-edit">编辑</el-button>
-            <el-button  icon="el-icon-delete">删除</el-button> 
+            <el-button  icon="el-icon-delete">删除</el-button>
             <el-button  icon="el-icon-delete">批量停用</el-button>-->
         </el-row>
         <div class="organizationlContent">
@@ -95,13 +95,13 @@
 
 <script>
 import axios from 'axios';
-import facilityAdd from "./components/facilityAdd.vue";
-// import facilityUpdate from "/components/facilityUpdate.vue";
+import FacilityAdd from "./components/facilityAdd.vue";
+import FacilityUpdate from "./components/facilityUpdate.vue";
 // import facilityDel from "@/components/facilityDel.vue";
 export default {
    components: {
-      facilityAdd,
-      // facilityUpdate,
+      FacilityAdd,
+      FacilityUpdate,
       // facilityDel,
     },
     data() {
@@ -139,6 +139,7 @@ export default {
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
+        this.facilitySelectId = val;
         console.log(val)
       },
       getFacilitySelectPaging(data) {

@@ -23,6 +23,12 @@ const router = {
                     component: () => import('@/views/organizational/organizational.vue'),
                 },
                 {
+                    //角色管理
+                    path: '/userManage',
+                    name: 'userManage',
+                    component: () => import('@/views/userManage/userManage.vue'),
+                },
+                {
                     //营养成分
                     path: '/nutrients',
                     name: 'nutrients',
@@ -33,6 +39,30 @@ const router = {
                     path: '/mealSetting',
                     name: 'mealSetting',
                     component: () => import('@/views/mealSetting/mealSetting.vue'),
+                },
+                {
+                    //物料类别
+                    path: '/matCategory',
+                    name: 'matCategory',
+                    component: () => import('@/views/matCategory/matCategory.vue'),
+                },
+                {
+                    //物料信息
+                    path: '/matInformation',
+                    name: 'matInformation',
+                    component: () => import('@/views/matInformation/matInformation.vue'),
+                },
+                {
+                    //用户类型
+                    path: '/customerType',
+                    name: 'customerType',
+                    component: () => import('@/views/customerType/customerType.vue'),
+                },
+                {
+                    //设备类型
+                    path: '/equipmentType',
+                    name: 'equipmentType',
+                    component: () => import('@/views/equipmentType/equipmentType.vue'),
                 },
                 {
                     path: '/facility',

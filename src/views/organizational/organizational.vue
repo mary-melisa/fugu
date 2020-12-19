@@ -1,7 +1,7 @@
 <!-- 组织架构 -->
 <template>
     <div class="organizational">
-        <div class="position">系统管理/组织架构</div>
+        <BreadCrumb :firstMenu="'系统管理'" :secondMenu="'组织架构'"></BreadCrumb>
         <el-row  class="operBtns">
             <el-button  icon="el-icon-plus" @click="add()">添加</el-button>
             <el-button  icon="el-icon-edit">编辑</el-button>
@@ -9,25 +9,26 @@
         </el-row>
         <div class="organizationlContent">
             <div class="organizationalLeft">
-                <el-tree :data="menus" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                <el-tree :data="menus" :props="defaultProps" @node-click="handleNodeClick" ></el-tree>
             </div>
             <div class="organizationalRight">
-                <CanteenTable :parentTableData="tableData" :parentTableNo="tableNo"></CanteenTable>
+                <CanteenTable :parentTableData="tableData" :parentTableNo="tableNo" :parentPageIndex="PageIndex" :parentPageSize="PageSize"></CanteenTable>
             </div>
         </div>
-        <AddOrganizational :parentDialogVisible="dialogVisible"></AddOrganizational>
+        <AddOrganizational v-on:cancelModule="cancelModule" v-if="dialogVisible"></AddOrganizational>
     </div>
 </template>
 
 <script>
 import axios from 'axios';
+import BreadCrumb from '@/components/breadCrumb/breadCrumb.vue';
 import CanteenTable from '@/views/organizational/components/canteenTable/canteenTable.vue';
 import AddOrganizational from '@/views/organizational/components/addOrganizational/addOrganizational.vue';
 export default {
-    name:'organizational',
     components: {
         CanteenTable,
-        AddOrganizational
+        AddOrganizational,
+        BreadCrumb
     },
     data() {
         return {
@@ -56,10 +57,14 @@ export default {
             this.getCanteens(data);
             this.tableNo = 1;
         }
-        // else {
-        //     this.getSingleCanteen(data);
-        //     this.tableNo = 2;
-        // }
+        else {
+            if(data.isCanteen) {
+                this.tableNo = 2;
+                this.parentTableData = data;
+            }else {
+                this.getCanteenByOrgId(data);
+            }
+        }
       },
       toggleSelection(rows) {
         if (rows) {
@@ -77,13 +82,7 @@ export default {
                 .then(rsp => {
                     if (rsp.data.status == 1) {
                         this.menus = rsp.data.result;
-                        // console.log(this.menus)
                         const secondMenus = [];
-                        rsp.data.result[0].children.forEach(item => {
-                            if(!item.children.length){
-                                this.getCanteenByOrgId(item);
-                            }
-                        })
                     } else {
                         console.log('获取组织架构树失败！');
                         this.$alert('发送请求获取组织架构树失败', '提示', {
@@ -118,22 +117,18 @@ export default {
                 .catch(err => console.log(err));
       },
       // 根据组织获取食堂列表
-      async getCanteenByOrgId(data) {
+      getCanteenByOrgId(data) {
            const url = this.urlPrev + `api/Restaurant/GetRestaurantServiceListByOrgId?OrgId=`+data.id;
-            await axios({ method: 'post', url: url })
+            axios({ method: 'post', url: url })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                        data.children = rsp.data.result
-                    //     this.tableData = rsp.data;
-                    //     const childs = rsp.data.result;
-                    //     console.log(this.menus)
-                    //     const organsList = (this.menus)[0].children;
-                    //     (this.menus)[0].children.filter(item => {
-                    //         if(item.id === data.id) {
-                    //             item.children.push([...childs]);
-                    //         }
-                    //     })
-                    //    console.log(this.menus)
+                        const rspDatas = rsp.data.result;
+                        // this.tableData = rspDatas;
+                        console.log('tableData', this.tableData)
+                        rspDatas.forEach(item => {
+                            item['isCanteen'] = true;
+                        });
+                        data.children = rspDatas;
                     } else {
                         console.log('获取食堂列表失败！');
                         this.$alert('发送请求获取食堂列表失败', '提示', {
@@ -144,14 +139,15 @@ export default {
                 })
                 .catch(err => console.log(err));
       },
+      
       // 新增
       add() {
           this.dialogVisible = true;
       },
-      // 关闭弹窗
-       closeDialog(flag){
-           this.dialogVisible = flag;
-       }
+       // 关闭模态框回调
+        cancelModule(val) {
+            this.dialogVisible = false;
+        },
     }
 };
 </script>
@@ -162,26 +158,9 @@ export default {
     height: 100%;
     @include flex();
     flex-direction: column;
-
-    .position {
-        width: 100%;
-        padding: 20px 20px 10px;
-        height: 30px;
-        font-size: 16px;
-        color: black;
-    }
-    .operBtns {
-        width: 100%;
-        height: 60px;
-        border-bottom: 1px solid #BBBBBB;
-        .el-button {
-            color: #1890FF;
-            border: 0;
-        }
-    }
     .organizationlContent {
         width: 100%;
-        height: calc(100% - 70px);
+        height: calc(100% - 135px);
         @include flex();
         .organizationalLeft {
             width: 215px;
