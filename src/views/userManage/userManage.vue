@@ -1,149 +1,195 @@
 <template>
-    <div class="userManage">
-        <BreadCrumb :firstMenu="'系统管理'" :secondMenu="'角色管理'"></BreadCrumb>
-        <div class="conditions">
-            <el-input class="conditionInput" v-model="name" placeholder="请输入关键字"></el-input>
-            <el-button class="conditionBtn" @click="getRolesList">查询</el-button>
+    <div class="memManagement">
+        <Breadcrumb :firstMenu="'系统管理'" :secondMenu="'角色管理'"/>
+        <div class="search">
+            <div class="fieldItem">
+                <span>关键字：</span>
+                <el-input placeholder="请输入关键字" v-model="defaultProps.keyContent" class="commonInput"> </el-input>
+            </div>
+            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
         </div>
-        <el-row  class="operBtns">
-            <el-button  icon="el-icon-plus" @click="add()">添加角色</el-button>
-            <el-button  icon="el-icon-edit">编辑角色</el-button>
-            <el-button  icon="el-icon-delete">删除角色</el-button>
-        </el-row>
-        <div class="tableContent">
-            <el-table
-                ref="multipleTable"
-                :data="tableData"
-                class="commonTable"
-                tooltip-effect="dark"
-                height="100%"
-                style="width: 100%"
-                @selection-change="handleSelectionChange">
-                <el-table-column
-                    type="selection">
-                </el-table-column>
-                <el-table-column
-                    label="序号"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="id"
-                    label="角色ID"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="name"
-                    label="角色名称"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="remark"
-                    label="备注"
-                >
-                </el-table-column>
-            </el-table>
+        <div class="operBtns">
+            <el-button  icon="el-icon-plus" @click="add()">添加</el-button>
+            <el-button  icon="el-icon-delete" @click="del()">批量删除</el-button>
         </div>
-        <div class="pagination">
-            <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="pageIndex"
-                :page-sizes="[10, 20, 30, 40]"
-                :page-size="10"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="tableData.toTalCount">
-            </el-pagination>
+        <div class="table">
+          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="del" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange"/>
         </div>
+        <AddUser v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal"></AddUser>
     </div>
 </template>
+
 <script>
-import axios from 'axios';
-import BreadCrumb from '@/components/breadCrumb/breadCrumb.vue';
+import Breadcrumb from "@/components/breadCrumb/breadCrumb.vue";
+import axios from "axios";
+import TableContent from '@/views/userManage/components/tableContent/tableContent.vue';
+import AddUser from '@/views/userManage/components/addUser/addUser.vue';
 export default {
-     components: {
-         BreadCrumb
-     },
-     data() {
-        return {
-            urlPrev: 'http://sysapi.free.idcfengye.com/',
-            name: '',
-            tableData: [],
-            pageSize: 10,
-            pageIndex: 1,
-        };
+    components:{
+        Breadcrumb,
+        TableContent,
+        AddUser
     },
-    mounted() {
-        this.getRolesList();
-    },
-     methods: {
-        handleSelectionChange(){
-
-        },
-        handleCurrentChange(){
-
-        },
-        handleSizeChange() {
-
-        },
-        // 获取角色列表
-        getRolesList() {
-            const url = this.urlPrev + `api/Roles/GetRolePageList`;
-            const params = {
-                pageSize: this.pageSize,
-                pageIndex: this.pageIndex,
-                name: this.name
-            }
-            axios({ method: 'post', url: url, data: params })
-                .then(rsp => {
-                    if (rsp.data.status == 1) {
-                        this.tableData = rsp.data;
-                    } else {
-                        console.log('获取角色列表失败！');
-                        this.$alert('发送请求获取角色列表失败', '提示', {
-                            confirmButton: '确定',
-                            type: 'error',
-                        });
-                    }
-                })
-            .catch(err => console.log(err));
+    data(){
+        return{
+            defaultProps:{
+                pageSize: 10,
+                pageIndex: 1,
+                name:'',
+                code:'',
+                remark:''
+            },
+            result: {},
+            multipleSelection: [],
+            dialogVisible: false,
+            currentMeal: {}, // 当前选中数据
+            title: 1, // 1 新增  2编辑
+            deleteFlag: 'some' // 'some'批量删除   'single' 单个删除
         }
+    },
+    mounted(){
+        this.getTableData();
+    },
+    methods:{
+        setSelection(arr){
+        this.multipleSelection = arr;
+        console.log(arr)
+      },
+        //获取表格数据
+        getTableData(){
+            const url = window.$config+`api/Roles/GetRolePageList`;
+            axios({method: 'post',url: url,data: this.defaultProps})
+            .then(rsp=>{
+                if (rsp.data.status == 1) {
+                    this.result = rsp.data;
+                } else{
+                    this.$message({
+                        message: rsp.data.message,
+                        type: 'error',
+                    });
+                }
+            })
+            .catch(err => console.log(err));
+        },
+        handleSizeChange(val) {
+        //console.log(`每页 ${val} 条`);
+        this.defaultProps.pageSize = val;
+        this.defaultProps.pageIndex = 1;
+        this.getTableData();
+      },
+      handleCurrentChange(val) {
+        //console.log(`当前页: ${val}`);
+        this.defaultProps.pageIndex = val;
+        this.getTableData();
+      },
+        // 新增
+      add() {
+          this.title = 1;
+          this.dialogVisible = true;
+      },
+      //编辑
+      edit(rowObj) {
+         this.title = 2;
+         this.currentMeal = rowObj;
+         this.dialogVisible = true;
+      },
+      // 批量删除
+      del(){
+        if(!this.multipleSelection.length){
+          this.$message({
+              message: '请先选择一条数据',
+              type: 'warn',
+          });
+        }else {
+          this.$confirm('删除后不可恢复，确认删除选中的数据吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.deleteMeal();
+          })
+        }
+      },
+      //单个删除
+      del(rowObj){
+          this.$confirm('删除后不可恢复，确认删除选中的数据吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.deleteFlag = 'single';
+            this.deleteMeal(rowObj);
+          })
+      },
+       //删除
+       deleteMeal(rowObj) {
+        let arr = [];
+        if(this.deleteFlag === 'some') {
+          this.multipleSelection.forEach(item => {
+            arr.push(item.id)
+          });
+        }else {
+          arr.push(rowObj.id);
+        }
+        const url = this.urlPrev+`api/member/delmember?ids=`+arr;
+        axios({ method: 'post', url: url})
+            .then(rsp => {
+                if (rsp.data.status == 1) {
+                   this.getTableData();
+                }else if(rsp.data.status == 0){
+                    this.$message({
+                        message: rsp.data.message,
+                        type: 'error',
+                    });
+                }
+            })
+            .catch(err => console.log(err));
+      },
+      // 关闭模态框回调
+      cancelModule(val) {
+          this.dialogVisible = false;
+      },
+      // 当前选中餐别
+      selectMeal(meal){
+        this.currentMeal = meal;
+        console.log(meal);
+      }
     }
+    
 }
 </script>
+
 <style lang="scss" scoped>
-.userManage {
-    width: 100%;
-    height: 100%;
-    @include flex();
-    flex-direction: column;
-    .conditions {
-        padding: 11px 37px 21px 29px;
-        border-bottom: 1px solid #BBBBBB;
-        .conditionInput {
-            width: 281px;
-            height: 37px;
-            color: #101010;
-            font-size: 16px;
-        }
-        .conditionBtn {
-            width: 83px;
-            height: 37px;
-            text-align: center;
-            padding: 0;
-            margin-left: 54px;
-            background: #1890FF;
-            color: white;
-        }
-        .conditionBtn:hover {
-            background: rgba(24, 144, 255, .8);
-        }
-    }
-    .operBtns {
-        border-bottom: 0;
-    }
-    .tableContent {
+    .memManagement{
         width: 100%;
-        height: calc(100% - 274px);
+        height: 100%;
+        @include flex();
+        flex-direction: column;
+        .model{
+        width: 100%;
+        }
     }
-}
+    .searchinput{
+        display: flex;
+        text-align:justify;
+        justify-content:space-between
+    }
+    .allinput{
+        display: flex;
+    }
+    .input{
+        font-size: 16px;
+        margin-right: 10px;
+    }
+    .operBtns{
+        border-bottom: 0;
+        border-top: 1px solid #cccccc;
+    }
+    .topsearch{
+        margin-bottom: 20px;
+    }
+    .table{
+        width: 100%;
+        height: calc(100% - 203px);
+    }
 </style>

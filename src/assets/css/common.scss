@@ -168,6 +168,9 @@ i {
 .ml10 {
     margin-left: 10px;
 }
+.mr10 {
+    margin-right: 10px;
+}
 
 .ml15 {
     margin-left: 15px;
@@ -232,6 +235,7 @@ i {
                 background: #D5D4D4;
                 font-size: 16px;
                 color: black;
+                border-right: 1px solid #EBEEF5;
                 .cell {
                     line-height: 40px;
                     color: #101010;
@@ -241,6 +245,10 @@ i {
             th.is-leaf {
                 border-bottom: 1px solid #D5D4D4;
             }
+            .imgColumn.is-leaf {
+                min-width: 40px;
+                position: relative;
+            }
         }
     }
     .el-table__body-wrapper {
@@ -249,16 +257,34 @@ i {
                 padding: 0;
                 height: 40px;
                 font-size: 14px;
+                border-right: 1px solid transparent;
                 .cell {
                     line-height: 40px;
                     padding-left: 10px;
                     padding-right: 10px;
                     color: #101010;
                     white-space: nowrap;
+                    img,.el-image {
+                        float: left;
+                        max-width: 40px;
+                        max-height: 40px;
+                        .el-icon-picture-outline {
+                            font-size: 40px;
+                            color: #101010;
+                        }
+                    }
                 }
+            }
+            td.imgColumn {
+                min-width: 40px;
+                position: relative;
             }
         }
     }
+}
+// 错误图片背景色
+.el-image__error, .el-image__placeholder {
+    background: transparent;
 }
 // 弹窗样式
 .commonDialog {
@@ -291,6 +317,7 @@ i {
         }
         .el-dialog__body {
             padding: 10px 29px;
+            min-height: 479px;
         }
     }
 }
@@ -357,6 +384,7 @@ i {
 .commonTextarea.el-textarea {
     .el-textarea__inner {
         width: 200px;
+        height: 150px;
     }
 }
 // 下拉框样式
@@ -457,7 +485,7 @@ i {
   // 操作按钮
   .operBtns {
     width: 100%;
-    padding: 20px 0 25px 0;
+    padding: 10px 0 15px 0;
     border-bottom: 1px solid #BBBBBB;
     .el-button {
         width: 80px;
@@ -488,7 +516,8 @@ i {
         height: 30px;
     }
     .el-input__prefix {
-        .el-icon-date {
+        margin-bottom: 0 !important;
+        .el-icon-date,.el-icon-time {
             line-height: 30px;
         }
     }
@@ -498,10 +527,156 @@ i {
         }
     }
 }
+// 时间样式
+.commonTimePicker {
+    @extend .commonDatePicker;
+    .el-input__icon {
+        line-height: 30px;
+    }
+}
 .mt45 {
     margin-top: 45px;
 }
 
 .mt60 {
     margin-top: 60px;
+}
+// 查询条件搜索框
+.conditionInput {
+    width: 281px;
+    height: 37px;
+    color: #101010;
+    font-size: 16px;
+}
+// 查询条件搜索按钮
+.conditionBtn {
+    width: 83px;
+    height: 37px;
+    text-align: center;
+    padding: 0;
+    margin-left: 54px;
+    background: #1890FF;
+    color: white;
+}
+.conditionBtn:hover {
+    background: rgba(24, 144, 255, .8);
+}
+// 修改按钮
+.editBtn.el-button {
+    min-width: 80px;
+    height: 24px;
+    padding: 0;
+    color: #1890FF;
+    font-size: 16px;
+    border: 0;
+    background: transparent;
+}
+.editBtn.el-button:hover {
+    background: transparent;
+    color: rgba(24, 144, 255, .8);
+}
+// 查询条件
+.search {
+    width: calc(100% - 58px);
+    padding: 10px 29px 0;
+    font-size: 16px;
+    color: #101010;
+    border-bottom: 1px solid #BBBBBB;
+    .fieldItem {
+        display: inline-block;
+    }
+    .fieldItem+.fieldItem {
+        margin-left: 15px;
+    }
+    .conditionBtn {
+        margin-bottom: 10px;
+    }
+    .conditionInput {
+      margin-right: 62px;
+    }
+    .commonInput {
+      margin-bottom: 10px;
+    }
+    .el-button+.el-button {
+      margin-left: 52px;
+    }
+    span {
+        margin-bottom: 10px;
+    }
+    .commonSelect {
+        margin-bottom: 10px;
+    }
+    .commonDatePicker {
+        margin-bottom: 10px;
+    }
+    .commonTimePicker {
+        .el-input__inner {
+            margin-bottom: 10px;
+        }
+    }
+    .el-date-editor.el-input, .el-date-editor.el-input__inner {
+        width: 200px;
+    }
+  }
+  .el-select-dropdown__item {
+      padding: 0 20px;
+  }
+  .buttonBlocks {
+    width: 100%;
+    text-align: right;
+}
+.shortInput {
+    .el-input__inner {
+        width: 116px;
+        height: 30px;
+    }
+}
+
+.ml25 {
+    margin-left: 25px;
+}
+
+::v-deep.commonRow.el-row {
+    width: calc(100% - 20px);
+    padding: 0 10px 10px;
+    display: inline-flex;
+    border-bottom: 1px solid #e3e3e3;
+    .el-col {
+        white-space: nowrap;
+        height: 30px;
+        line-height: 30px;
+        display: inline-flex;
+    }
+    .el-col:last-child {
+        text-align: right;
+    }
+}
+
+.fl {
+    float: left;
+}
+
+// 菜单图标颜色设置
+.el-submenu [class^=el-icon-] {
+    color: #1890FF;
+}
+
+// .el-input__suffix {
+//     right: 20px;
+// }
+
+::v-deep.miniDialog{  
+    .el-dialog{
+        min-height: 200px;
+        .button{
+            margin-top: 10px;
+        }
+        .el-dialog__body{
+            min-height: 100px;
+            padding:10px 8px;
+            .mt45{
+                margin-top: 27px;
+            }
+        }
+    }
 }

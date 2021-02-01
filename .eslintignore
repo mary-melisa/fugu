@@ -5,3 +5,4 @@ src/vendor
 src/proto
 src/mock/chartData
 src/views
+src/filters/*

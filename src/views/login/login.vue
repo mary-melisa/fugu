@@ -7,25 +7,30 @@
             </div>
             <div class="logins">
                 <div class="loginall">
-                    <div class="useing">
-                        <el-input
-                            placeholder="用户名/手机号码"
-                            prefix-icon="el-icon-user-solid"
-                            v-model="loginForm.name">
-                        </el-input>
-                    </div>
-                    <div class="password">
-                        <el-input
-                            placeholder="字母和数字的组合，不少于八位"
-                            prefix-icon="el-icon-lock"
-                            v-model="loginForm.password"
-                            show-password
-                            >
-                        </el-input>
-                    </div>
-                    <div class="botton">
-                        <el-button plain @click="login">登陆</el-button>
-                    </div>
+                    <el-form  :model="loginForm" :rules="rules" ref="loginForm">
+                        <el-form-item prop="name" class="useing">
+                            <el-input
+                                placeholder="用户名/手机号码"
+                                prefix-icon="el-icon-user-solid"
+                                v-model="loginForm.name"
+                                @keyup.enter.native="submitForm('loginForm')"
+                                required>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item prop="password" class="password">
+                            <el-input
+                                placeholder="字母和数字的组合，不少于八位"
+                                prefix-icon="el-icon-lock"
+                                v-model="loginForm.password"
+                                show-password
+                                @keyup.enter.native="submitForm('loginForm')"
+                                required>
+                            </el-input>
+                        </el-form-item>
+                        <div class="botton">
+                            <el-button class="loginBtn" @click="submitForm('loginForm')">登录</el-button>
+                        </div>
+                    </el-form>
                 </div>
             </div>
         </div>
@@ -33,47 +38,82 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 import axios from 'axios';
 export default {
      data() {
         return {
-             urlPrev: 'http://sysapi.free.idcfengye.com/',
             loginForm:{
                 name: '',
                 password:'',
+            },
+            loading: null,
+            rules: {
+                name: [
+                    { required: true, message: '请输入用户名/手机号码', trigger: 'blur' }
+                ],
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' }
+                ]
             }
         };
     },
     methods:{
+        ...mapMutations({
+            setCateenInfo: 'setCateenInfo'
+        }),
+        submitForm(formName) {
+            this.$refs[formName].validate((valid) => {
+            if (valid) {
+                this.login();
+            } else {
+                console.log('提交错误!!');
+                return false;
+            }
+            });
+        },
         login(){
+             this.loading = this.$loading({
+                lock: true,
+                text: '登录中...',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            });
             console.log(this.loginForm.name);
-            //var axios = require('axios');
+            localStorage.setItem("userInfo", {});
+            // localStorage.setItem("userCateen", {});
+            this.setCateenInfo({});
             var data = JSON.stringify({"name":this.loginForm.name,"password":this.loginForm.password});
                 console.log(data);
             var config = {
                 method: 'post',
-                url: this.urlPrev+'api/Account',
+                url: window.$config+'api/Account/Login',
                 headers: { 
                     'Content-Type': 'application/json'
                 },
                 data : data
-            };
-
+            }; 
             axios(config)
             .then(function (response) {
-                console.log(JSON.stringify(response.data.result));
-                let user = decodeURIComponent(escape(window.atob(response.data.result.split('.')[1])));
-                let res = JSON.parse(user).aud;  
-                console.log(res);
-            })
+                this.loading.close();
+                console.log(response);
+                if(response.data.status === 1) {
+                    let user = decodeURIComponent(escape(window.atob(response.data.result.split('.')[1])));
+                    console.log(user);
+                    localStorage.setItem("userInfo",user); 
+                    this.$router.push({ path: `/home` });
+                }else if(response.data.message) {
+                    this.$message.close();
+                    this.$message({
+                        message: response.data.message,
+                        type: 'error'
+                    });
+                }
+            }.bind(this))
             .catch(function (error) {
                 console.log(error);
+                this.loading.close();
             });
-            if(data.status==1){
-                  
-                } else {
-                    console.log("获取失败")
-                }
         }
     }
 };
@@ -81,28 +121,62 @@ export default {
 
 <style scoped lang="scss">
     .loginbg{
-        text-align: center;
-        margin-left: 30%;
-    }
-    .login{
-        width: 500px;
-        height: 500px;
-        margin-top: 200px;
-    }
-    .logintop{
-        font-size: 24px;
-    }
-    .logins{
-        margin-top: 30px;
-        text-align: center;
-    }
-    .loginall{
-        text-align: center;
-    }
-    .useing{
-        margin: 30px;
-    }
-    .password{
-        margin: 30px;
+       width: 100%;
+       height: 100%;
+       min-height: 100%;
+       background: url(../../assets/images/loginBg.jpg) center center no-repeat;
+       background-size: cover;
+       position: relative;
+       .login {
+           text-align: center;
+           @include position(absolute, 50%, auto, auto, 50%);
+           transform: translate(-50%, -50%);
+            .logintop{
+                font-size: 24px;
+                color: white;
+            }
+            .logins{
+                margin-top: 30px;
+                text-align: center;
+                .loginall{
+                    text-align: center;
+                    .useing{
+                        margin: 30px;
+                    }
+                    .password{
+                        margin: 30px;
+                    }
+                    .button {
+                        text-align: center;
+                    }
+                    ::v-deep.el-input {
+                        .el-input__inner {
+                            width: 280px;
+                        }
+                    }
+                    ::v-deep.el-button.loginBtn {
+                        width: 200px;
+                        height: 40px;
+                        line-height: 40px;
+                        padding: 0;
+                        text-align: center;
+                        border-color: transparent;
+                        @include linearGradient(to bottom, #55baf5, #1d9ef0);
+                        @include rounded-corners(20px);
+                        span {
+                            line-height: 40px;
+                            color: white;
+                            font-size: 18px;
+                        }
+                        &:hover {
+                            @include linearGradient(to bottom, rgba(85, 186, 245, .8), rgba(29, 158, 240, .8));
+                            span {
+                                color: rgba(255, 255, 255, .8);
+                            }
+                        }
+                    }
+                }
+            }
+       }
     }
 </style>

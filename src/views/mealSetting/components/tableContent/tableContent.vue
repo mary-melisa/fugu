@@ -10,7 +10,9 @@
                     style="width: 100%"
                     @row-click="selectMeal"
                     @selection-change="handleSelectionChange"
-                    highlight-current-row>
+                    highlight-current-row
+                    stripe
+                    border>
                     <el-table-column
                         type="selection"
                         >
@@ -28,7 +30,7 @@
                         >
                     </el-table-column>
                     <el-table-column
-                        prop="restaurantId"
+                        prop="restaurantName"
                         label="所属食堂"
                     >
                     </el-table-column>
@@ -46,6 +48,25 @@
                     >
                     <template slot-scope="scope">
                         {{ formateDate(scope.row.endTime ) }}
+                    </template>
+                    </el-table-column>
+                     <el-table-column
+                        width="200px"
+                        label="操作"
+                    >
+                    <template slot-scope="scope">
+                         <el-button
+                            class="editBtn"
+                            icon="el-icon-edit"
+                            @click="handleEdit(scope.row)">
+                            编辑
+                            </el-button>
+                            <el-button
+                            class="editBtn"
+                            icon="el-icon-delete"
+                            @click="handleDelete(scope.row)">
+                            删除
+                            </el-button>
                     </template>
                     </el-table-column>
                 </el-table>
@@ -69,7 +90,7 @@
 <script>
 import moment from 'moment';
 export default {
-    props:['parentTableData', 'parentDefault', 'setCurrentMeal'],
+    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'parentEdit', 'setParentSelection', 'parentDel','parentHandleSizeChange','parentHandleCurrentChange'],
     data() {
         return {
             currentPage: 1,
@@ -79,20 +100,30 @@ export default {
     methods: {
         handleSelectionChange(val) {
             this.multipleSelection = val;
-            console.log(this.multipleSelection)
+            this.$emit('setParentSelection',this.multipleSelection);
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            //console.log(`每页 ${val} 条`);
+            this.$emit('parentHandleSizeChange',val);
         },
         handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
+            //console.log(`当前页: ${val}`);
+            this.$emit('parentHandleCurrentChange',val);
         },
         formateDate(date){
-            return moment(date, "MM/DD/YYYY HH:mm:ss").format('YYYY-MM-DD HH:mm:ss')
+            return moment(date, "MM/DD/YYYY HH:mm:ss").format('HH:mm:ss')
         },
         // 当前选中餐别
         selectMeal(data) {
             this.$emit('setCurrentMeal', data);
+        },
+        // 编辑
+        handleEdit(rowObj) {
+            this.$emit('parentEdit', rowObj);
+        },
+        // 删除
+        handleDelete(rowObj) {
+            this.$emit('parentDel', rowObj);
         }
     }
 }
@@ -103,8 +134,8 @@ export default {
        width: 100%;
        height: 100%;
        .content {
-           padding-top: 40px;
-           height: calc(100% - 40px);
+           padding-top: 20px;
+           height: calc(100% - 20px);
        }
    }
 </style>

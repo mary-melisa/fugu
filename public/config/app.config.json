@@ -1,3 +1,10 @@
 {
-    "apiUrl": "http://218.17.158.45:28895/cfg?key=test_104"
+    "apiUrl": "http://39.106.7.166:8009/",
+    "apiUrl1": "http://39.106.7.166:8097/",
+    "apiUrl2": "http://39.106.7.166:8011/",
+    "imgUrlPrev": "http://39.106.7.166:8099/",
+    "imgUrl": "http://39.106.7.166:8099/api/Facility/FacilityUpload",
+    "facilityUrl": "http://39.106.7.166:8099/",
+    "moneyUrl": "http://39.106.7.166:8089/",
+    "cardUrl": "http://39.106.7.166:8100/"
 }

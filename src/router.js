@@ -4,7 +4,7 @@ const router = {
     routes: [
         {
             path: '/',
-            redirect: '/home',
+            redirect: '/login',
         },
         {
             path: '/login',
@@ -65,9 +65,172 @@ const router = {
                     component: () => import('@/views/equipmentType/equipmentType.vue'),
                 },
                 {
+                    //设备列表
                     path: '/facility',
                     name: 'facility',
                     component: () => import('@/views/facility/facility.vue'),
+                },
+                {
+                    //保养记录
+                    path: '/maintenanceRecord',
+                    name: 'maintenanceRecord',
+                    component: () => import('@/views/maintenanceRecord/maintenanceRecord.vue'),
+                },
+                {
+                    //运行日志
+                    path: '/runninglog',
+                    name: 'runninglog',
+                    component: () => import('@/views/runninglog/runninglog.vue'),
+                },
+                {
+                    //用户管理
+                    path: '/userManagement',
+                    name: 'userManagement',
+                    component: () => import('@/views/userManagement/userManagement.vue'),
+                },
+                {
+                    //规则配置
+                    path: '/ruleConfiguration',
+                    name: 'ruleConfiguration',
+                    component: () => import('@/views/ruleConfiguration/ruleConfiguration.vue'),
+                },
+                {
+                    //菜单管理
+                    path: '/menuManagement',
+                    name: 'menuManagement',
+                    component: () => import('@/views/menuManagement/menuManagement.vue'),
+                },
+                {
+                    //菜品评价
+                    path: '/dishEvaluation',
+                    name: 'dishEvaluation',
+                    component: () => import('@/views/dishEvaluation/dishEvaluation.vue'),
+                },
+                {
+                    //意见反馈
+                    path: '/feedback',
+                    name: 'feedback',
+                    component: () => import('@/views/feedback/feedback.vue'),
+                },
+                {
+                    //消费记录
+                    path: '/recConsumption',
+                    name: 'recConsumption',
+                    component: () => import('@/views/recConsumption/recConsumption.vue'),
+                },
+                {
+                    //账户信息
+                    path: '/memManagement',
+                    name: 'memManagement',
+                    component: () => import('@/views/memManagement/memManagement.vue'),
+                },
+                {
+                    //会员数据
+                    path: '/memberData',
+                    name: 'memberData',
+                    component: () => import('@/views/memberData/memberData.vue'),
+                },
+                {
+                    //餐卡管理
+                    path: '/mealCard',
+                    name: 'mealCard',
+                    component: () => import('@/views/mealCard/mealCard.vue'),
+                },
+                {
+                    //餐卡类别
+                    path: '/cardType',
+                    name: 'cardType',
+                    component: () => import('@/views/cardType/cardType.vue'),
+                },
+                {
+                    //餐卡维护
+                    path: '/cardMaintenance',
+                    name: 'cardMaintenance',
+                    component: () => import('@/views/cardMaintenance/cardMaintenance.vue'),
+                },
+                {
+                    //冲红记录
+                    path: '/redRecord',
+                    name: 'redRecord',
+                    component: () => import('@/views/redRecord/redRecord.vue'),
+                },
+                {
+                    //充值记录
+                    path: '/rechargeRecord',
+                    name: 'rechargeRecord',
+                    component: () => import('@/views/rechargeRecord/rechargeRecord.vue'),
+                },
+                {
+                    //订单管理
+                    path: '/orderManagement',
+                    name: 'orderManagement',
+                    component: () => import('@/views/orderManagement/orderManagement.vue'),
+                },
+                {
+                    //结算管理
+                    path: '/setManagement',
+                    name: 'setManagement',
+                    component: () => import('@/views/setManagement/setManagement.vue'),
+                },
+                {
+                    //预定管理
+                    path: '/reservationManage',
+                    name: 'reservationManage',
+                    component: () => import('@/views/reservationManage/reservationManage.vue'),
+                },
+                {
+                    //备菜计划
+                    path: '/dishPreparation',
+                    name: 'dishPreparation',
+                    component: () => import('@/views/dishPreparation/dishPreparation.vue'),
+                },
+                {
+                    //套餐管理
+                    path: '/packageManagement',
+                    name: 'packageManagement',
+                    component: () => import('@/views/packageManagement/packageManagement.vue'),
+                },
+                {
+                    //菜品管理
+                    path: '/dishManagement',
+                    name: 'dishManagement',
+                    component: () => import('@/views/dishManagement/dishManagement.vue'),
+                },
+                {
+                    //营业数据
+                    path: '/businessData',
+                    name: 'businessData',
+                    component: () => import('@/views/businessData/businessData.vue'),
+                },
+                {
+                    //会员数据
+                    path: '/membershipData',
+                    name: 'membershipData',
+                    component: () => import('@/views/membershipData/membershipData.vue'),
+                },
+                {
+                    //菜品数据
+                    path: '/dishData',
+                    name: 'dishData',
+                    component: () => import('@/views/dishData/dishData.vue'),
+                },
+                {
+                    //充值数据
+                    path: '/rechargeData',
+                    name: 'rechargeData',
+                    component: () => import('@/views/rechargeData/rechargeData.vue'),
+                },
+                {
+                    //正在建设中
+                    path: '/building',
+                    name: 'building',
+                    component: () => import('@/views/building/building.vue'),
+                },
+                {
+                    //404
+                    path: '/nopage',
+                    name: 'nopage',
+                    component: () => import('@/views/404/404.vue'),
                 },
             ],
         },

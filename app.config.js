@@ -4,6 +4,9 @@ module.exports = {
     // 使用不同的环境启动项目 eg: npm start --menu
     // 使用不同的环境编译项目 eg: npm build --menu
     // 使用:$config
+    externals: {
+        BMapGL: 'BMapGL',
+    },
     env: {
         Enum: {},
     },

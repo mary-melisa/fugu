@@ -18,7 +18,7 @@ export default {
 <style lang="scss" scoped>
 .breadcrumb {
     width: 100%;
-    padding: 20px 20px 20px 5px;
+    padding: 15px 20px 10px 5px;
     height: 24px;
     font-size: 16px;
     color: black;

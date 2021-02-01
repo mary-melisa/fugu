@@ -5,13 +5,13 @@
 </template>
 
 <script>
-import { mapMutations, mapGetters, mapActions } from 'vuex';
-
+import { mapState, mapGetters, mapActions } from 'vuex';
 export default {
     name: 'App',
     provide() {
         return {
             config: this.config,
+            publicPath: process.env.BASE_URL,
         };
     },
     data() {
@@ -40,11 +40,12 @@ export default {
             false,
         );
     },
+    mounted() {},
     computed: {
+        ...mapState({}),
         ...mapGetters({}),
     },
     methods: {
-        ...mapMutations({}),
         ...mapActions({}),
     },
 };

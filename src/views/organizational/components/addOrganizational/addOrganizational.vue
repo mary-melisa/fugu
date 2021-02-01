@@ -1,15 +1,21 @@
 <template>
  <el-dialog
   class="commonDialog"
-  title="添加"
+  :title="parentFlag===1?'添加':'编辑'"
   :visible.sync="visible"
+  v-loading="loading"
+  element-loading-text="拼命上传中"
+  element-loading-spinner="el-icon-loading"
+  element-loading-background="rgba(0, 0, 0, 0.8)"
   width="400px"
+  :close-on-click-modal="false"
   :before-close="cancelModule">
-   <el-tabs class="dialogTabs" v-model="activeName" type="card" @tab-click="handleClick">
-    <el-tab-pane label="添加组织" name="first">
-        <el-form ref="addOrgnForm" class="commonForm" :rules="rules" :model="addOrgnForm" label-width="96px">
+   <el-tabs class="dialogTabs" v-model="active" type="card" @tab-click="handleClick">
+    <el-tab-pane v-if="(parentActiveName==='first' && treeNode.isorgshow==1) "  :label="parentFlag===1 ? '添加组织' : '编辑组织'" name="first">
+        <el-form ref="addOrgnForm" class="commonForm" :rules="rules" :model="addOrgnForm" label-width="96px" @submit.native.prevent>
             <el-form-item label="所属上级:">
-                <el-input class="commonInput" v-model="company" disabled></el-input>
+                <el-input class="commonInput" v-model="addOrgnForm.parentName" disabled></el-input>
+            
             </el-form-item>
             <el-form-item label="名称:" prop="organizationName" required>
                  <el-input class="commonInput" v-model="addOrgnForm.organizationName"></el-input>
@@ -28,27 +34,42 @@
             </el-form-item>
             <el-form-item>
                 <el-button class="commonButton" @click="cancelModule(false)">取消</el-button>
-                <el-button class="commonButton" type="primary" @click="submitForm('addOrgnForm')">确定</el-button>
+                <el-button class="commonButton" @click.native="submitForm('addOrgnForm')" v-if="parentFlag === 1">确定</el-button>
+                <el-button class="commonButton" @click.native="submitEditForm('addOrgnForm')" v-if="parentFlag === 2">确定</el-button>
+                    <el-input class="commonInput" v-model="addOrgnForm.parentId" type="hidden"></el-input>
+                 <el-input class="commonInput" v-model="addOrgnForm.id" type="hidden"></el-input>
             </el-form-item>
         </el-form>
     </el-tab-pane>
-    <el-tab-pane label="添加食堂" name="second">
-         <el-form ref="addCanteenForm" class="commonForm" :model="addCanteenForm" :rules="canteenRules" label-width="120px">
+    <el-tab-pane v-if="(parentActiveName==='second' && treeNode.isorgshow==0)" :label="parentFlag === 1 ? '添加食堂' : '编辑食堂'" name="second">
+         <el-form ref="addCanteenForm" class="commonForm" :model="addCanteenForm" :rules="canteenRules" label-width="120px" @submit.native.prevent>
             <el-form-item label="食堂名称:" prop="restaurantName">
                 <el-input class="commonInput" v-model="addCanteenForm.restaurantName"></el-input>
             </el-form-item>
             <el-form-item label="业务模式:" prop="patternType">
                  <el-select class="commonSelect" v-model="addCanteenForm.patternType">
-                    <el-option label="AI智能模式" value="1">AI智能模式</el-option>
-                    <el-option label="RFID智盘" value="2">RFID智盘</el-option>
-                    <el-option label="人脸识别自助" value="3">人脸识别自助</el-option>
+                   <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                    >
+                    </el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="食堂地址:" prop="address">
-                <el-input class="commonInput" v-model="addCanteenForm.address"></el-input>
+                <el-input class="commonInput" v-model="addCanteenForm.address" id="suggestId" @input="mapNameChange"></el-input>
+            </el-form-item>
+            <el-form-item>
+                 <div class="map" id="map">	
+                     <!-- <b-map id="map1" >
+                        <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
+                    </b-map> -->
+                </div>
+                <div id="r-result"></div>
             </el-form-item>
             <el-form-item label="就餐人数:" prop="number">
-                <el-input type="number" class="commonInput" v-model="addCanteenForm.number"></el-input>
+                <el-input type="number" class="commonInput" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" v-model="addCanteenForm.number"></el-input>
             </el-form-item>
             <el-form-item label="食堂负责人:" prop="userName">
                 <el-input class="commonInput" v-model="addCanteenForm.userName"></el-input>
@@ -58,18 +79,25 @@
             </el-form-item>
             <el-form-item label="食堂照片:">
                 <el-upload
+                    ref="upload"
                     class="avatar-uploader"
-                    action="https://172.16.10.83:8011/api/Facility/FacilityUpload"
+                    accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp"
+                    :action="imgUrl"
+                    :data="datas"
+                    name="UploadFile"
                     :show-file-list="false"
                     :on-success="handleAvatarSuccess"
                     :before-upload="beforeAvatarUpload">
-                    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                    <el-image  v-if="imageUrl" :src="imageUrl" class="avatar"></el-image>
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
             </el-form-item>
             <el-form-item>
                 <el-button class="commonButton" @click="cancelModule(false)">取消</el-button>
-                <el-button type="primary" class="commonButton" @click="submitCanteenForm('addCanteenForm')">确定</el-button>
+                <el-button class="commonButton" @click.native="submitCanteenForm('addCanteenForm')" v-if="parentFlag === 1">确定</el-button>
+                <el-button class="commonButton" @click.native="submitEditCanteenForm('addCanteenForm')" v-if="parentFlag === 2">确定</el-button>
+                <el-input class="commonInput" v-model="addCanteenForm.id" type="hidden"></el-input>
+                <el-input class="commonInput" v-model="addCanteenForm.organizationId" type="hidden"></el-input>
             </el-form-item>
         </el-form>
     </el-tab-pane>
@@ -78,11 +106,22 @@
 </template>
 <script>
 import axios from 'axios';
+import BMap from 'vue-baidu-map';
+// import Vue from 'vue';
+// Vue.use(BaiduMap, {
+//     // ak 是在百度地图开发者平台申请的密钥 详见 http://lbsyun.baidu.com/apiconsole/key */
+//     ak: 'Dw09ZpZG9VGhwlzHjwMp5ogOuEx9uAFO',
+// });
+// import BaiduMap from 'vue-baidu-map/components/map/Map.vue'	
+// import BMap from 'BMap';
 export default {
-    props: ['parentDialogVisible'],
+    props: ['parentDialogVisible','parentFlag','setActive','parentActiveName','parentOrgan','parentCurrentCateen','parentCurrentOrgan','treeNode','getMenus','getOrganizationPageList','getCanteens','getCanteensData','defaultPages','isorg'],
+    components: {
+        BMap
+    },
     data() {
-      var validateMobile = (rule, value, callback) => {
-            const phoneReg = /^1[3|4|5|7|8|9][0-9]{9}$/
+      let validateMobile = (rule, value, callback) => {
+            const phoneReg = /^1[3|4|5|6|7|8|9][0-9]{9}$/
             if (!value) {
             return callback(new Error('联系电话不能为空'))
             }
@@ -102,18 +141,26 @@ export default {
             }, 100)
         }
         return {
-            urlPrev: 'http://sysapi.free.idcfengye.com/',
+            loading: false,
+            mapHeight: 200 + "px",
+            imgUrl: window.$imgUrl,
             visible: false,
-            activeName: 'first',
             company: '孚谷餐饮有限公司',
+            active: 'first',
+            options: [{
+                value: 1,
+                label: 'AI智能模式'
+            }, {
+                value: 2,
+                label: 'RFID智盘'   
+            }, {
+                value: 3,
+                label: '人脸识别自助'
+            }],
             addOrgnForm: {
-                organizationName: '',
-                userName: '',
-                mobile: '',
-                address: '',
-                remark: ''
+        
             },
-             rules: {
+            rules: {
                 organizationName: [
                     { required: true, message: '请输入名称', trigger: 'blur' }
                 ],
@@ -128,14 +175,9 @@ export default {
                 ]
             },
             addCanteenForm: {
-                restaurantName: '',
-                patternType: '1',
-                address: '',
-                mobile: '',
-                userName: '',
-                pictures: ''
+               
             },
-             canteenRules: {
+            canteenRules: {
                 restaurantName: [
                     { required: true, message: '请输入食堂名称', trigger: 'blur' }
                 ],
@@ -156,33 +198,329 @@ export default {
                 ]
             },
             imageUrl: '',
-
+            userId: 0,
+            userName: '',
+            datas: {},
+            userlocation: {lng: "", lat: ""},
+            map: null,
+            geoc: null,
+            mapGetshow: true,
+            mapPointName: "",
+            restaurantObj: {}, // 食堂对象
+        }
+    },
+    computed: {
+        cateenInfo() {
+            return this.$store.state.Account.cateenInfo
         }
     },
     mounted(){
          this.visible = true;
+         //console.log(this.treeNode);
+         this.init();
+         this.initUserInfo();
+         let that = this;
+         this.$nextTick(() => {
+             this.mapBuild();
+         })
     },
     methods: {
+        // 输入大于0 的验证
+        onInput0(e) {
+            this.$message.closeAll();
+            if (e.target.value < 0) {
+                this.$message.warning("只能输入大于0的数");
+                e.target.value = null;
+            }
+        },
+        //地图显示
+        mapBuild() {
+            let that = this;
+           // setTimeout(function() {
+                //if (that.mapGetshow) {
+                try{
+                    this.map = new BMapGL.Map("map");
+                    this.geoc = new BMapGL.Geocoder();
+                    let point = new BMapGL.Point(113.07298735689024, 28.221947752559746); 
+                    this.map.centerAndZoom(point, 15);
+                    this.map.enableScrollWheelZoom(true);
+                    // let geolocation = new BMapGL.Geolocation();
+                    //定位
+                    // geolocation.getCurrentPosition(
+                    //     () => {
+                        let mk = new BMapGL.Marker(point);
+                        this.map.addOverlay(mk);
+                        this.map.panTo(point);
+                        this.geoc.getLocation(point, function(rs) {
+                            let addComp = rs.addressComponents;
+                            console.log(rs);
+                            that.mapPointName =
+                            addComp.province +
+                            addComp.city +
+                            addComp.district +
+                            addComp.street +
+                            addComp.streetNumber;
+                            // that.loading = false;
+                            // that.mapGetshow = false;
+                        });
+                    //     },
+                    //     { enableHighAccuracy: true }
+                    // );
+                } catch (error) {
+                    return Promise.reject(error);
+                }
+              //  }
+           // }, 1000);
+        },
+        //搜索地图
+        mapNameChange() {
+           
+            let that = this,
+                point,
+                marker = null;
+            let local = new BMapGL.LocalSearch(this.map, {
+                renderOptions: { map: this.map },
+                onSearchComplete: res => {
+                if (local.getResults() != undefined) {
+                    this.map.clearOverlays(); //清除地图上所有覆盖物
+                    if (local.getResults().getPoi(0)) {
+                    point = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果
+                    console.log(point)
+                   
+                    this.map.centerAndZoom(point, 15);
+                    marker = new BMapGL.Marker(point); // 创建标注
+                    this.map.addOverlay(marker); // 将标注添加到地图中
+                    // marker.enableDragging(); // 可拖拽
+                    this.geoc.getLocation(point, function(rs) {
+                        let addComp = rs.addressComponents;
+                        console.log(addComp);
+                        that.mapPointName =
+                        addComp.province +
+                        ", " +
+                        addComp.city +
+                        ", " +
+                        addComp.district +
+                        ", " +
+                        addComp.street +
+                        ", " +
+                        addComp.streetNumber;
+                        
+                    });
+                    //鼠标点击
+                    this.map.addEventListener("click", function(e) {
+                        let pt = e.point;
+                        // that.map.clearOverlays();
+                        // let marker = new BMapGL.Marker(pt); // 创建标注
+                        // that.map.addOverlay(marker);
+                        // that.geoc.getLocation(pt, function(rs) {
+                        //     let addComp = rs.addressComponents;
+                        //     that.mapPointName =
+                        //     addComp.province +
+                        //     addComp.city +
+                        //     addComp.district +
+                        //     addComp.street +
+                        //     addComp.streetNumber;
+                        //     debugger
+                        // });
+                        // let gthat = this;
+                        // let geolocation = new BMapGL.Geolocation(); //创建geolocation实例，返回用户当前的位置
+                        // 开启SDK辅助定位
+                        that.geoc.enableSDKLocation();
+                        that.geoc.getCurrentPosition(function(r){ //返回用户当前位置。当定位成功时，回调函数的参数为GeolocationResult对象，否则为null
+                            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                                sessionStorage.setItem("SDKLng",pt.lng);
+                                sessionStorage.setItem("SDKLat",pt.lat);
+                                axios({
+                                    method: 'post',
+                                    url:'http://api.map.baidu.com/geocoder/v2/?ak=Ya2nSaqjT3vNrIgba1v4nfWzSxGdtgZD&location=' + pt.lat + ',' + pt.lng + '&output=json',
+                                    dataType: 'jsonp',
+                                    callback: 'BMap._rd._cbk43398'
+                                }).then(rsp=>{
+                                    // debugger
+                                    //  var result = res.result,
+                                    //         addressComponent = result.addressComponent,
+                                    //         adcode = addressComponent.adcode
+                                })
+                                .catch(err=> console.log(err));
+
+                            }
+                            else {
+                                alert('failed'+this.getStatus());
+                            }
+                        },{enableHighAccuracy: true});
+                    });
+                    } else {
+                         this.$message.closeAll();
+                        this.$message({
+                            message: "未匹配到地点!可拖动地图上的红色图标到精确位置",
+                            type: 'warn'
+                        });
+                    }
+                } else {
+                     this.$message.closeAll();
+                     this.$message({
+                        message: "未找到搜索结果",
+                        type: 'warn'
+                    });
+                }
+                }
+            });
+            local.search(this.addCanteenForm.address);
+        },
+        // 获取地图
+        getMap(addr) {
+            
+            // console.log(BMapGL);
+            // var map = new BMapGL.Map('map'); // 创建Map实例
+            // map.centerAndZoom(new BMapGL.Point(116.404, 39.915), 12); // 初始化地图,设置中心点坐标和地图级别
+            // map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+            let th = this;
+            
+            // // 创建Map实例
+            // let map = new BMapGL.Map("map");
+            // 初始化地图,设置中心点坐标，
+            // let point = new BMapGL.Point(113.07298735689024, 28.221947752559746); 
+            // 创建点坐标，获得公司的经纬度坐标
+            // map.centerAndZoom(point, 15);
+            // map.enableScrollWheelZoom();
+
+            //建立一个自动完成的对象
+            let ac = new BMapGL.Autocomplete({
+                    "input": "suggestId" ,
+                    "location": this.map
+            })
+            console.log(ac);
+            let myValue = "";
+            //鼠标点击下拉列表后的事件
+            ac.addEventListener("onconfirm", function (e) {    
+                let _value = e.item.value;
+                myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+                this.addCanteenForm.address = myValue
+                setPlace();
+            });
+
+            function setPlace() {
+                //清除地图上所有覆盖物
+                this.map.clearOverlays();    
+                function myFun() {
+                    //获取第一个智能搜索的结果
+                    th.userlocation = local.getResults().getPoi(0).point;   
+                    this.map.centerAndZoom(th.userlocation, 18);
+                    //添加标注
+                    this.map.addOverlay(new BMapGL.Marker(th.userlocation));   
+                }
+          
+                //智能搜索
+               var local = new BMap.LocalSearch(this.map, {
+                    renderOptions:{map: this.map, panel: "r-result"}
+                });
+            
+                local.search(addr);
+
+                //测试输出坐标（指的是输入框最后确定地点的经纬度）
+                this.map.addEventListener("click",function(e){
+                    //经度
+                    console.log(th.userlocation.lng);
+                    //维度
+                    console.log(th.userlocation.lat);
+                })
+            }
+        },
+        initUserInfo(){
+          const user = localStorage.getItem("userInfo"); 
+          this.userId = JSON.parse(user).userId;
+          this.userName = JSON.parse(user).userName;
+          this.datas.userName =  'zuzhi';
+          this.datas.FileName =  'zuzhi';
+          this.datas.userId = this.userId;
+          this.datas.type = 2;
+          this.restaurantObj = this.cateenInfo;
+          if(this.restaurantObj.id) {
+              this.datas.restaurantId = this.restaurantObj.id;
+              this.datas.restaurantName = this.restaurantObj.name;
+          }
+       },
+        init()
+        {
+            this.active = this.parentActiveName;
+            if(this.parentFlag === 2) {
+              this.initFormData();  //输出：修改后的值
+            }else{
+                if(this.treeNode.isshitang==1){
+                    this.$message.closeAll();
+                    this.$message({
+                        message:'食堂不能添加下级',
+                        type:'warn'
+                    });
+                    this.cancelModule(false);
+                }
+                this.addOrgnForm.parentName=this.treeNode.name;
+                this.addOrgnForm.parentId=this.treeNode.id;
+                this.addCanteenForm.organizationId=this.treeNode.id;
+            }
+         //debugger
+        },
+        //初始化表单
+        initFormData(){
+            // 组织
+           this.addOrgnForm = JSON.parse(JSON.stringify(this.parentCurrentOrgan));
+            // 食堂
+           this.addCanteenForm = JSON.parse(JSON.stringify(this.parentCurrentCateen));
+            if(this.parentActiveName === "second") {
+                this.active = this.parentActiveName;
+                
+            }else {
+                this.active = 'first';
+            }
+           if(this.addCanteenForm.pictures) {
+               this.imageUrl = this.addCanteenForm.pictures;
+               this.datas.sourcePath = this.imageUrl;
+           }
+        },
          //关闭弹框
         cancelModule(val) {
             this.$emit('cancelModule', val);
         },
+        //添加组织
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
             if (valid) {
                 this.organizationSave();
             } else {
-                console.log('提交错误!');
+                //console.log('提交错误!');
                 return false;
             }
             });
         },
+        //编辑组织
+        submitEditForm(formName) {
+            this.$refs[formName].validate((valid) => {
+            if (valid) {
+                this.orgaEditSave();
+            } else {
+                //console.log('提交错误!');
+                return false;
+            }
+            });
+        },
+        //添加食堂
         submitCanteenForm(formName){
              this.$refs[formName].validate((valid) => {
             if (valid) {
                 this.canteenSave();
             } else {
-                console.log('提交错误!');
+                //console.log('提交错误!');
+                return false;
+            }
+            });
+        },
+        //编辑食堂
+        submitEditCanteenForm(formName){
+             this.$refs[formName].validate((valid) => {
+            if (valid) {
+                this.cantEditSave();
+            } else {
+                //console.log('提交错误!');
                 return false;
             }
             });
@@ -191,65 +529,175 @@ export default {
             this.$refs[formName].resetFields();
         },
         handleClick(tab, event) {
-            console.log(tab, event);
+            //console.log(tab, event);
         },
-        // 组织架构保存
+        // 添加组织架构
         organizationSave() {
-            console.log('表单数据',this.addOrgnForm)
-            const url = this.urlPrev + `api/Organization/OrganizationSave`;
+            //console.log('表单数据',this.addOrgnForm);
+           
+            const url = window.$config + `api/Organization/OrganizationSave`;
             axios({ method: 'post', url: url, data: this.addOrgnForm })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                         this.$alert('组织架构保存成功', '提示', {
-                            confirmButton: '确定',
+                         this.$message({
+                            message: '添加成功',
                             type: 'success',
                         });
+                        this.defaultPages.id = this.defaultPages.orgId;
+                        this.$emit('getMenus');
+                        this.$emit('getOrganizationPageList',this.defaultPages);
+                        this.cancelModule(false);
                     } else {
-                        this.$alert('组织架构保存失败', '提示', {
-                            confirmButton: '确定',
+                        this.$message( {
+                            message: rsp.data.message,
                             type: 'error',
                         });
                     }
                 })
                 .catch(err => console.log(err));
         },
+        // 编辑组织架构
+        orgaEditSave() {
+            //console.log(this.defaultPages);
+         
+            const url = window.$config + `api/Organization/OrganizationSave`;
+            axios({ method: 'post', url: url, data: this.addOrgnForm })
+                .then(rsp => {
+                    if (rsp.data.status == 1) {
+                         this.$message({
+                            message: '编辑成功',
+                            type: 'success',
+                        });
+                        this.defaultPages.id=this.defaultPages.orgId;
+                        this.$emit('getOrganizationPageList',this.defaultPages);
+                        this.cancelModule(false);
+                        //parentOrgan();
+                    } else {
+                        this.$message( {
+                            message: rsp.data.message,
+                            type: 'error',
+                        });
+                    }
+                })
+                .catch(err => console.log(err));
+        },
+
          // 添加食堂
          canteenSave() {
-            console.log('表单数据',this.addCanteenForm)
-            const url = this.urlPrev + `/api/Restaurant/GetRestaurantServiceModel`;
+            //console.log('表单数据',this.addCanteenForm)
+            const url = window.$config + `api/Restaurant/RestaurantServiceSave`;
             axios({ method: 'post', url: url, data: this.addCanteenForm })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                       
+                       this.$message({
+                            message: '添加成功',
+                            type: 'success',
+                        });
+                        console.log(this.getCanteensData);
+                        this.$emit('getCanteens', this.getCanteensData);
+                        this.cancelModule(false);
                     } else {
-                        console.log('食堂保存失败！');
-                        this.$alert('食堂保存失败', '提示', {
-                            confirmButton: '确定',
+                        this.$message({
+                            message: rsp.data.message,
                             type: 'error',
                         });
                     }
                 })
                 .catch(err => console.log(err));
         },
+        // 编辑食堂
+         cantEditSave() {
+              //console.log('表单数据',this.getCanteensData);
+            const url = window.$config + `api/Restaurant/RestaurantServiceSave`;
+            axios({ method: 'post', url: url, data: this.addCanteenForm })
+                .then(rsp => {
+                    if (rsp.data.status == 1) {
+                       this.$message({
+                            message: '编辑成功',
+                            type: 'success',
+                        });
+                        //console.log(this.getCanteensData);
+                        if (this.getCanteensData.isshitang) {
+                            this.getCanteensData.id=this.getCanteensData.id;
+                        }else
+                        {
+                            this.getCanteensData.id=this.getCanteensData.orgId;
+                        }
+                         this.$emit('getCanteens',this.getCanteensData);
+                        this.cancelModule(false);
+                    } else {
+                        this.$message({
+                            message: rsp.data.message,
+                            type: 'error',
+                        });
+                    }
+                })
+                .catch(err => console.log(err));
+        },
+
          handleAvatarSuccess(res, file) {
-            this.imageUrl = URL.createObjectURL(file.raw);
+            this.loading = false;
+            this.$refs.upload.clearFiles();
+            this.imageUrl = window.$imgUrlPrev + res.result;
+            this.datas.sourcePath = this.imageUrl;
+            this.addCanteenForm.pictures = this.imageUrl;
+        },
+        // 封装一个判断图片文件后缀名的方法
+        isImage(fileName) {
+            if (typeof fileName !== 'string') return;
+            let name = fileName.toLowerCase();
+            return name.endsWith('.jpg') || name.endsWith('.gif') || name.endsWith('.jpe') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.bmp');
         },
         beforeAvatarUpload(file) {
-            const isJPG = file.type === 'image/jpeg';
-            const isPNG = file.type === 'image/png';
-            const isLt5M = file.size / 1024 / 1024 < 5;
+            this.loading = true;
+            const isLt10M = file.size / 1024 / 1024 < 10;
 
-            if (!(isJPG || isPNG)) {
-                this.$message.error('食堂照片只能是 JPG、png 格式!');
+            let type = this.isImage(file.name);
+            this.$message.closeAll();
+            if (!type) {
+                this.$message.error('只允许上传.jpg,.gif,.jpe,.jpeg,.png,.bmp图片');
+                return false;
             }
-            if (!isLt5M) {
-                this.$message.error('食堂照片大小不能超过 5MB!');
+            if (!isLt10M) {
+                this.$message.error('上传头像图片大小不能超过 10MB!');
+                return false;
             }
-            return (isJPG || isPNG) && isLt5M;
+            return true;
+        },
+    },
+    watch:{
+        parentCurrentOrgan: {
+            handler: function (newValue, oldValue) {
+            if (newValue!= oldValue) {
+               this.init();
+            }
+                
+            },
+            deep: true
+          },
+         parentCurrentCateen: {
+            handler: function (newValue, oldValue) {
+                if (newValue!= oldValue) {
+                    this.init();
+                }
+            }, deep: true
+        },
+        cateenInfo: {
+            handler(newValue){
+                this.restaurantObj = newValue;
+                this.datas.restaurantId = this.restaurantObj.id;
+                this.datas.restaurantName = this.restaurantObj.name;
+            },
+            deep: true
         }
     }
 }
 </script>
 <style lang="scss" scoped>
-
+.map {
+    width: 200px;
+    height: 200px;
+    min-height: 200px;
+    border: 1px solid #C0C4CC;
+}
 </style>

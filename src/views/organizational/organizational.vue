@@ -3,19 +3,18 @@
     <div class="organizational">
         <BreadCrumb :firstMenu="'系统管理'" :secondMenu="'组织架构'"></BreadCrumb>
         <el-row  class="operBtns">
-            <el-button  icon="el-icon-plus" @click="add()">添加</el-button>
-            <el-button  icon="el-icon-edit">编辑</el-button>
-            <el-button  icon="el-icon-delete">删除</el-button>
+            <el-button  icon="el-icon-plus" @click="addOrgnOrCant()">添加</el-button>
+            <el-button  icon="el-icon-delete" @click="isorg==1 ? deleteMeal() : deleteCateen()">批量删除</el-button>
         </el-row>
         <div class="organizationlContent">
             <div class="organizationalLeft">
-                <el-tree :data="menus" :props="defaultProps" @node-click="handleNodeClick" ></el-tree>
+                <el-tree :data="menus" :props="defaultProps" @node-click="handleNodeClick"  ref="tree"></el-tree>
             </div>
             <div class="organizationalRight">
-                <CanteenTable :parentTableData="tableData" :parentTableNo="tableNo" :parentPageIndex="PageIndex" :parentPageSize="PageSize"></CanteenTable>
+                <CanteenTable v-on:setFlag="selectFlag" :parentTableData="tableData" :parentTableData1="tableData1" :parentActiveName="activeName" :parentTableNo="tableNo" :parentDefaultPages="defaultPages" v-on:parentAdd="add" v-on:parentSelect="selectCurrent" v-on:parentSetPageSize="handleSizeChange" v-on:parentSetPageIndex="handleCurrentChange" v-on:parentDel="setOrgIds" v-on:parentOrgDels="parentOrgDels" v-on:parentCateeDels="parentCateeDels" v-on:parentDel1="setCateenIds" v-on:setIsOrg="setIsOrg" v-on:setCurrentOrgan="selectOrgan" v-on:setCurrentCanteen="selectCanteen" v-on:changeActive="selectActive" ></CanteenTable>
             </div>
         </div>
-        <AddOrganizational v-on:cancelModule="cancelModule" v-if="dialogVisible"></AddOrganizational>
+        <AddOrganizational v-on:cancelModule="cancelModule" v-on:parentOrgan="getOrganizationPageList" :parentActiveName="activeName" v-on:setActive="selectActive" v-if="dialogVisible" :parentFlag="flag" :parentCurrentOrgan="parentCurrentOrgan" :parentCurrentCateen="parentCurrentCateen" :treeNode="treeNode" v-on:getMenus="getMenus" v-on:getOrganizationPageList="getOrganizationPageList" v-on:getCanteens="getCanteens" :getCanteensData="getCanteensData" :defaultPages="defaultPages" :isorg="isorg"></AddOrganizational>
     </div>
 </template>
 
@@ -24,7 +23,9 @@ import axios from 'axios';
 import BreadCrumb from '@/components/breadCrumb/breadCrumb.vue';
 import CanteenTable from '@/views/organizational/components/canteenTable/canteenTable.vue';
 import AddOrganizational from '@/views/organizational/components/addOrganizational/addOrganizational.vue';
+import { RsaMixin } from '@/mixin/RsaMixin.js';
 export default {
+    mixins:[RsaMixin],
     components: {
         CanteenTable,
         AddOrganizational,
@@ -32,61 +33,190 @@ export default {
     },
     data() {
         return {
-            urlPrev: 'http://sysapi.free.idcfengye.com/',
+            addFlag: false, // 点击“添加”按钮之前是否选中组织或食堂标志
             currentPage: 1,
+            treeNode:{},
+            orgIds:[],
+            cateenIds:[],
             menus: [],
+            getCanteensData:{},
+            getOrganizationPageListData:{},
+            //是否组织 1-组织 0-食堂
+            isorg:1,
             defaultProps: {
                 children: 'children',
-                label: 'name'
+                label: 'name',
             },
-            PageSize: 10,
-            PageIndex: 1,
+            parentCurrentOrgan:{},//当前选中组织
+            parentCurrentCateen:{},//当前选中食堂
+            flag:1,//1:添加 2:编辑
+            defaultPages: {
+                pageSize: 10,
+                pageIndex: 1,
+            },
             tableData: [],
-            tableNo: 1, // 1代表组织机构下面的食堂列表   2代表食堂
-            dialogVisible: false
+            tableData1:[],
+            tableNo: 1, // 1代表组织机构   2代表食堂
+            deleteFlag: 'some', // 'some'批量删除   'single' 单个删除
+            dialogVisible: false,
+            activeName: 'first',
+            multipleSelection: []
         };
     },
     mounted() {
         this.getMenus();
+        // this.init();
     },
      methods: {
-      handleNodeClick(data) {
+        //  init(){
+        //      RsaMixin.encryptedData()
+        //  },
+         //传组织架构列表接口
+        //  getOrganizationPageList(data){
+        //      this.$emit('getOrganizationPageList',data);
+        //  },
+        setIsOrg(rowObj)
+        {
+            console.log(rowObj);
+            this.isorg=rowObj;
+        },
+        parentOrgDels(rowObj)
+        {
+        this.orgIds=rowObj;
+        },
+        parentCateeDels(rowObj)
+        {
+        this.cateenIds=rowObj;
+        },
+        // 删除组织
+        setOrgIds(rowObj)
+        {
+            this.orgIds=rowObj;
+            this.deleteMeal();
+        },
+        setCateenIds(rowObj)
+        {
+            this.cateenIds=rowObj;
+            this.deleteCateen();
+        },
+        handleNodeClick(data) {
+          this.addFlag = true;
+          let tree = this.$refs.tree;
           console.log('组织架构', data);
-        // 获取组织架构下面的食堂列表
-        if (data.children && data.children.length) {
-            this.getCanteens(data);
-            this.tableNo = 1;
-        }
-        else {
-            if(data.isCanteen) {
+          console.log('组织架构1', this.$refs.tree.getNode(data));
+          this.treeNode=data;
+          // 判断不是一级组织架构
+            if(data.isorgshow===0) { 
+                // this.$nextTick(() => {
                 this.tableNo = 2;
-                this.parentTableData = data;
+                this.activeName="second";
+                this.getCanteens(data);
+                // });
             }else {
-                this.getCanteenByOrgId(data);
+                this.tableNo = 1;
+                this.activeName="first";
+                this.getOrganizationPageList(data);
             }
-        }
       },
-      toggleSelection(rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row);
-          });
-        } else {
-          this.$refs.multipleTable.clearSelection();
-        }
+      //编辑组织或食堂
+      selectActive(val){
+          this.activeName=val;
       },
+      selectFlag(val){
+          this.flag=val;
+      },
+      //选择当前组织
+      selectOrgan(obj){
+          console.log("传值",obj);
+          this.parentCurrentOrgan=obj;
+      },
+      //选择当前食堂
+      selectCanteen(obj){
+          this.parentCurrentCateen=obj;
+      },
+      // 每页显示条数
+     handleSizeChange(val) {
+        this.defaultPages.pageSize = val;
+        this.defaultPages.pageIndex = 1;
+        // 判断不是一级组织架构
+          if(this.treeNode.isorgshow===0) { 
+             this.getCanteens(this.treeNode);
+                  this.tableNo = 2;
+                  this.activeName="second";
+          }else {
+                this.getOrganizationPageList(data);
+                this.tableNo = 1;
+                this.activeName="first";
+          }
+     },
+    // 跳转到第几页
+     handleCurrentChange(val) {
+        this.defaultPages.pageIndex = val;
+        // 判断不是一级组织架构
+          if(this.treeNode.isorgshow===0) { 
+             this.getCanteens(this.treeNode);
+                  this.tableNo = 2;
+                  this.activeName="second";
+          }else {
+                this.getOrganizationPageList(this.treeNode);
+                this.tableNo = 1;
+                this.activeName="first";
+          }
+     },
+     
+    //获取当前树节点和其父级节点
+     getTreeNode(rspDatas){ 
+            if (rspDatas) {
+                rspDatas.forEach(item=>{
+                if (item['children'].length>0) {
+                    item['isorgshow']=1;//组织
+                    this.getTreeNode(item.children); //递归
+                }else{
+                    item['isorgshow'] = 0;//食堂
+                }
+                })
+            }
+        },
+
       // 获取组织架构树
       getMenus() {
-            const url = this.urlPrev + `api/Organization/GetOrganizationTree`;
+           this.menus =[];
+            const url = window.$config + `api/Organization/GetOrganizationTree`;
             axios({ method: 'post', url: url })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                        this.menus = rsp.data.result;
+                        const rspDatas = rsp.data.result;
+                        this.getTreeNode(rspDatas);
+                        this.menus = rspDatas;
+
+                        console.log(this.menus)
                         const secondMenus = [];
                     } else {
-                        console.log('获取组织架构树失败！');
-                        this.$alert('发送请求获取组织架构树失败', '提示', {
-                            confirmButton: '确定',
+                        this.$message({
+                            message: rsp.data.message,
+                            type: 'error',
+                        });
+                    }
+                })
+                .catch(err => console.log(err));
+      },
+      // 获取组织架构列表
+      getOrganizationPageList(data) {
+          this.tableData=[];
+          console.log(data);
+          if(Object.keys(data).length) {
+              this.defaultPages.orgId = data.id;
+          } 
+          
+          const url = window.$config +`api/Organization/GetOrganizationPageList`;
+            axios({ method: 'post', url: url, data: this.defaultPages })
+                .then(rsp => {
+                    if (rsp.data.status == 1) {
+                        this.tableData = rsp.data;
+                        console.log(this.tableData, '组织架构列表');
+                    } else {
+                        this.$message({
+                            message: rsp.data.message,
                             type: 'error',
                         });
                     }
@@ -95,51 +225,246 @@ export default {
       },
       // 获取组织架构下面的食堂列表
       getCanteens(item) {
-          const url = this.urlPrev + `api/Restaurant/GetRestaurantServicePageList`;
+          this.tableData1=[];
+          console.log(item);
+          if (item.isshitang==1) {
+              console.log("11111111");
+             const url = window.$config  + `api/Restaurant/GetRestaurantServicePageList`;
           const params = {
-              PageSize: this.PageSize,
-              PageIndex: this.PageIndex
+              pageSize: this.defaultPages.pageSize,
+              pageIndex: this.defaultPages.pageIndex,
+              id:item.id
           }
-          const currentItem = this.menus[0].children.filter(p => {p.id === item.id});
-            axios({ method: 'post', url: url, data: params })
+          this.getCanteensData=params;
+          const that = this;
+          axios({ method: 'post', url: url,data:params })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                        this.tableData = rsp.data;
-                        console.log(this.tableData, this.menus);
+                        console.log(rsp.data);
+                        // 处理业务模式文字显示
+                        let obj = {};
+                        let arr = [];
+                        if(rsp.data.result && rsp.data.result.length) {
+                            obj = rsp.data;
+                            arr = obj.result;
+                            arr.forEach(item1=>{
+                                item1["patternName"]= that.formatModule(item1.patternType);
+                            });
+                            obj.result = arr;
+                        }
+                        that.tableData1 = obj;
                     } else {
-                        console.log('获取食堂列表失败！');
-                        this.$alert('发送请求获取食堂列表失败', '提示', {
-                            confirmButton: '确定',
+                        this.$message({
+                            message: rsp.data.message,
                             type: 'error',
                         });
                     }
                 })
                 .catch(err => console.log(err));
+         }else{
+             item.children=[];
+            const url = window.$config  + `api/Restaurant/GetRestaurantServicePageList`;
+            let params = {};
+          console.log(item);
+          console.log(params);
+            if(item.id) {
+                params = {
+                    pageSize: 10,
+                    pageIndex: 1,
+                    orgId: item.id
+                };
+            }else if(item.orgId) {
+                params = {
+                    pageSize: 10,
+                    pageIndex: 1,
+                    orgId: item.orgId
+                };
+            }
+          const that = this;
+          this.getCanteensData=params;
+            axios({ method: 'post', url: url, data: params })
+                .then(rsp => {
+                    if (rsp.data.status == 1) {
+                        var chil={};
+                        let obj = {};
+                        let arr = [];
+                        if(rsp.data.result && rsp.data.result.length) {
+                            obj = rsp.data;
+                            arr = obj.result;
+                            arr.forEach(item1=>{
+                                item1["patternName"]= that.formatModule(item1.patternType);
+                                chil={name:item1.restaurantName,id:item1.id,isorgshow:0,isshitang:1};
+                                item.children.push(chil);
+                            });
+                            obj.result = arr;
+                        }
+                        that.tableData1 = obj;
+                        item["isshitang"]=0;
+                        console.log(item);
+                        console.log(that.tableData1, this.menus);
+                    } else {
+                        this.$message({
+                            message: rsp.data.message,
+                            type: 'error',
+                        });
+                    }
+                })
+                .catch(err => console.log(err));
+          }
+    
       },
       // 根据组织获取食堂列表
       getCanteenByOrgId(data) {
-           const url = this.urlPrev + `api/Restaurant/GetRestaurantServiceListByOrgId?OrgId=`+data.id;
+           const url = window.$config + `api/Restaurant/GetRestaurantServiceListByOrgId?OrgId=`+data.id;
             axios({ method: 'post', url: url })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
                         const rspDatas = rsp.data.result;
-                        // this.tableData = rspDatas;
-                        console.log('tableData', this.tableData)
-                        rspDatas.forEach(item => {
-                            item['isCanteen'] = true;
-                        });
-                        data.children = rspDatas;
+                        if(rspDatas.length) {
+                            rspDatas.forEach(item => {
+                                item['isCanteen'] = true;
+                            });
+                            data.children = rspDatas;
+                        }
                     } else {
-                        console.log('获取食堂列表失败！');
-                        this.$alert('发送请求获取食堂列表失败', '提示', {
-                            confirmButton: '确定',
+                        this.$message({
+                            message: rsp.data.message,
                             type: 'error',
                         });
                     }
                 })
                 .catch(err => console.log(err));
       },
-      
+     //格式化业务模式
+     formatModule(value) {
+         if(value == 1) {
+             return 'AI智能模式';
+         }else if(value === 2) {
+             return 'RFID智盘';
+         }else if(value === 3) {
+             return '人脸识别自助';
+         }
+         return "";
+     },
+       //删除食堂
+      deleteCateen() {
+          if (!this.cateenIds.length) {
+              this.$message.closeAll();
+               this.$message({
+                message: '请选择食堂',
+                type: 'warn',
+              });
+          }
+        this.$confirm('删除后不可恢复，确认删除选中的数据吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+        const url = window.$config+`api/Restaurant/RestaurantServiceDetel`;
+        axios({ method: 'post', url: url,data:this.cateenIds})
+            .then(rsp => {
+                if (rsp.data.status == 1) {
+                     this.$message({
+                            message: '删除成功',
+                            type: 'success',
+                        });
+                   // 判断不是一级组织架构
+                    if(this.treeNode.isorgshow===0) { 
+                        this.getCanteens(this.getCanteensData);
+                            this.tableNo = 2;
+                            this.activeName="second";
+                    }else {
+                            this.getOrganizationPageList(this.getCanteensData);
+                            this.tableNo = 1;
+                            this.activeName="first";
+                    }
+                }else if(rsp.data.status == 0){
+                    this.$message({
+                        message: rsp.data.message,
+                        type: 'error',
+                    });
+                }
+            })
+            .catch(err => console.log(err));
+            })
+      },
+       //删除组织确认
+      deleteMeal() {
+        if (!this.orgIds.length) {
+            this.$message.closeAll();
+            this.$message({
+                message: '请选择组织',
+                type: 'warn',
+            });
+            return false;
+        }
+            // console.log(this.orgIds);
+            // const rowId = this.orgIds[0];
+            // if(this.treeNode.children.length) {
+            //     let curObj = this.treeNode.children.find(item => item.id === rowId);
+            //     if(Object.keys(curObj).length && curObj.children) {
+            //          this.$message.closeAll();
+            //          this.$confirm('该组织架构下有下属组织或食堂，确定删除该组织架构吗?', '提示', {
+            //              confirmButtonText: '确定',
+            //              cancelButtonText: '取消',
+            //              type: 'warning'
+            //          }).then(() => {
+            //              this.deleteOrign();
+            //          })
+            //     }
+            // }else {
+                console.log(this.orgIds);
+                this.$confirm('删除后不可恢复，确认删除选中的数据吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.deleteOrign();
+                });
+            // }
+      },
+      // 删除组织
+      deleteOrign(){
+        const that = this;
+        const url = window.$config+`api/Organization/OrganizationDetel`;
+        axios({ method: 'post', url: url,data:this.orgIds})
+            .then(rsp => {
+                if (rsp.data.status == 1) {
+                    this.$message.closeAll();
+                    this.$message({
+                            message: '删除成功',
+                            type: 'success',
+                        });
+                        this.getMenus();
+                        this.getOrganizationPageList(this.treeNode);
+                }else if(rsp.data.message){
+                    this.$message.closeAll();
+                    this.$message({
+                        message: rsp.data.message,
+                        type: 'error',
+                    });
+                }
+            })
+            .catch(err => console.log(err));
+      },
+      // 批量选择
+      selectCurrent(list) {
+          this.multipleSelection = list;
+      },
+      // 点击添加按钮
+      addOrgnOrCant(){
+          console.log(this.addFlag)
+          if(this.addFlag) {
+              this.selectFlag(1);
+              this.add();
+          }else {
+              this.$message.closeAll();
+              this.$message({
+                  message: '请先选择组织或者食堂',
+                  type: 'warn'
+              })
+          }
+      },
       // 新增
       add() {
           this.dialogVisible = true;
@@ -148,8 +473,10 @@ export default {
         cancelModule(val) {
             this.dialogVisible = false;
         },
+       
+    
     }
-};
+}
 </script>
 
 <style scoped lang="scss">
