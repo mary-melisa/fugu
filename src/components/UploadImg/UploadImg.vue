@@ -23,16 +23,17 @@ export default {
         };
     },
     mounted() {
-        this.initImage();
+        // this.initImage();
     },
     methods: {
-        initImage() {
-            if (this.datas.sourcePath) {
-                this.$nextTick(() => {
-                    this.imageUrl = this.datas.sourcePath;
-                });
-            }
-        },
+        // initImage() {
+        //     if (Reflect.has(this.datas, 'sourcePath')) {
+        //         this.$nextTick(() => {
+        //             this.imageUrl = this.datas.sourcePath;
+        //         });
+        //         debugger;
+        //     }
+        // },
         handleRemove(file, fileList) {
             console.log(file, fileList);
             this.$refs.upload.clearFiles();
@@ -109,6 +110,17 @@ export default {
                 .catch(() => {
                     that.$emit('setLoading', false);
                 });
+        },
+    },
+    watch: {
+        datas: {
+            handler(newValue) {
+                debugger
+                if(Reflect.has(newValue, 'sourcePath')){
+                    this.imageUrl = newValue['sourcePath'];
+                }
+            },
+            deep: true,
         },
     },
 };

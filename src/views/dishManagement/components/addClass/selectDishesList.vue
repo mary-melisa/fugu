@@ -105,7 +105,6 @@
 <script>
 import axios from 'axios';
 export default {
-    name:'ssss',
     props: ['closeParentModule', 'parentMultipleSelection', 'parentSetMultiple', 'parentCloseModule', 'parentDishes', 'setNetContent'],
     data() {
         return {
@@ -367,14 +366,6 @@ export default {
                         })
                         this.resultObj = rsp.data;
                         this.resultObj.result = selectlist;
-                        // 重置表单字段
-                        // let obj = {};
-                        // Object.keys(this.conditionForm).forEach(key => {
-                        //     if(key === 'pageSize' || key === 'pageIndex') {
-                        //         obj[key] = this.conditionForm[key];
-                        //     }
-                        // })
-                        // this.conditionForm = obj;
                     } else {
                         this.$message({
                             message: rsp.data.message,

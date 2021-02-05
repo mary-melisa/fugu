@@ -14,7 +14,7 @@
         <el-col :span="12" style="margin-left:-50px;">
           <el-form-item label="套餐名称:" prop="setMealName" required>
             <el-input class="commonInput" v-model="addMeal.setMealName" :disabled='false'
-                      style="heigth:100px" maxlength="50"></el-input>
+                      style="heigth:100px" maxlength="50" @input="changeUserName"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -50,18 +50,10 @@
         <el-col :span="12" style="margin-left:-50px;margin-top:5px">
           <el-form-item label="套餐图片:">      
             <div class="uploadImg">
-              <el-upload 
-                ref="upload"
-                class="avatar-uploader" 
-                accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp"
-                :action="imgUrl"
-                :data="datas"
-                name="UploadFile"
-                :show-file-list="false" 
-                :on-success="handleAvatarSuccess" 
-                :before-upload="beforeAvatarUpload">
-                <el-image  v-if="imageUrl" :src="imageUrl" class="avatar"></el-image>
+              <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
+                <img v-if="imageUrl" :src="imageUrl" class="avatar" />
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
               </el-upload>
             </div>
           </el-form-item>
@@ -103,8 +95,10 @@
       return {
         loading: false,
         selectDefault: -1,
-        imgUrl: window.$imgUrl,
+        uploadUrl: window.$imgUrl,
+        imgUrl: window.$imgUrlPrev,
         imageUrl: '',
+        dialogImageUrl: '',
         userId: 0,
         userName: '',
         visible: false,
@@ -150,6 +144,54 @@
       }
     },
     methods: {
+       changeUserName(){
+        this.datas.userName = this.addMeal.setMealName;
+      },
+      // 切换图片
+      handleChange(file) {
+          console.log(file);
+          if (file.name) {
+              this.imageUrl = URL.createObjectURL(file.raw);
+              this.datas.UploadFile = file.raw;
+          }
+          this.loading = true;
+          let config = {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          };
+          let formData = new FormData();
+          if (Object.keys(this.datas).length) {
+              Object.keys(this.datas).forEach(key => {
+                  formData.append(key, this.datas[key]);
+              });
+          }
+          axios
+              .post(this.uploadUrl, formData, config)
+              .then(res => {
+                  this.loading = false;
+                  if (res.data.status === 1) {
+                    this.addMeal.facilityPictures = this.imgUrl + res.data.result;
+                      // this.$message.closeAll();
+                      // this.$message({
+                      //     message: '上传成功！',
+                      //     type: 'success',
+                      // });
+                      this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
+                  }
+              })
+              .catch(() => {
+                  that.$emit('setLoading', false);
+              });
+      },
+      handleRemove(file, fileList) {
+          console.log(file, fileList);
+          this.$refs.upload.clearFiles();
+      },
+      handlePictureCardPreview(file) {
+          this.dialogImageUrl = file.url;
+          this.dialogVisible = true;
+      },
       onInput0(e) {
           this.$message.closeAll();
           if (e.target.value < 0) {
@@ -163,7 +205,7 @@
             this.userId = JSON.parse(user).userId;
             this.userName = JSON.parse(user).userName;
           }
-          this.datas.userName =  'taocan';
+          // this.datas.userName =  this.addMeal.mealPictures;
           this.datas.FileName = 'taocan';
           this.datas.userId = this.userId;
           this.datas.type = 2;
@@ -307,6 +349,9 @@
         if(this.addMeal.mealPictures) {
           this.imageUrl = this.addMeal.mealPictures;
           this.datas.sourcePath = this.imageUrl;
+        }
+        if(this.addMeal.setMealName){
+          this.datas.userName = this.addMeal.setMealName;
         }
         if(this.addMeal.list.length) {
           const that = this;

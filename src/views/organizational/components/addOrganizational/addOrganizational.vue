@@ -43,7 +43,7 @@
         <el-form ref="addCanteenForm" class="commonForm" :model="addCanteenForm" :rules="canteenRules"
           label-width="120px" @submit.native.prevent>
           <el-form-item label="食堂名称:" prop="restaurantName">
-            <el-input class="commonInput" v-model="addCanteenForm.restaurantName"></el-input>
+            <el-input class="commonInput" v-model="addCanteenForm.restaurantName" @input="changeUserName"></el-input>
           </el-form-item>
           <el-form-item label="业务模式:" prop="patternType">
             <el-select class="commonSelect" v-model="addCanteenForm.patternType">
@@ -75,11 +75,10 @@
             <el-input class="commonInput" v-model="addCanteenForm.mobile" maxlength="11"></el-input>
           </el-form-item>
           <el-form-item label="食堂照片:">
-            <el-upload ref="upload" class="avatar-uploader" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="imgUrl"
-              :data="datas" name="UploadFile" :show-file-list="false" :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload">
-              <el-image v-if="imageUrl" :src="imageUrl" class="avatar"></el-image>
+            <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
+              <img v-if="imageUrl" :src="imageUrl" class="avatar" />
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+              <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
             </el-upload>
           </el-form-item>
           <el-form-item>
@@ -135,8 +134,11 @@ export default {
     return {
       loading: false,
       mapHeight: 200 + "px",
-      imgUrl: window.$imgUrl,
       visible: false,
+      uploadUrl: window.$imgUrl,
+      imgUrl: window.$imgUrlPrev,
+      imageUrl: '',
+      dialogImageUrl: '',
       company: '孚谷餐饮有限公司',
       active: 'first',
       options: [{
@@ -189,7 +191,6 @@ export default {
           { validator: validateMobile, trigger: 'blur' }
         ]
       },
-      imageUrl: '',
       userId: 0,
       userName: '',
       datas: {},
@@ -225,6 +226,54 @@ export default {
         e.target.value = null;
       }
     },
+      changeUserName(){
+        this.datas.userName = this.addOrgnForm.organizationName;
+      },
+      // 切换图片
+      handleChange(file) {
+          console.log(file);
+          if (file.name) {
+              this.imageUrl = URL.createObjectURL(file.raw);
+              this.datas.UploadFile = file.raw;
+          }
+          this.loading = true;
+          let config = {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          };
+          let formData = new FormData();
+          if (Object.keys(this.datas).length) {
+              Object.keys(this.datas).forEach(key => {
+                  formData.append(key, this.datas[key]);
+              });
+          }
+          axios
+              .post(this.uploadUrl, formData, config)
+              .then(res => {
+                  this.loading = false;
+                  if (res.data.status === 1) {
+                    this.addMeal.facilityPictures = this.imgUrl + res.data.result;
+                      // this.$message.closeAll();
+                      // this.$message({
+                      //     message: '上传成功！',
+                      //     type: 'success',
+                      // });
+                      this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
+                  }
+              })
+              .catch(() => {
+                  that.$emit('setLoading', false);
+              });
+      },
+      handleRemove(file, fileList) {
+          console.log(file, fileList);
+          this.$refs.upload.clearFiles();
+      },
+      handlePictureCardPreview(file) {
+          this.dialogImageUrl = file.url;
+          this.dialogVisible = true;
+      },
     //地图显示
     mapBuild () {
       let that = this;
@@ -432,7 +481,7 @@ export default {
         this.userName = JSON.parse(user).userName;
         this.datas.userId = this.userId;
       }
-      this.datas.userName = 'zuzhi';
+      // this.datas.userName = 'zuzhi';
       this.datas.FileName = 'zuzhi';
       this.datas.type = 2;
       this.restaurantObj = this.cateenInfo;
@@ -471,6 +520,9 @@ export default {
 
       } else {
         this.active = 'first';
+      }
+      if(this.addOrgnForm.restaurantName) {
+        this.datas.userName = this.addOrgnForm.restaurantName;
       }
       if (this.addCanteenForm.pictures) {
         this.imageUrl = this.addCanteenForm.pictures;
@@ -633,13 +685,6 @@ export default {
         .catch(err => console.log(err));
     },
 
-    handleAvatarSuccess (res, file) {
-      this.loading = false;
-      this.$refs.upload.clearFiles();
-      this.imageUrl = window.$imgUrlPrev + res.result;
-      this.datas.sourcePath = this.imageUrl;
-      this.addCanteenForm.pictures = this.imageUrl;
-    },
     // 封装一个判断图片文件后缀名的方法
     isImage (fileName) {
       if (typeof fileName !== 'string') return;

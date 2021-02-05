@@ -300,7 +300,7 @@ export default {
                             });
                             obj.result = arr;
                         }
-                        that.tableData1 =  obj;
+                        that.tableData1 = JSON.parse(JSON.stringify(obj));
                         // that.$nextTick(() => {
                         //     that.tableData1.result = JSON.parse(JSON.stringify(obj.result));
                         // })
@@ -348,7 +348,7 @@ export default {
                             obj.result = arr;
                         }
                         // that.tableData1 = obj;
-                        that.tableData1 = obj;
+                        that.tableData1 = JSON.parse(JSON.stringify(obj));
                         item["isshitang"]=0;
                         // that.$nextTick(() => {
                         //     that.tableData1.result = JSON.parse(JSON.stringify(obj.result));

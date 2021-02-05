@@ -12,7 +12,7 @@
   :before-close="cancelModule">
         <el-form ref="addMeal" :model="addMeal" :rules="rules" class="commonForm mt45"  label-width="35%" autocomplete="off" @submit.native.prevent="submitForm('addMeal')">
             <el-form-item label="姓名:" prop="name" required>
-                 <el-input class="commonInput" v-model="addMeal.name" maxlength="50"></el-input>
+                 <el-input class="commonInput" v-model="addMeal.name" maxlength="50" @input="changeUserName"></el-input>
             </el-form-item>
             <el-form-item label="用户名:" prop="userName" required>
                  <el-input class="commonInput" v-model="addMeal.userName" maxlength="50"></el-input>
@@ -82,17 +82,10 @@
                 </template>
             </el-form-item>
             <el-form-item label="用户头像:" prop="email" >
-                 <el-upload
-                    ref="upload"
-                    class="avatar-uploader"
-                    accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp"
-                    :action="imgUrl"
-                    :data="datas"
-                    name="UploadFile"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload">
-                    <el-image  v-if="imageUrl" :src="imageUrl" class="avatar"></el-image>
+                <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
+                    <img v-if="imageUrl" :src="imageUrl" class="avatar" />
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
                 </el-upload>
             </el-form-item>
             <el-form-item class="btnsLine mt30">
@@ -104,7 +97,6 @@
 </template>
 <script>
 import axios from 'axios';
-import { formatDate } from '@/filters/index';
 export default {
     props: ['parentDialogVisible', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'parentOptionsList'],
     data() {
@@ -147,8 +139,11 @@ export default {
         return {
             loading: false,
             selectDefault: -1,
-            imgUrl: window.$imgUrl,
-            imageUrl: '',       //上传图片url
+            uploadUrl: window.$imgUrl,
+            imgUrl: window.$imgUrlPrev,
+            imageUrl: '',
+            dialogImageUrl: '',
+            dialogVisible: false,
             userRole: {},
             userId: 0,
             userName: '',
@@ -237,12 +232,18 @@ export default {
             this.parentOptionsList.forEach(item => that.rolesLists.push({ id: item.id, name: item.name }));
             console.log(this.rolesLists);
         },
+        // 编辑名称时修改上传图片时的userName
+        changeUserName(){
+            this.datas.userName = this.addMeal.name;
+        },
         initUserInfo(){
           const user = localStorage.getItem("userInfo"); 
           if(user) {
             this.userId = JSON.parse(user).userId;
             this.userName = JSON.parse(user).userName;
-            this.datas.userName =  this.userName;
+            if(this.parentCurrentMeal.name) {
+                this.datas.userName =  this.parentCurrentMeal.name;
+            }
             this.datas.userId = this.userId;
           }
           this.datas.FileName = 'yonghu';
@@ -341,13 +342,50 @@ export default {
             this.$emit('cancelModule', val);
         },
         //图片上传
-        handleAvatarSuccess(res, UploadFile) {
-            this.loading = false;
-            // 清空上传后文件列表
+        handleRemove(file, fileList) {
+            console.log(file, fileList);
             this.$refs.upload.clearFiles();
-            this.imageUrl = window.$imgUrlPrev + res.result;
-            this.addMeal.headPortrait = this.imageUrl;
-            this.uploadFlag = 1;
+        },
+        handlePictureCardPreview(file) {
+            this.dialogImageUrl = file.url;
+            this.dialogVisible = true;
+        },
+        // 切换图片
+        handleChange(file) {
+            console.log(file);
+            if (file.name) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+                this.datas.UploadFile = file.raw;
+            }
+            this.loading = true;
+            let config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
+            let formData = new FormData();
+            if (Object.keys(this.datas).length) {
+                Object.keys(this.datas).forEach(key => {
+                    formData.append(key, this.datas[key]);
+                });
+            }
+            axios
+                .post(this.uploadUrl, formData, config)
+                .then(res => {
+                    this.loading = false;
+                    if (res.data.status === 1) {
+                    this.addMeal.headPortrait = this.imgUrl + res.data.result;
+                        // this.$message.closeAll();
+                        // this.$message({
+                        //     message: '上传成功！',
+                        //     type: 'success',
+                        // });
+                        this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
+                    }
+                })
+                .catch(() => {
+                    that.$emit('setLoading', false);
+                });
         },
         // 封装一个判断图片文件后缀名的方法
         isImage(fileName) {

@@ -86,14 +86,16 @@
     data() {
       return {
         loading: false,
-        imgUrl: window.$imgUrl,
         dishes: [], // 编辑物料列表
         dishesNames: '',   // 物料列表
         multipleSelection: [], // 选中的物料列表
         selectDefault: -1,
         visible: false,
         cla: [],  // 菜品类别
-        imageUrl: '',       //上传图片url
+        uploadUrl: window.$imgUrl,
+        imgUrl: window.$imgUrlPrev,
+        imageUrl: '',
+        dialogImageUrl: '',
         dialogVis: false,   //物料窗口控制
         addMeal: {
           restaurantId: 1,

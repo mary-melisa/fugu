@@ -36,24 +36,27 @@
         <el-input class="commonInput" v-model="addMeal.facilityAddress" maxlength="50"></el-input>
       </el-form-item>
       <el-form-item label="设备照片:">
-        <UploadImg :loading="loading" v-on:setLoading="setLoading" v-on:parentLoad="parentLoad" :datas="datas" v-on:setPhotos="setPhotos"></UploadImg>
+        <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
+        </el-upload>
       </el-form-item>
       <el-form-item class="btnsLine mt30">
         <el-button class="commonButton" @click.native="cancelModule(false)">取消</el-button>
         <el-button class="commonButton" @click.native="submitForm('addMeal')" v-if="parentTitle === 1">确定</el-button>
-        <el-button class="commonButton" @click.native="submitEditForm('addMeal')" v-else-if="parentTitle === 2">确定
-        </el-button>
+        <el-button class="commonButton" @click.native="submitEditForm('addMeal')" v-else-if="parentTitle === 2">确定</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
 </template>
 <script>
 import axios from 'axios';
-import UploadImg from "@/components/uploadImg/uploadImg.vue";
+// import UploadImg from "@/components/uploadImg/uploadImg.vue";
 export default {
   props: ['parentDialogVisible', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'parentOptionsList', 'getAddresses', 'nameList', 'resetCondition'],
   components: {
-      UploadImg
+      // UploadImg
   },
   data () {
     //验证手机号
@@ -95,7 +98,6 @@ export default {
         id: 2,
         name: '离线'
       }], // 设备类型列表
-      imgUrl: window.$imgUrl,
       userId: 0,
       userName: '',
       visible: false,
@@ -120,6 +122,9 @@ export default {
         pageIndex: 1
       },
       list: [],
+      uploadUrl: window.$imgUrl,
+      imgUrl: window.$imgUrlPrev,
+      imageUrl: '',
       datas: {},
       rolesLists: [],
       rules: {
@@ -172,16 +177,50 @@ export default {
     changeUserName(){
       this.datas.userName = this.addMeal.facilityName;
     },
-    setLoading(val) {
-      this.loading = val;
+    // 切换图片
+    handleChange(file) {
+        console.log(file);
+        if (file.name) {
+            this.imageUrl = URL.createObjectURL(file.raw);
+            this.datas.UploadFile = file.raw;
+        }
+        this.loading = true;
+        let config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        };
+        let formData = new FormData();
+        if (Object.keys(this.datas).length) {
+            Object.keys(this.datas).forEach(key => {
+                formData.append(key, this.datas[key]);
+            });
+        }
+        axios
+            .post(this.uploadUrl, formData, config)
+            .then(res => {
+                this.loading = false;
+                if (res.data.status === 1) {
+                  this.addMeal.facilityPictures = this.imgUrl + res.data.result;
+                    // this.$message.closeAll();
+                    // this.$message({
+                    //     message: '上传成功！',
+                    //     type: 'success',
+                    // });
+                    this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
+                }
+            })
+            .catch(() => {
+                that.$emit('setLoading', false);
+            });
     },
-    setPhotos(val){
-      this.addMeal.facilityPictures = val;
+    handleRemove(file, fileList) {
+        console.log(file, fileList);
+        this.$refs.upload.clearFiles();
     },
-    parentLoad(){
-      this.$nextTick(() => {
-        this.$emit('getParentTableData');
-      })
+    handlePictureCardPreview(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
     },
     // 验证IP地址
     validateIp (e) {
@@ -237,10 +276,10 @@ export default {
         })
       }
       console.log(this.addMeal);
-      if (this.parentCurrentMeal.FacilityPictures) {
+      if (Reflect.has(this.parentCurrentMeal, 'FacilityPictures')) {
         this.addMeal.facilityPictures = this.parentCurrentMeal.FacilityPictures;
         this.datas.sourcePath = this.parentCurrentMeal.FacilityPictures;
-        debugger
+        this.imageUrl = this.parentCurrentMeal.FacilityPictures;
       }
     },
     //关闭弹框

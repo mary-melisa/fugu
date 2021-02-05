@@ -45,13 +45,6 @@
           <el-radio class="ml15" v-model="gender" :label="0">女</el-radio>
         </template>
       </el-form-item>
-      <!-- <el-form-item label="人脸照片:">
-        <el-upload ref="upload" class="avatar-uploader" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="imgUrl"
-          :data="datas" name="UploadFile" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-          <el-image v-if="imageUrl" :src="imageUrl" class="avatar"></el-image>
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-form-item> -->
       <el-form-item class="btnsLine mt60">
         <el-button class="commonButton" @click="cancelModule(false)">取消</el-button>
         <el-button class="commonButton" @click.prevent="submitForm('addMeal')" v-if="parentTitle === 1">确定</el-button>

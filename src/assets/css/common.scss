@@ -687,3 +687,23 @@ i {
     }
 }
 * { touch-action: pan-y; }
+
+// 上传图片样式
+.avatar-uploader-icon {
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+}
+.delBar {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    cursor: pointer;
+    @include position(absolute, 0, 0, auto, auto);
+    z-index: 10;
+    .delIcon {
+        font-size: 20px;
+        color: red;
+        line-height: 40px;
+    }
+}
