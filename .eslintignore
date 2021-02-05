@@ -6,3 +6,5 @@ src/proto
 src/mock/chartData
 src/views
 src/filters/*
+App.vue
+src/main.js

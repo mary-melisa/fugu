@@ -65,11 +65,11 @@
             </el-table>
         </div>
         <div class="pagination" style="position:relative;">
-            <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
+            <!-- <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
                 <el-badge :value="dishMultipleSelection && dishMultipleSelection.length ? dishMultipleSelection.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
-            </div>
+            </div> -->
             <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"

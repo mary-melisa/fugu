@@ -21,7 +21,7 @@
                         label="序号"
                         >
                         <template slot-scope="scope">
-                            {{ scope.$index + (parentDefault.pageIndex - 1) * parentDefault.pageSize + 1 }}
+                            {{ scope.$index + (parentDefault.PageIndex - 1) * parentDefault.PageSize + 1 }}
                         </template>
                     </el-table-column>
                     
@@ -33,11 +33,12 @@
                         </template>
                     </el-table-column>
                     <el-table-column
+                        prop="equimentTypeName"
                         label="设备类型"
                         >
-                         <template slot-scope="scope">
+                         <!-- <template slot-scope="scope">
                             {{ formatStatus(scope.row.EquipmentId) }}
-                        </template>
+                        </template> -->
                     </el-table-column>
                     <!-- <el-table-column
                         prop="Ip"
@@ -55,9 +56,11 @@
                         >
                     </el-table-column>
                      <el-table-column
-                        prop="CreateTime"
                         label="保养时间"
                         >
+                         <template slot-scope="scope">
+                            {{ formatDate_date(scope.row.CreateTime) }}
+                        </template>
                     </el-table-column>
                     <!-- <el-table-column
                         label="设备状态"
@@ -92,6 +95,7 @@
                     <el-table-column
                         width="200px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope">
                          <el-button
@@ -113,9 +117,9 @@
                     <el-pagination
                         @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
-                        :current-page="parentDefault.pageIndex"
+                        :current-page="parentDefault.PageIndex"
                         :page-sizes="[10, 20, 30, 40]"
-                        :page-size="parentDefault.pageSize"
+                        :page-size="parentDefault.PageSize"
                         :total="parentTableData.toTalCount"
                         layout="total, sizes, prev, pager, next, jumper"
                         >
@@ -127,16 +131,22 @@
 </template>
 
 <script>
+import moment from 'moment';
 export default {
     props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentEdit','parentDel','parentHandleSizeChange','parentHandleCurrentChange', 'parentOptionsList'],
     data() {
         return {
-            currentPage: 1,
             multipleSelection: [],
             imageUrlPrev: window.$imgUrlPrev,
         }
     },
     methods: {
+        //日期部分处理
+        formatDate_date(val){
+            if (!val) return '';
+            let fmt = 'YYYY-MM-DD';
+            return moment(val).format(fmt);
+        },
         formatStatus(value) {
             let obj = this.parentOptionsList.find(item => item.id === value);
             if(obj && Object.keys(obj).length) {

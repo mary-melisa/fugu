@@ -87,7 +87,9 @@ export default {
         initUserInfo(){
             this.restaurantObj = this.cateenInfo;
             const user = localStorage.getItem("userInfo"); 
-            this.userInfo = JSON.parse(user);
+            if(user) {
+                this.userInfo = JSON.parse(user);
+            }
         },
         //获取表格数据
         getTableData(){

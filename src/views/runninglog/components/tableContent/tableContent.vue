@@ -26,11 +26,12 @@
                     </el-table-column>
 
                     <el-table-column
+                        prop="EquipmentName"
                         label="设备类型"
                         >
-                         <template slot-scope="scope">
+                         <!-- <template slot-scope="scope">
                             {{ formatStatus(scope.row.EquipmentId) }}
-                        </template>
+                        </template> -->
                     </el-table-column>
 
                     <el-table-column
@@ -52,7 +53,7 @@
                         >
                     </el-table-column>
                      <el-table-column
-                        prop="UpdateTime"
+                        prop="CreateTime"
                         label="运行时间"
                         >
                     </el-table-column>

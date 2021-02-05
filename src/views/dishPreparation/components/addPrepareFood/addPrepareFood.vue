@@ -86,7 +86,7 @@ import AddJihua from '@/views/dishPreparation/components/addPrepareFood/addJihu.
 import moment from 'moment';
 
   export default {
-    props: ['getTableData', 'cancelModule', 'getParentTableData', 'parentTitle', 'parentCurrentMeal'],
+    props: ['getTableData', 'cancelModule', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'setPageIndex'],
     components: {
       SelectCaipin,
       AddJihua
@@ -297,6 +297,9 @@ import moment from 'moment';
                 message: this.parentTitle === 1 ? '添加成功' : '编辑成功',
                 type: 'success',
               });
+              if(this.parentTitle === 1) {
+                this.$emit('setPageIndex', 1);
+              }
               this.$emit('getTableData');
               this.$emit('cancelModule', false);
             } else if(rsp.data.message){

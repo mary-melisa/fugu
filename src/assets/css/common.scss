@@ -281,6 +281,12 @@ i {
             }
         }
     }
+    .el-table__fixed-header-wrapper{
+        @extend .el-table__header-wrapper;
+    }
+    .el-table__fixed-body-wrapper {
+        @extend .el-table__body-wrapper;
+    }
 }
 // 错误图片背景色
 .el-image__error, .el-image__placeholder {
@@ -680,3 +686,4 @@ i {
         }
     }
 }
+* { touch-action: pan-y; }

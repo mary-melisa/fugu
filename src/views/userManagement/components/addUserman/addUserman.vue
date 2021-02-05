@@ -12,13 +12,13 @@
   :before-close="cancelModule">
         <el-form ref="addMeal" :model="addMeal" :rules="rules" class="commonForm mt45"  label-width="35%" autocomplete="off" @submit.native.prevent="submitForm('addMeal')">
             <el-form-item label="姓名:" prop="name" required>
-                 <el-input class="commonInput" v-model="addMeal.name"></el-input>
+                 <el-input class="commonInput" v-model="addMeal.name" maxlength="50"></el-input>
             </el-form-item>
             <el-form-item label="用户名:" prop="userName" required>
-                 <el-input class="commonInput" v-model="addMeal.userName"></el-input>
+                 <el-input class="commonInput" v-model="addMeal.userName" maxlength="50"></el-input>
             </el-form-item>
             <el-form-item label="登录密码:" prop="password" v-if="parentTitle === 1" required>
-                 <el-input type="password" class="commonInput" v-model="addMeal.password"></el-input>
+                 <el-input type="password" class="commonInput" v-model="addMeal.password" maxlength="50"></el-input>
             </el-form-item>
 
             <!-- 添加组织 -->
@@ -239,11 +239,13 @@ export default {
         },
         initUserInfo(){
           const user = localStorage.getItem("userInfo"); 
-          this.userId = JSON.parse(user).userId;
-          this.userName = JSON.parse(user).userName;
-          this.datas.userName =  this.userName;
+          if(user) {
+            this.userId = JSON.parse(user).userId;
+            this.userName = JSON.parse(user).userName;
+            this.datas.userName =  this.userName;
+            this.datas.userId = this.userId;
+          }
           this.datas.FileName = 'yonghu';
-          this.datas.userId = this.userId;
           this.datas.type = 2;
           this.restaurantObj = this.cateenInfo;
           if(this.restaurantObj.id) {

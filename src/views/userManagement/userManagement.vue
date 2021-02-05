@@ -43,7 +43,7 @@
                     </el-option>
                 </el-select>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
             <el-button class="conditionBtn" @click="educe">导出</el-button> 
         </div>
         <el-row :span="24" class="operBtns">
@@ -142,6 +142,10 @@ export default {
             })
             .catch(err=> console.log(err));
         },
+        select(){
+            this.defaultProps.pageIndex = 1;
+            this.getTableData();
+        },
         //获取表格数据
         getTableData(){
             let obj = {};
@@ -238,6 +242,7 @@ export default {
         axios({ method: 'post', url: url,data:arr})
             .then(rsp => {
                 if (rsp.data.status == 1) {
+                   this.defaultProps.pageIndex = 1;
                    this.getTableData();
                    this.$message({
                         message: '删除成功！',

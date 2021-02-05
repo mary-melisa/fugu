@@ -60,7 +60,8 @@ export default {
     },
     methods:{
         ...mapMutations({
-            setCateenInfo: 'setCateenInfo'
+            setCateenInfo: 'setCateenInfo',
+            setAccountInfo: 'setAccountInfo'
         }),
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
@@ -80,9 +81,10 @@ export default {
                 background: 'rgba(0, 0, 0, 0.7)'
             });
             console.log(this.loginForm.name);
-            localStorage.setItem("userInfo", {});
+            localStorage.setItem("userInfo", "");
             // localStorage.setItem("userCateen", {});
             this.setCateenInfo({});
+            this.setAccountInfo({});
             var data = JSON.stringify({"name":this.loginForm.name,"password":this.loginForm.password});
                 console.log(data);
             var config = {
@@ -101,7 +103,8 @@ export default {
                     let user = decodeURIComponent(escape(window.atob(response.data.result.split('.')[1])));
                     console.log(user);
                     localStorage.setItem("userInfo",user); 
-                    this.$router.push({ path: `/home` });
+                    this.setAccountInfo(JSON.parse(user));
+                    this.$router.push({ path: `/businessData` });
                 }else if(response.data.message) {
                     this.$message.close();
                     this.$message({

@@ -23,10 +23,11 @@
             <el-button  icon="el-icon-delete" @click="delSome">批量删除</el-button>
         </div>
         <div class="table">
-          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="del" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange"/>
+          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="del" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" v-on:changeFace="changeFace"/>
         </div>
-        <AddMem v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal"></AddMem>
+        <AddMem v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndex="setPageIndex"></AddMem>
         <ExportModule v-if="exportVisible" v-on:getTableData="getTableData" v-on:parentClo="close" :restaurantObj="restaurantObj"></ExportModule>
+        <ChangeFace v-if="faceFlag" v-on:getParentTableData="getTableData" v-on:cancelModule="cancelModule" :parentCurrentMeal="currentMeal" :restaurantObj="restaurantObj"/>
     </div>
 </template>
 
@@ -36,13 +37,15 @@ import axios from "axios";
 import TableContent from '@/views/memberData/components/tableContent/tableContent.vue';
 import AddMem from '@/views/memberData/components/addMem/addMem.vue';
 import ExportModule from '@/views/memberData/components/exportModule/exportModule.vue';
+import ChangeFace from '@/views/memberData/components/changeFace/changeFace.vue';
 
 export default {
     components:{
         Breadcrumb,
         TableContent,
         AddMem,
-        ExportModule
+        ExportModule,
+        ChangeFace
     },
     data(){
         return{
@@ -63,7 +66,8 @@ export default {
             restaurantObj: {},  // 食堂对象
             loading:null,
             dialogVisible: false,
-            exportVisible: false
+            exportVisible: false,
+            faceFlag: false,
         }
     },
     computed: {
@@ -84,7 +88,9 @@ export default {
       },
       initUserInfo(){
           const user = localStorage.getItem("userInfo"); 
-          this.userId = JSON.parse(user).userId;
+          if(user) {
+            this.userId = JSON.parse(user).userId;
+          }
           this.restaurantObj = this.cateenInfo;
           console.log(this.restaurantObj);
        },
@@ -118,7 +124,8 @@ export default {
             .then(rsp=>{
                 this.loading.close();
                 if (rsp.data.status == 1) {
-                    this.result = rsp.data;
+                    this.result = JSON.parse(JSON.stringify(rsp.data));
+                    console.log(this.result);
                 } else if(rsp.data.message){
                     this.$message({
                         message: rsp.data.message,
@@ -160,6 +167,9 @@ export default {
                 document.body.removeChild(elink);
             })
             .catch(err => this.loading.close());
+        },
+        setPageIndex(val) {
+          this.defaultProps.pageIndex = val;
         },
         handleSizeChange(val) {
           //console.log(`每页 ${val} 条`);
@@ -231,6 +241,7 @@ export default {
                         message: '删除成功！',
                         type: 'success',
                     });
+                   this.defaultProps.pageIndex = 1;
                    this.getTableData();
                 }else if(rsp.data.status == 0){
                     this.$message({
@@ -242,13 +253,18 @@ export default {
             .catch(err => console.log(err));
       },
       // 关闭模态框回调
-      cancelModule(val) {
+      cancelModule() {
           this.dialogVisible = false;
+          this.faceFlag = false;
       },
       // 当前选中餐别
       selectMeal(meal){
         this.currentMeal = meal;
         console.log(meal);
+      },
+      changeFace(row){
+         this.currentMeal = row;
+         this.faceFlag = true;
       }
     },
     watch: {

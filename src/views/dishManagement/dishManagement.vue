@@ -24,7 +24,7 @@
         <div class="table">
             <TableContent :parentTableData="result" :claId="chaName" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:setParentSelection="setSelection" v-on:parentEdit="edit" v-on:parentDel="delSingle" v-on:parentSetPageSize="setPageSize" v-on:parentSetPageIndex="setPageIndex" :parentClass="cla"/>
         </div>
-         <AddClass v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal"></AddClass>
+         <AddClass v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndexDefault="setPageIndexDefault"></AddClass>
     </div>
 </template>
 
@@ -182,6 +182,7 @@ export default {
                             message: '删除成功',
                             type: 'success'
                         });
+                        this.defaultProps.pageIndex = 1;
                         this.getTableData();
                     }else if(rsp.data.message){
                         this.$message({
@@ -210,6 +211,9 @@ export default {
             this.multipleSelection = arr;
             console.log(arr)    
         },
+        setPageIndexDefault(val){
+            this.defaultProps.pageIndex = val;
+        },
         // 菜品分页查询
         getTableData() {
             const url = window.$config2 +`api/VarietyOfDishes/GetVarietyOfDishesPageList`;
@@ -230,14 +234,23 @@ export default {
                 .then(rsp => {
                     this.loading.close();
                     if (rsp.data.status == 1) {
-                        this.result = rsp.data;
-                        let obj = {};
-                        Object.keys(this.defaultProps).forEach(key => {
-                            if(key === 'pageSize' || key === 'pageIndex') {
-                                obj[key] = this.defaultProps[key];
-                            }
-                        })
-                        this.defaultProps = obj;
+                        // let rows = rsp.data.result;
+                        //  let obj1 = rsp.data;
+                        //  if(rows.length) {
+                        //      rows.forEach(item => {
+                        //          obj1.result.push(JSON.parse(JSON.stringify(item)));
+                        //      })
+                        //      this.result = JSON.parse(JSON.stringify(obj1));
+                        //  }
+                        // // this.result = JSON.parse(JSON.stringify(rsp.data));
+                        // let obj = {};
+                        // Object.keys(this.defaultProps).forEach(key => {
+                        //     if(key === 'pageSize' || key === 'pageIndex') {
+                        //         obj[key] = this.defaultProps[key];
+                        //     }
+                        // })
+                        // this.defaultProps = obj;
+                        this.result = JSON.parse(JSON.stringify(rsp.data));
                     } else{
                         this.$message({
                             message: rsp.data.message,

@@ -7,9 +7,9 @@
             <el-button  icon="el-icon-delete" @click="del()">批量删除</el-button>
         </el-row>
         <div class="table">
-          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:setParentSelection="setSelection" v-on:parentDel="delSingle" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" v-on:setPageSize="setPageSize"/>
+          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:setParentSelection="setSelection" v-on:parentDel="delSingle" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange"/>
         </div>
-         <AddMeal v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal"></AddMeal>
+         <AddMeal v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndex="setPageIndex"></AddMeal>
     </div>
 </template>
 
@@ -65,7 +65,7 @@ export default {
             .catch(err => console.log(err));
       },      
       // 添加成功后需要设置页数是第一页
-      setPageSize(val) {
+      setPageIndex(val) {
         this.defaultProps.pageIndex = val;
       },
       handleSizeChange(val) {

@@ -108,6 +108,24 @@ import(/*webpackChunkName:'familybucket'*/ 'vue')
                 Vue.use(Vuex);
                 const store = new Vuex.Store(storeConfig);
 
+                //storage部分
+                // Vue.prototype.resetSetItem = function (key, newVal) {
+                //     if (key === 'userInfo') {
+                //         // 创建一个StorageEvent事件
+                //         var newStorageEvent = document.createEvent('userInfo');
+                //         const storage = {
+                //             setItem: function (k, val) {
+                //                 localStorage.setItem(k, val);
+                //                 // 初始化创建的事件
+                //                 newStorageEvent.initStorageEvent('setItem', false, false, k, null, val, null, null);
+                //                 // 派发对象
+                //                 window.dispatchEvent(newStorageEvent)
+                //             }
+                //         }
+                //         return storage.setItem(key, newVal);
+                //     }
+                // }
+
                 //其它需要部分
                 Vue.config.productionTip = false; //阻止显示生产模式的消息
                 Object.keys(filters).forEach(key => {
@@ -123,3 +141,4 @@ import(/*webpackChunkName:'familybucket'*/ 'vue')
     .catch(err => {
         console.error(err);
     });
+

@@ -3,6 +3,7 @@
             <div class="content">
                 <el-table
                     ref="multipleTable"
+                    :key="tableKey"
                     :data="parentTableData.result"
                     class="commonTable"
                     tooltip-effect="dark"
@@ -19,11 +20,10 @@
                     </el-table-column>
                     <el-table-column
                         label="工号"
-                        prop="id"
                         >
-                        <!-- <template slot-scope="scope">
-                            {{ scope.$index + (parentDefault.pageIndex - 1) * parentDefault.pageSize + 1 }}
-                        </template> -->
+                        <template slot-scope="scope">
+                            {{ scope.row.employeeID == 0 ? '' : scope.row.employeeID }}
+                        </template>
                     </el-table-column>
                     <el-table-column
                         prop="userName"
@@ -71,7 +71,7 @@
                         label="人脸照片"
                     >
                         <template slot-scope="scope">
-                            <el-image :src="scope.row.facePhotos"  v-if="scope.row.facePhotos"/>     
+                            <el-image :src="imageUrlPrev + scope.row.facePhotos"  v-if="scope.row.facePhotos"/>     
                             <el-image v-else>
                                     <div slot="error" class="image-slot">
                                         <i class="el-icon-picture-outline"></i>
@@ -80,10 +80,17 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                        width="200px"
+                        width="300px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope">
+                        <el-button
+                            class="editBtn"
+                            icon="el-icon-camera"
+                            @click="changePersonFace(scope.row)">
+                            完善人脸
+                            </el-button>
                          <el-button
                             class="editBtn"
                             icon="el-icon-edit"
@@ -119,15 +126,19 @@
 <script>
 import moment from 'moment';
 export default {
-    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentHandleSizeChange','parentHandleCurrentChange','parentEdit','parentDel'],
+    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentHandleSizeChange','parentHandleCurrentChange','parentEdit','parentDel', 'changeFace'],
     data() {
         return {
             currentPage: 1,
             multipleSelection: [],
-            imageUrlPrev: window.$imgUrlPrev
+            imageUrlPrev: window.$imgUrlPrev,
+            tableKey: Math.random()
         }
     },
     methods: {
+        changePersonFace(row){
+            this.$emit('changeFace', row);
+        },
         handleSelectionChange(val) {
             this.multipleSelection = val;
             this.$emit('setParentSelection',this.multipleSelection);

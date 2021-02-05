@@ -14,7 +14,7 @@
         <div class="table">
           <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:setParentSelection="setSelection" v-on:parentEdit="edit" v-on:parentDel="delSingle" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange"/>
         </div>
-        <AddMeal v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" :flag="flag"></AddMeal>
+        <AddMeal v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" :flag="flag" v-on:setPageIndexDefault="setPageIndexDefault"></AddMeal>
     </div>
 </template>
 
@@ -61,6 +61,9 @@ export default {
            this.title = 1;
            this.dialogVisible = true;
          }
+        },
+        setPageIndexDefault(val){
+          this.defaultProps.pageIndex = val;
         },
         //获取表格数据
         getTableData(){
@@ -150,6 +153,7 @@ export default {
         axios({ method: 'post', url: url})
             .then(rsp => {
                 if (rsp.data.status == 1) {
+                   this.defaultProps.pageIndex = 1;
                    this.getTableData();
                    this.$message({
                      message: '删除成功！',

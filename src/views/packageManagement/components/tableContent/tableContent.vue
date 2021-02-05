@@ -63,7 +63,7 @@
                                 </el-image>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center" width="300px">
+                    <el-table-column label="操作" align="center" width="300px" fixed="right">
                         <template slot-scope="scope">
                             <el-button class="editBtn" icon="el-icon-pie-chart" @click="slectNutrition(scope.row)">营养成分</el-button>
                             <el-button

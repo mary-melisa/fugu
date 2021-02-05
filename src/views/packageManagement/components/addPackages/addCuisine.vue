@@ -85,11 +85,11 @@
             </el-table>
         </div>
         <div class="pagination" style="position:relative;">
-            <div style="position: absolute;left:100px;font-size:30px;top: 10px;" @click="terpineWeight">
+            <!-- <div style="position: absolute;left:100px;font-size:30px;top: 10px;" @click="terpineWeight">
                 <el-badge :value="parentMultipleSelection && parentMultipleSelection.length ? parentMultipleSelection.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
-            </div>
+            </div> -->
             <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -195,7 +195,7 @@ export default {
         },
          //关闭弹框
         close() {
-            this.$emit('parentSetMultiple', []);
+            // this.$emit('parentSetMultiple', []);
             this.$emit('closeParentModule', false);
         },
         //关闭菜品选择窗口

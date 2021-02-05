@@ -29,7 +29,7 @@
         <div class="table">
             <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:setParentSelection="setSelection" v-on:parentEdit="edit" v-on:parentDel="setIds" v-on:setSelectIds="setSelectIds" v-on:setPageSize="setPageSize" v-on:setPageIndex="setPageIndex"/>
         </div>
-        <AddPrepareFood v-on:getTableData="getTableData" v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal"></AddPrepareFood>
+        <AddPrepareFood v-on:getTableData="getTableData" v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndex="setPageIndex"></AddPrepareFood>
     </div>
 </template>
 
@@ -69,6 +69,9 @@ export default {
         this.getTableData();
     },
     methods:{
+        setPageIndex(val){
+            this.defaultProps.pageIndex = val;
+        },
         //获取住页面表格数据
         getTableData(){
             const url = this.urlPrev+`api/DishesPlan/GetDishesPlanPageList`;
@@ -180,6 +183,7 @@ export default {
                             message: '删除成功',
                             type: 'success',
                         });
+                        this.defaultProps.pageIndex = 1;
                         this.getTableData();
                 }else if(rsp.data.status == 0){
                     this.$message({

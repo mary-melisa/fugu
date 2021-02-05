@@ -39,15 +39,27 @@ export default {
             },
             false,
         );
+         //用户是否退出登录
+        // window.addEventListener('setItem', (e)=> {
+        //     if(e.key === 'userInfo') {
+        //         let user = localStorage.getItem('userInfo');
+        //         console.log(JSON.parse(user))
+        //         debugger
+        //     }
+        // })
+       
     },
-    mounted() {},
+    mounted() {
+    },
     computed: {
-        ...mapState({}),
-        ...mapGetters({}),
+        ...mapState({
+        }),
+        ...mapGetters({
+        }),
     },
     methods: {
         ...mapActions({}),
-    },
+    }
 };
 </script>
 

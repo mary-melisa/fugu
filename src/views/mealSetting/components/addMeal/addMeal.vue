@@ -4,6 +4,7 @@
   :title="parentTitle === 1 ? '新增餐别' : '编辑餐别'"
   :visible.sync="visible"
   v-loading="loading"
+  :close-on-click-modal="false"
   element-loading-text="拼命加载中"
   element-loading-spinner="el-icon-loading"
   element-loading-background="rgba(0, 0, 0, 0.8)"
@@ -35,7 +36,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { formatDate } from '@/filters/index';
 export default {
-    props: ['parentDialogVisible', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'setPageSize'],
+    props: ['parentDialogVisible', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'setPageIndex'],
     data() {
         return {
             urlPrev: 'http://39.106.7.166:8097/',
@@ -119,7 +120,7 @@ export default {
             axios({ method: 'post', url: url, data: this.addMeal })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
-                        this.$emit('setPageSize', 1);
+                        this.$emit('setPageIndex', 1);
                         this.$emit('getParentTableData');
                          this.$message({
                             message: '添加成功',

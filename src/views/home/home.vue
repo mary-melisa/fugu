@@ -208,14 +208,15 @@ export default {
     },
     methods: {
         ...mapMutations({
-            setCateenInfo: 'setCateenInfo'
+            setCateenInfo: 'setCateenInfo',
+            setAccountInfo: 'setAccountInfo'
         }),
         Init(){
             const userInfo= localStorage.getItem("userInfo");
             console.log(1);
             console.log(userInfo);
             console.log(this.user);
-            if(Object.keys(userInfo).length) {
+            if(userInfo && Object.keys(userInfo).length) {
                 this.user.name = JSON.parse(userInfo).userName;
                 this.user.role = JSON.parse(userInfo).roleName;
             }
@@ -224,6 +225,10 @@ export default {
         signOut(){
             this.user.name='';
             this.user.role='';
+            localStorage.setItem("userInfo", "");
+             // 关闭浏览器
+            localStorage.removeItem("userInfo");
+            this.setAccountInfo({});
             this.$router.push({ path: `/login` });
         },
         // 切换所属餐厅
@@ -234,6 +239,10 @@ export default {
         getRestaurant(){
             const userInfo= localStorage.getItem("userInfo");
             console.log(userInfo)
+            if(!userInfo) {
+                this.$router.push({ path: `/login` });
+                return false;
+            }
             var data = JSON.parse(userInfo).userId;
                 console.log(data);
             var config = {

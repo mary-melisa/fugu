@@ -1,11 +1,12 @@
 <template>
     <el-dialog class="commonDialog miniDialog" width="400px" title="导入" align="center" :visible.sync="visible" :before-close="close" :close-on-click-modal="false">
     <el-upload
-         ref="upload"
+        ref="upload"
         class="avatar-uploader"
         accept=".xls,.xlsx"
         action=""
         :on-change="handleChange"
+        :on-remove="removeFiles"
         :limit="1"
         :auto-upload="false">
         <el-button size="small" v-if="!uploadUrl">选择文件</el-button>
@@ -18,7 +19,6 @@
 </el-dialog>
 </template>
 <script>
-import moment from 'moment';
 import axios from 'axios';
 export default {
     props: ['getTableData', 'parentClo', 'currentMeal', 'userInfo'],
@@ -61,6 +61,10 @@ export default {
             this.uploadUrl = file.name;
             this.formData = new FormData();
             this.formData.append('excelfile',file.raw);
+        },
+        removeFiles(){
+            this.$refs.upload.clearFiles();
+            this.uploadUrl = '';
         },
         download(){
             const url = window.$moneyUrl + `api/mealcard/exporttemplate`;

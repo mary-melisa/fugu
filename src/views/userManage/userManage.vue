@@ -4,7 +4,7 @@
         <div class="search">
             <div class="fieldItem">
                 <span>关键字：</span>
-                <el-input placeholder="请输入关键字" v-model="defaultProps.keyContent" class="commonInput"> </el-input>
+                <el-input placeholder="请输入关键字" v-model="defaultProps.name" class="commonInput"> </el-input>
             </div>
             <el-button class="conditionBtn" @click="getTableData">查询</el-button>
         </div>
@@ -15,7 +15,7 @@
         <div class="table">
           <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="del" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange"/>
         </div>
-        <AddUser v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal"></AddUser>
+        <AddUser v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndexDefault="setPageIndexDefault"></AddUser>
     </div>
 </template>
 
@@ -36,8 +36,6 @@ export default {
                 pageSize: 10,
                 pageIndex: 1,
                 name:'',
-                code:'',
-                remark:''
             },
             result: {},
             multipleSelection: [],
@@ -55,10 +53,19 @@ export default {
         this.multipleSelection = arr;
         console.log(arr)
       },
+      setPageIndexDefault(val){
+        this.defaultProps.pageIndex = val;
+      },
         //获取表格数据
         getTableData(){
+            let obj = {};
+            obj.pageIndex = this.defaultProps.pageIndex;
+            obj.pageSize = this.defaultProps.pageSize;
+            if(this.defaultProps.name) {
+              obj.name = this.defaultProps.name;
+            }
             const url = window.$config+`api/Roles/GetRolePageList`;
-            axios({method: 'post',url: url,data: this.defaultProps})
+            axios({method: 'post',url: url,data: obj})
             .then(rsp=>{
                 if (rsp.data.status == 1) {
                     this.result = rsp.data;

@@ -14,7 +14,7 @@
         <el-col :span="12" style="margin-left:-50px;">
           <el-form-item label="套餐名称:" prop="setMealName" required>
             <el-input class="commonInput" v-model="addMeal.setMealName" :disabled='false'
-                      style="heigth:100px"></el-input>
+                      style="heigth:100px" maxlength="50"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -41,7 +41,7 @@
       <el-row>
         <el-col :span="12" style="margin-left:-50px">
           <el-form-item label="价格:" prop="price" required>
-            <el-input type="number" class="commonInput"  :min="0" @input.native="onInput0"  v-model="addMeal.price"
+            <el-input type="number" class="commonInput"  :min="0" @input.native="onInput0"  v-model="addMeal.price" maxlength="10"
                       style="width: 465px;margin-right:5px;"></el-input>
           </el-form-item>
         </el-col>
@@ -81,7 +81,7 @@
   import axios from 'axios';
   import AddCuisine from '@/views/packageManagement/components/addPackages/addCuisine.vue';
   export default {
-    props: ['parentDialogVisible', 'getParentTableData', 'parentTitle', 'parentCurrentMeal'],
+    props: ['parentDialogVisible', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'setPageIndexDefault'],
     components: {
       AddCuisine
     },
@@ -159,8 +159,10 @@
       },
       initUserInfo(){
           const user = localStorage.getItem("userInfo"); 
-          this.userId = JSON.parse(user).userId;
-          this.userName = JSON.parse(user).userName;
+          if(user) {
+            this.userId = JSON.parse(user).userId;
+            this.userName = JSON.parse(user).userName;
+          }
           this.datas.userName =  'taocan';
           this.datas.FileName = 'taocan';
           this.datas.userId = this.userId;
@@ -217,6 +219,9 @@
         axios({ method: 'post', url: url, data: obj })
           .then(rsp => {
             if (rsp.data.status == 1) {
+              if(this.parentTitle === 1) {
+                this.$emit('setPageIndexDefault', 1);
+              }
               this.$emit('getParentTableData');
               this.$message({
                 message: this.parentTitle === 1 ? '添加成功' : '编辑成功',

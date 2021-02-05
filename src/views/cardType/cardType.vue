@@ -131,6 +131,7 @@ export default {
         axios(options)
             .then(rsp => {
                 if (rsp.data.status == 1) {
+                   this.defaultProps.PageIndex = 1;
                    this.getTableData();
                    this.$message.closeAll();
                     this.$message({

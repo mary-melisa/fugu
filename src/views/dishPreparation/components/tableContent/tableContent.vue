@@ -57,7 +57,7 @@
                         align="center"
                     >
                     </el-table-column>
-                    <el-table-column label="操作" align="center" width="300px">
+                    <el-table-column label="操作" align="center" width="300px" fixed="right">
                         <template slot-scope="scope">
                             <el-button class="editBtn" icon="el-icon-view" @click="See(scope.row)" >查看详情</el-button>
                             <el-button

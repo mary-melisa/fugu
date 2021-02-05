@@ -116,7 +116,7 @@ export default {
             this.$emit('setPageIndex', val);
         },
         formateDate(date){
-            return moment(date, "YYYY/MM/DD HH:mm:ss").format('YYYY/MM/DD HH:mm:ss')
+            return moment(date, "MM/DD/YYYY HH:mm:ss").format('YYYY/MM/DD HH:mm:ss')
         },
         // 当前选中数据
         selectMeal(data) {

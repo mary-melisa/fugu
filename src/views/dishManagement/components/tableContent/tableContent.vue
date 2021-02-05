@@ -69,7 +69,7 @@
                         </el-image>
                     </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center" width="250px">
+                    <el-table-column label="操作" align="center" width="250px" fixed="right">
                         <template slot-scope="scope">
                             <el-button
                                 class="editBtn"

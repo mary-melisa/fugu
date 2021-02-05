@@ -3,6 +3,7 @@
         <div class="tableContent">
             <div v-if="parentTableNo === 1">
                 <el-table
+                :key="tableKey"
                 ref="multipleTable"
                 :data="parentTableData.result"
                 class="commonTable"
@@ -74,6 +75,7 @@
                 <el-table-column
                         width="200px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope">
                          <el-button
@@ -94,8 +96,9 @@
             </div>
             <div v-else-if="parentTableNo === 2">
                 <el-table
+                :key="tableKey"
                 ref="multipleTable"
-                :data="parentTableData1.result"
+                :data="cateenTableData"
                 class="commonTable"
                 tooltip-effect="dark"
                 height="100%"
@@ -110,7 +113,7 @@
                 <el-table-column
                     label="序号"
                     >
-                    <template slot-scope="scope"> {{ scope.$index + (parentDefaultPages.pageIndex - 1) * parentDefaultPages.pageSize + 1 }}</template>
+                    <template slot-scope="scope"> {{ scope.$index + (cateenDefaultPages.pageIndex - 1) * cateenDefaultPages.pageSize + 1 }}</template>
                 </el-table-column>
                 <el-table-column
                     prop="id"
@@ -154,6 +157,8 @@
                 <el-table-column
                    label="食堂照片"
                    class-name="imgColumn"
+                   align="center"
+                   min-width="80"
                 >
                     <!-- <template slot-scope="scope">
                         <el-image :src="scope.row.pictures"  style="width: 40px;height: 40px;"/>     
@@ -169,7 +174,7 @@
                       </template>
 
                 </el-table-column>
-                <el-table-column label="操作" min-width="200">
+                <el-table-column label="操作" min-width="200" fixed="right">
                     <template slot-scope="scope">
                         <el-button
                             class="editBtn"
@@ -190,6 +195,7 @@
         </div>
         <div class="pagination">
             <el-pagination
+                v-if="parentTableNo === 1"
                 @size-change="changePageSize"
                 @current-change="changePageIndex"
                 :current-page="parentDefaultPages.pageIndex"
@@ -198,15 +204,29 @@
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="parentTableData.toTalCount">
             </el-pagination>
+            <el-pagination
+                v-if="parentTableNo === 2"
+                @size-change="changeCateenPageSize1"
+                @current-change="changeCateenPageIndex1"
+                :current-page="cateenDefaultPages.pageIndex"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="cateenDefaultPages.pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="parentTableData1.toTalCount">
+            </el-pagination>
         </div>
     </div>
 </template>
 <script>
 export default {
-    props: [ 'setFlag','parentTableData', 'parentTableData1', 'parentActiveName', 'parentTableNo', 'parentDefaultPages', 'parentAdd', 'parentSelect', 'parentSetPageSize','parentSetPageIndex', 'parentDel','parentDel1','changeActive','parentCurrentCateen','parentCurrentCateen'],
+    props: [ 'setFlag','parentTableData', 'parentTableData1', 'parentActiveName', 'parentTableNo', 'parentDefaultPages', 'parentAdd', 'parentSelect', 'parentSetPageSize','parentSetPageIndex', 'parentDel','parentDel1','changeActive','parentCurrentCateen','parentCurrentCateen', 'cateenDefaultPages', 'isorg', 'changeCateenPageSize', 'changeCateenPageIndex'],
     data() {
         return {
+            tableKey: Math.random(),
+            cateenTableData: [], // 食堂列表数据
         }
+    },
+    mounted(){
     },
     methods: {
         //食堂
@@ -234,7 +254,23 @@ export default {
             this.$emit('parentSetPageSize', val);
         },
         changePageIndex(val) {
-            this.$emit('parentSetPageIndex', val);
+            if(val){
+                this.$emit('parentSetPageIndex', val);
+            }else {
+                this.$emit('parentSetPageIndex', 1);
+            }
+        },
+        // 食堂页码
+        changeCateenPageSize1(val) {
+            this.$emit('changeCateenPageSize', val);
+        },
+        // 食堂当前页
+        changeCateenPageIndex1(val) {
+            if(val){
+                this.$emit('changeCateenPageIndex', val);
+            }else {
+                this.$emit('changeCateenPageIndex', 1);
+            }
         },
         // 当前选中组织
         selectOrgan(data) {
@@ -279,6 +315,17 @@ export default {
             
         },
 
+    },
+    watch: {
+        parentTableData1: {
+            handler(newValue) {
+                if(newValue) {
+                    let obj = JSON.parse(JSON.stringify(newValue));
+                    this.cateenTableData = obj.result;
+                }
+            },
+            deep: true
+        }
     }
 }
 </script>

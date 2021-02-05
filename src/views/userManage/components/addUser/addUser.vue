@@ -7,10 +7,10 @@
   :before-close="cancelModule">
         <el-form ref="addMeal" :rules="rules" class="commonForm mt45" :model="addMeal" label-width="35%">
             <el-form-item label="角色名称:" prop="name" required>
-                <el-input class="commonInput" v-model="addMeal.name" ></el-input>
+                <el-input class="commonInput" v-model="addMeal.name" maxlength="50"></el-input>
             </el-form-item>
             <el-form-item label="备注:" prop="remark" >
-                 <el-input type="textarea" class="commonTextarea" v-model="addMeal.remark"></el-input>
+                 <el-input type="textarea" class="commonTextarea" v-model="addMeal.remark" maxlength="200"></el-input>
             </el-form-item>
             <el-divider></el-divider>
 
@@ -100,6 +100,7 @@ export default {
             axios({ method: 'post', url: url, data: this.addMeal })
                 .then(rsp => {
                     if (rsp.data.status == 1) {
+                        this.$emit('setPageIndexDefault', 1);
                         this.$emit('getParentTableData');
                          this.$message({
                             message: '添加成功',

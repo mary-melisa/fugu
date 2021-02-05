@@ -81,6 +81,7 @@
                     <el-table-column
                         width="200px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope" v-if="scope.row.paystatus!=0">
                         <el-button icon="el-icon-coin" @click="handleClick(scope.row)" type="text" size="medium">冲红</el-button>
@@ -126,7 +127,7 @@ export default {
             this.$emit('setPageIndex', val);
         },
         formateDate(date){
-            return moment(date, "YYYY/MM/DD HH:mm:ss").format('YYYY/MM/DD HH:mm:ss')
+            return moment(date, "MM/DD/YYYY HH:mm:ss").format('YYYY/MM/DD HH:mm:ss')
         },
         // 当前选中数据
         selectMeal(data) {

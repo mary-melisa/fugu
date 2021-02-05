@@ -51,16 +51,16 @@
                 </el-option>
             </el-select>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <el-row :span="24" class="operBtns">
             <el-button  icon="el-icon-plus" @click="add()">添加</el-button>
             <el-button  icon="el-icon-delete" @click="del()">批量删除</el-button>
         </el-row>
         <div class="table">
-          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="delsingle" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList" :nameList="nameList"/>
+          <TableContent :parentTableData="result" :parentDefault="conditionForm" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="delsingle" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList" :nameList="nameList"/>
         </div>
-        <FacilityAdd v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" :parentOptionsList="optionsList" v-on:getAddresses="getAddresses" :nameList="nameList"></FacilityAdd>
+        <FacilityAdd v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" :parentOptionsList="optionsList" v-on:getAddresses="getAddresses" :nameList="nameList" v-on:setPageIndexDefault="setPageIndexDefault" v-on:resetCondition="resetCondition"></FacilityAdd>
     </div>
 </template>
 
@@ -140,9 +140,13 @@ export default {
                 this.getTableData();
             }
         },
+        select(){
+            this.conditionForm.pageIndex = 1;
+            this.getTableData();
+        },
         //获取设备类型
         getEquitypes(){
-            const url = window.$config1 + `api/bdequitype/getequitype`;
+            const url = window.$facilityUrl + `api/FaciliType/getequitype`;
             axios({method: 'post', url: url, data: this.defaultProps})
             .then(rsp=>{
                 if(rsp.data.status == 1){
@@ -181,7 +185,6 @@ export default {
         },
        // 初始化用户信息
        initUserInfo(){
-            const user = localStorage.getItem("userInfo"); 
             this.restaurantObj = this.cateenInfo;
             this.conditionForm.restaurantId = this.restaurantObj.id;
              // 获取设备地址和类型
@@ -196,16 +199,12 @@ export default {
         educe(){
 
         },
+        setPageIndexDefault(val) {
+            this.conditionForm.pageIndex = val;
+        },
         //获取表格数据
         getTableData(){
             let obj = {};
-            // Object.keys(this.conditionForm).forEach(item => {
-            //     if(this.conditionForm[item] != this.selectDefault) {
-            //         obj[item] = this.conditionForm[item];
-            //     }
-            // })
-            // console.log(obj);
-            // debugger
             obj.pageIndex = this.conditionForm.pageIndex;
             obj.pageSize = this.conditionForm.pageSize;
             if(this.conditionForm.equipmentId != this.selectDefault) {
@@ -227,7 +226,8 @@ export default {
             axios({method: 'post',url: url,data: obj})
             .then(rsp=>{
                 if (rsp.data.status == 1) {
-                    this.result = rsp.data;
+                    this.result = JSON.parse(JSON.stringify(rsp.data));
+                    console.log(this.result);
                 } else{
                     this.$message.closeAll();
                     this.$message({
@@ -281,6 +281,13 @@ export default {
           })
         }
       },
+      // 重置表单和加载设备地址和名称
+      resetCondition(){
+            this.conditionForm.facilityAddress = this.selectDefault;
+            this.conditionForm.facilityName = this.selectDefault;
+            this.getAddresses();
+            this.getNames();
+      },
       //单个删除
       delsingle(rowObj){
           this.$confirm('删除后不可恢复，确认删除选中的数据吗？', '提示', {
@@ -315,9 +322,12 @@ export default {
         axios({ method: 'post', url: url,data: obj})
             .then(rsp => {
                 if (rsp.data.status == 1) {
+                   this.conditionForm.pageIndex = 1;
+                    // 获取设备地址和类型
+                   this.resetCondition();
                    this.getTableData();
                    this.$message({
-                        message: '设备删除成功！',
+                        message: '删除成功！',
                         type: 'success',
                     });
                 }else if(rsp.data.message){

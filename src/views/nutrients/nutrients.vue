@@ -62,7 +62,8 @@
                 >
                 </el-table-column>
                  <el-table-column
-                 label="操作">
+                 label="操作"
+                 fixed="right">
                   <template slot-scope="scope">
                     <el-button
                       class="editBtn"
@@ -85,7 +86,7 @@
                 :total="resultObj.toTalCount">
             </el-pagination>
         </div>
-        <AddNutrient v-on:getParentTableData="getTableData" v-on:cancelModule="cancelModule" v-if="dialogVisible"></AddNutrient>
+        <AddNutrient v-on:getParentTableData="getTableData" v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:setPageIndexDefault="setPageIndexDefault"></AddNutrient>
         <EditNutrient v-on:getParentTableData="getTableData" v-on:cancelModule="cancelModule" :parentCurrentNutrient="currentNutrient" v-if="editDialogVisible"></EditNutrient>
     </div>
 </template>
@@ -151,6 +152,9 @@ export default {
       this.conditionForm.pageIndex = val;
       this.getTableData();
      },
+     setPageIndexDefault(val) {
+       this.conditionForm.pageIndex = val;
+     },
      // 获取表格数据
       getTableData() {
           let obj = {};
@@ -166,7 +170,6 @@ export default {
                   if (rsp.data.status == 1) {
                     this.resultObj = rsp.data;
                     console.log(this.resultObj);
-                    this.buttonClick = false;
                   } else{
                     this.$message({
                         message: rsp.data.message,

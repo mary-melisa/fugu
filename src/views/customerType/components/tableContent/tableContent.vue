@@ -38,6 +38,7 @@
                     <el-table-column
                         width="200px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope">
                          <el-button

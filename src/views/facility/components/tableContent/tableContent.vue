@@ -17,13 +17,13 @@
                         type="selection"
                         >
                     </el-table-column>
-                    <!-- <el-table-column
-                        label="编号"
+                    <el-table-column
+                        label="序号"
                         >
                         <template slot-scope="scope">
                             {{ scope.$index + (parentDefault.pageIndex - 1) * parentDefault.pageSize + 1 }}
                         </template>
-                    </el-table-column> -->
+                    </el-table-column>
                     <el-table-column
                         label="设备类型"
                         >
@@ -85,6 +85,7 @@
                     <el-table-column
                         width="200px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope">
                          <el-button
@@ -133,7 +134,7 @@ export default {
         formatStatus(value) {
             let obj = this.parentOptionsList.find(item => item.id === value);
             if(obj && Object.keys(obj).length) {
-                return obj.equipmentName;
+                return obj.equimentTypeName;
             }
             return "";
         },

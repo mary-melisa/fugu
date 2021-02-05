@@ -78,7 +78,7 @@ export default {
                         let obj = item.detailList[i];
                         let current = {
                             dayInfo: item.dayInfo,
-                            categoryName: obj.categoryType === 1 ? '早餐' : (obj.categoryType === 2 ? '中餐' : '晚餐'),
+                            categoryName: obj.categoryType,
                             countinfo: obj.countinfo,
                             marketAmount: obj.marketAmount
                         }

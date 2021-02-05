@@ -9,7 +9,7 @@
                     <el-option
                     v-for="item in optionsList"
                     :key="item.id"
-                    :label="item.equipmentName"
+                    :label="item.equimentTypeName"
                     :value="item.id">
                     </el-option>
                 </el-select>
@@ -42,9 +42,9 @@
             <el-button  icon="el-icon-delete" @click="del()">批量删除</el-button>
         </el-row>
         <div class="table">
-          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="delsingle" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList"/>
+          <TableContent :parentTableData="result" :parentDefault="conditionForm" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="delsingle" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList"/>
         </div>
-        <MaintenaceAdd v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" :parentOptionsList="optionsList"></MaintenaceAdd>
+        <MaintenaceAdd v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" :parentOptionsList="optionsList" v-on:setPageIndexDefault="setPageIndexDefault"></MaintenaceAdd>
     </div>
 </template>
 
@@ -103,15 +103,18 @@ export default {
         this.initUserInfo();
         // 获取设备地址和类型
         this.getAddresses();
-        // 获取设备类型
-        this.getEquitypes();
-        // 获取分页表格信息
-         this.getTableData();
+        this.init();
     },
     methods:{
+        async init(){
+            // 获取设备类型
+            await this.getEquitypes();
+            // 获取分页表格信息
+            await this.getTableData();
+        },
         //获取设备类型
         getEquitypes(){
-            const url = window.$config1 + `api/bdequitype/getequitype`;
+            const url = window.$facilityUrl + `api/FaciliType/getequitype`;
             axios({method: 'post', url: url, data: this.defaultProps})
             .then(rsp=>{
                 if(rsp.data.status == 1){
@@ -141,7 +144,6 @@ export default {
         },
        // 初始化用户信息
        initUserInfo(){
-          const user = localStorage.getItem("userInfo"); 
           this.restaurantObj = this.cateenInfo;
           this.conditionForm.restaurantId = this.restaurantObj.id;
        },
@@ -159,6 +161,9 @@ export default {
             if (!val) return '';
             let fmt = format || 'YYYY-MM-DD';
             return moment(val).format(fmt);
+        },
+        setPageIndexDefault(val) {
+            this.conditionForm.PageIndex = val;
         },
         //获取表格数据
         getTableData(){
@@ -189,6 +194,14 @@ export default {
                 this.loading.close();
                 if (rsp.data.status == 1) {
                     this.result = rsp.data;
+                    this.result.result.forEach(item => {
+                        let obj = this.optionsList.find(res => res.id === item.EquipmentId);
+                        if(Object.keys(obj).length){
+                            return item.equimentTypeName = obj.equimentTypeName;
+                        }else {
+                            return item.equimentTypeName = "";
+                        }
+                    })
                 } else{
                     this.$message({
                         message: rsp.data.message,
@@ -281,6 +294,7 @@ export default {
         axios({ method: 'post', url: url,data: obj})
             .then(rsp => {
                 if (rsp.data.status == 1) {
+                   this.conditionForm.PageIndex = 1;
                    this.getTableData();
                    this.$message({
                         message: '删除成功！',

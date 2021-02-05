@@ -15,7 +15,7 @@
         <el-col :span="12" style="margin-left:-50px;">
           <el-form-item label="菜品名称:" prop="dishesName" required>
             <el-input class="commonInput" v-model="addMeal.dishesName" :disabled='false' placeholder="请输入菜品名称"
-                      style="heigth:100px"></el-input>
+                      style="heigth:100px" maxlength="50" @input="changeUserName"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -50,7 +50,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="价格:" prop="price" required>
-            <el-input type="number" class="commonInput" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))"  v-model="addMeal.price" placeholder="请输入价格" style="width: 198px;"></el-input>
+            <el-input type="number" class="commonInput" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))"  v-model="addMeal.price" placeholder="请输入价格" style="width: 198px;" maxlength="10"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -58,31 +58,7 @@
         <el-col :span="12" style="margin-left:-50px;margin-top:5px">
           <el-form-item label="菜品图片:">
             <div class="uploadImg">
-              <!-- <el-upload 
-                class="avatar-uploader" 
-                accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp"
-                :action="imgUrl" 
-                :data="datas"
-                name="UploadFile"
-                :show-file-list="false" 
-                :on-success="handleAvatarSuccess" 
-                :before-upload="beforeAvatarUpload">
-                <img v-if="imageUrl" :src="imageUrl" class="avatar"/>
-                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-              </el-upload> -->
-              <el-upload
-                    ref="upload"
-                    class="avatar-uploader"
-                    accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp"
-                    :action="imgUrl"
-                    :data="datas"
-                    name="UploadFile"
-                    :limit="1"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload">
-                    <el-image  v-if="imageUrl" :src="imageUrl" class="avatar"></el-image>
-                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
+                <UploadImg :loading="loading" v-on:setLoading="setLoading" v-on:parentLoad="parentLoad" :datas="datas"  v-on:setPhotos="setPhotos"/>
             </div>
           </el-form-item>
         </el-col>
@@ -100,9 +76,13 @@
 <script>
   import axios from 'axios';
   import SelectDishesList from '@/views/dishManagement/components/addClass/selectDishesList.vue';
-
+  import UploadImg from "@/components/uploadImg/uploadImg.vue";
   export default {
-    props: ['cancelModule', 'getParentTableData', 'parentTitle', 'parentCurrentMeal'],
+    props: ['cancelModule', 'getParentTableData', 'parentTitle', 'parentCurrentMeal', 'setPageIndexDefault'],
+    components: {
+      SelectDishesList,
+      UploadImg
+    },
     data() {
       return {
         loading: false,
@@ -167,6 +147,15 @@
       this.initUserInfo();
     },
     methods: {
+      changeUserName(){
+        this.datas.userName = this.addMeal.dishesName;
+      },
+      setLoading(val) {
+        this.loading = val;
+      },
+      setPhotos(val){
+        this.addMeal.dishesPictures = val;
+      },
       onInput0(e) {
             this.$message.closeAll();
             if (e.target.value < 0) {
@@ -180,12 +169,19 @@
          // 初始化用户信息
        initUserInfo(){
           const user = localStorage.getItem("userInfo"); 
-          this.userId = JSON.parse(user).userId;
-          this.userName = JSON.parse(user).userName;
-          this.datas.userName =  'caipin';
-          this.datas.FileName = 'caipin';
-          this.datas.userId = this.userId;
+          if(user){
+            this.userId = JSON.parse(user).userId;
+            this.userName = JSON.parse(user).userName;
+            if(this.parentTitle === 1) {
+              this.datas.userName =  this.addMeal.dishesName;
+            }else {
+              this.datas.userName =  this.parentCurrentMeal.dishesName;
+            }
+            this.datas.userId = this.userId;
+          }
           this.datas.type = 2;
+          this.datas.FileName = 'caipin';
+
           this.restaurantObj = this.cateenInfo;
           if(Object.keys(this.restaurantObj).length) {
             this.addMeal.restaurantId=this.restaurantObj.id;
@@ -195,7 +191,9 @@
        },
       // 选中的物料
       setMultiple(val){
-        this.multipleSelection = val;
+        // this.multipleSelection = Array.from(new Set(val));
+        const res = new Map();
+        this.multipleSelection =  val.filter((val) => !res.has(val.id) && res.set(val.id, 1));
       },
       submitAdd(formName){
         this.addMeal.dishesList = [];
@@ -241,6 +239,9 @@
                 message: this.parentTitle === 1 ? '添加成功' : '编辑成功',
                 type: 'success',
               });
+              if(this.parentTitle === 1) {
+                this.$emit('setPageIndexDefault', 1);
+              }
               this.$emit('getParentTableData');
               this.$emit('cancelModule', false);
             }else if(rsp.data.message == "重复新增"){
@@ -261,7 +262,11 @@
       closeDialog() {
         this.$emit('cancelModule', false);
       },
-
+      parentLoad(){
+        this.$nextTick(() => {
+          this.$emit('getParentTableData');
+        })
+      },
       closeModule(val) {
         this.dialogVis = val;
       },
@@ -284,35 +289,35 @@
         }
       },
       //图片上传
-        handleAvatarSuccess(res, UploadFile) {
-            this.loading = false;
-            this.$refs.upload.clearFiles();
-            this.imageUrl = window.$imgUrlPrev + res.result;
-            this.addMeal.dishesPictures = this.imageUrl;
-            this.datas.sourcePath = this.imageUrl;
-        },
-        // 封装一个判断图片文件后缀名的方法
-        isImage(fileName) {
-            if (typeof fileName !== 'string') return;
-            let name = fileName.toLowerCase();
-            return name.endsWith('.jpg') || name.endsWith('.gif') || name.endsWith('.jpe') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.bmp');
-        },
-        beforeAvatarUpload(file) {
-            this.loading = true;
-            const isLt10M = file.size / 1024 / 1024 < 10;
+        // handleAvatarSuccess(res, UploadFile) {
+        //     this.loading = false;
+        //     this.$refs.upload.clearFiles();
+        //     this.imageUrl = window.$imgUrlPrev + res.result;
+        //     this.addMeal.dishesPictures = this.imageUrl;
+        //     this.datas.sourcePath = this.imageUrl;
+        // },
+        // // 封装一个判断图片文件后缀名的方法
+        // isImage(fileName) {
+        //     if (typeof fileName !== 'string') return;
+        //     let name = fileName.toLowerCase();
+        //     return name.endsWith('.jpg') || name.endsWith('.gif') || name.endsWith('.jpe') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.bmp');
+        // },
+        // beforeAvatarUpload(file) {
+        //     this.loading = true;
+        //     const isLt10M = file.size / 1024 / 1024 < 10;
 
-            let type = this.isImage(file.name);
-            this.$message.closeAll();
-            if (!type) {
-                this.$message.error('只允许上传.jpg,.gif,.jpe,.jpeg,.png,.bmp图片');
-                return false;
-            }
-            if (!isLt10M) {
-                this.$message.error('上传头像图片大小不能超过 10MB!');
-                return false;
-            }
-            return true;
-        },
+        //     let type = this.isImage(file.name);
+        //     this.$message.closeAll();
+        //     if (!type) {
+        //         this.$message.error('只允许上传.jpg,.gif,.jpe,.jpeg,.png,.bmp图片');
+        //         return false;
+        //     }
+        //     if (!isLt10M) {
+        //         this.$message.error('上传头像图片大小不能超过 10MB!');
+        //         return false;
+        //     }
+        //     return true;
+        // },
         // 获取物料类别下拉列表
         getNutrients() {
            const url= window.$config1 + `api/bdmaterial/getmaterial`;
@@ -366,9 +371,6 @@
            this.setMultiple(this.dishes);
         }
       }
-    },
-    components: {
-      SelectDishesList,
     },
     watch: {
       multipleSelection: {

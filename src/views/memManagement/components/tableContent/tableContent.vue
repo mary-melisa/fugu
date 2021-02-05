@@ -18,11 +18,11 @@
                     </el-table-column>
                     <el-table-column
                         label="工号"
-                        prop="employeeID"
                         >
-                        <!-- <template slot-scope="scope">
-                            {{ scope.$index + (parentDefault.pageIndex - 1) * parentDefault.pageSize + 1 }}
-                        </template> -->
+                        <!-- prop="employeeID" -->
+                        <template slot-scope="scope">
+                            {{ scope.row.employeeID == 0 ? '' : scope.row.employeeID }}
+                        </template>
                     </el-table-column>
                     <el-table-column
                         prop="userName"
@@ -86,6 +86,7 @@
                     <el-table-column
                         width="200px"
                         label="操作"
+                        fixed="right"
                     >
                     <template slot-scope="scope">
                          <!-- <el-button

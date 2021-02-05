@@ -31,7 +31,7 @@
                 :row-key="getRowKey"
                 stripe
                 border
-               @selection-change="handleSelectionChange($event, parentMultipleSelection)">
+               @selection-change="handleSelectionChange">
                 <el-table-column
                     type="selection"
                     :reserve-selection="true"
@@ -59,14 +59,14 @@
                     label="重量（g）"
                     align="center">
                     <template slot-scope="scope">
-                        <el-input type="number" v-model="scope.row.materialUnit" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" placeholder='请输入重量' @blur="handleSelectionChange(parentMultipleSelection, scope.row)"></el-input>
+                        <el-input type="number" v-model="scope.row.materialUnit" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" placeholder='请输入重量'></el-input>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <div class="pagination" style="position:relative;">
             <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
-                <el-badge :value="parentMultipleSelection && parentMultipleSelection.length ? parentMultipleSelection.length : 0" class="item"  >
+                <el-badge :value="changeTerpineList && changeTerpineList.length ? changeTerpineList.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
             </div>
@@ -94,9 +94,9 @@
         width="280px"
         :close-on-click-modal="false"
         :before-close="close1">
-        <el-row class="commonRow" v-for="(item, index) in parentMultipleSelection" :key="index">
+        <el-row class="commonRow" v-for="(item, index) in changeTerpineList" :key="index">
                 <el-col :span="8">{{item.materialName}}</el-col>
-                <el-col :span="14"><el-input type="number" class="commonInput" style="width:80px;" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" v-model="item.materialUnit"  @blur="handleSelectionChange(parentMultipleSelection, item)"></el-input><span class="fl"> g</span></el-col>
+                <el-col :span="14"><el-input type="number" class="commonInput" style="width:80px;" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" v-model="item.materialUnit"></el-input><span class="fl"> g</span></el-col>
                 <el-col :span="2" ><a @click="delDish(item)"><i class=" el-icon-delete"></i></a></el-col>
         </el-row>
     </el-dialog>
@@ -131,7 +131,6 @@ export default {
     },
     mounted(){
          this.visible = true;
-        //  this.changeTerpineList = this.parentMultipleSelection;
          this.flag = 1;
          this.init();
          this.getNutrients();
@@ -147,13 +146,20 @@ export default {
             }
         },
         // 编辑时初始化选中物料列表
-        init(){
+        async init(){
             if(this.parentMultipleSelection && this.parentMultipleSelection.length){
-                this.changeTerpineList = this.parentMultipleSelection;
-                this.$nextTick(() => {
-                    this.$emit('parentSetMultiple', this.parentMultipleSelection);
-                    this.toggleSelection(this.parentMultipleSelection);
-                });
+                //this.changeTerpineList = this.parentMultipleSelection;
+                await this.$nextTick(() => {
+                //     this.$emit('parentSetMultiple', this.parentMultipleSelection);
+                //     this.toggleSelection(this.changeTerpineList);
+                    this.parentMultipleSelection.forEach((item, index) => {
+                        // this.changeTerpineList[index] = item;
+                        this.$refs.multipleTable.toggleRowSelection(item, true);
+                    });
+                    this.changeTerpineList = this.parentMultipleSelection;
+                    console.log(this.changeTerpineList, 'changeTerpineList');
+                })  
+                //this.toggleSelection(this.changeTerpineList);
             }
         },
          // 指定一个key标识这一行的数据
@@ -233,26 +239,36 @@ export default {
             this.dialogVisible = false;
         },
         // 选择物料
-        async handleSelectionChange(val, row) {
-            let meals = val;
+        // async handleSelectionChange(val, row) {
+        //     let meals = val;
             
-            meals.forEach(item => {
-                if(item.id === row.id) {
-                        if(row.materialUnit) {
-                            item.materialUnit = row.materialUnit;
-                        }else {
-                            delete item.materialUnit;
-                        }
-                }
+        //     meals.forEach(item => {
+        //         if(item.id === row.id) {
+        //                 if(row.materialUnit) {
+        //                     item.materialUnit = row.materialUnit;
+        //                 }else {
+        //                     delete item.materialUnit;
+        //                 }
+        //         }
+        //     })
+        //     this.$nextTick(() => {
+        //         this.$emit('parentSetMultiple', meals);
+        //     })
+            
+        // },
+        handleSelectionChange(val){
+            const res = new Map();
+            let arr =  val.filter((val) => !res.has(val.id) && res.set(val.id, 1));
+            this.changeTerpineList.length = 0;
+            arr.forEach(item => {
+                this.changeTerpineList.push(item);
             })
-            await this.$nextTick(() => {
-                this.$emit('parentSetMultiple', meals);
-            });
+            console.log(this.changeTerpineList);
         },
         //菜品重量设置弹窗
         terpineWeight(){
-             console.log(this.parentMultipleSelection);
-            if(this.parentMultipleSelection.length){
+             console.log(this.changeTerpineList);
+            if(this.changeTerpineList.length){
                 this.weightVisible = true;
             }else {
                 this.$message.closeAll();
@@ -264,11 +280,13 @@ export default {
         },
          //关闭弹框
         close() {
-            this.$emit('parentSetMultiple', this.changeTerpineList);
-            this.$emit('closeParentModule', false);
+            console.log(this.changeTerpineList, 'changeTerpineList');
+            console.log(this.parentMultipleSelection);
+            // this.$emit('parentSetMultiple', this.changeTerpineList);
+            // this.$emit('closeParentModule', false);
         },
         //关闭菜品选择窗口
-        close1() {
+        async close1() {
             let flag = true;
              this.parentMultipleSelection.every(item => {
                 if(!item.materialUnit) {
@@ -288,6 +306,11 @@ export default {
                 })
                 this.$emit('setNetContent', weight);
                 this.weightVisible = false;
+                // this.$emit('parentSetMultiple', []);
+                if(!this.changeTerpineList.length) {
+                    await this.getMaterialDetail();
+                    await this.init();
+                }
                // this.close();
             }
         },
@@ -383,28 +406,46 @@ export default {
         },
         makeSure(){
              this.$message.closeAll();
-            if(!this.parentMultipleSelection.length) {
-                 this.$message({
-                    message: '请选择至少一种物料',
-                    type: 'warn',
-                });
+            if(!(this.parentMultipleSelection.length || this.changeTerpineList.length) ) {
+                    this.$message.closeAll();
+                    this.$message({
+                        message: '请选择至少一种物料',
+                        type: 'warn',
+                    });
+                    return false;
             }else {
                 let flag = true;
                 this.parentMultipleSelection.every(item => {
                     if(!item.materialUnit) {
-                        this.$message({
-                            message: '请输入选中的物料的重量',
-                            type: 'warn'
-                        })
                         flag = false;
                         return false;
                     }
                 })
+                if(flag === false) {
+                    this.changeTerpineList.every(item => {
+                        if(!item.materialUnit){
+                            this.$message.closeAll();
+                             this.$message({
+                                message: '请输入选中的物料的重量',
+                                type: 'warn'
+                            })
+                            return false;
+                        }
+                    })
+                }
                 if(flag) {
                     let weight = 0;
-                    this.parentMultipleSelection.forEach(item => {
-                        weight += Number(item.materialUnit);
-                    })
+                    if(this.parentMultipleSelection.length) {
+                        this.parentMultipleSelection.forEach(item => {
+                            weight += Number(item.materialUnit);
+                        })
+                        this.$emit('parentSetMultiple', this.parentMultipleSelection);
+                    }else if(this.changeTerpineList.length){
+                         this.changeTerpineList.forEach(item => {
+                            weight += Number(item.materialUnit);
+                        })
+                        this.$emit('parentSetMultiple', this.changeTerpineList);
+                    }
                     this.$emit('setNetContent', weight);
                     console.log(this.parentMultipleSelection);
                     this.$emit('parentCloseModule', false);

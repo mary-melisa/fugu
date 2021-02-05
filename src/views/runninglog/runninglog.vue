@@ -34,14 +34,14 @@
                 <span>日志时间：</span>
                 <el-date-picker
                     class="commonDatePicker"
-                    v-model="conditionForm.startTime"
+                    v-model="conditionForm.StartTime"
                     type="datetime"
                     placeholder="开始时间">
                 </el-date-picker>
                 <span class="ml10 mr10">至</span>
                 <el-date-picker
                     class="commonDatePicker"
-                    v-model="conditionForm.endTime"
+                    v-model="conditionForm.EndTime"
                     type="datetime"
                     placeholder="结束时间">
                 </el-date-picker>
@@ -76,8 +76,8 @@ export default {
             conditionForm: {
                 pageIndex: 1,
                 pageSize: 10,
-                startTime: moment(new Date()).format('YYYY-MM-DD 00:00:00'),
-                endTime: moment(new Date()).format('YYYY-MM-DD 23:59:59'),
+                StartTime: moment(new Date()).format('YYYY-MM-DD 00:00:00'),
+                EndTime: moment(new Date()).format('YYYY-MM-DD 23:59:59'),
                 remark: '',
                 equipmentId: this.selectDefault,
                 facilityName: this.selectDefault,
@@ -120,7 +120,7 @@ export default {
             axios({method: 'post', url: url, data: this.defaultProps})
             .then(rsp=>{
                 if(rsp.data.status == 1){
-                    this.optionsList = rsp.data.result;
+                    this.optionsList = JSON.parse(JSON.stringify(rsp.data.result));
                 } else {
                     console.log("获取失败")
                 }
@@ -146,7 +146,6 @@ export default {
         },
        // 初始化用户信息
        initUserInfo(){
-          const user = localStorage.getItem("userInfo"); 
           this.restaurantObj = this.cateenInfo;
           this.conditionForm.restaurantId = this.restaurantObj.id;
        },
@@ -164,11 +163,11 @@ export default {
             if(this.conditionForm.equipmentId !== this.selectDefault) {
                 obj.equipmentId =  this.conditionForm.equipmentId;
             }
-            if(this.conditionForm.startTime !== '' && this.conditionForm.startTime !== null) {
-                obj.startTime =  this.conditionForm.startTime;
+            if(this.conditionForm.StartTime !== '' && this.conditionForm.StartTime !== null) {
+                obj.StartTime =  this.conditionForm.StartTime;
             }
-            if(this.conditionForm.endTime !== '' && this.conditionForm.endTime !== null) {
-                obj.endTime =  this.conditionForm.endTime;
+            if(this.conditionForm.EndTime !== '' && this.conditionForm.EndTime !== null) {
+                obj.EndTime =  this.conditionForm.EndTime;
             }
             if(this.conditionForm.remark !== '') {
                 obj.remark =  this.conditionForm.remark;
@@ -183,7 +182,8 @@ export default {
             .then(rsp=>{
                 if (rsp.data.status == 1) {
                     this.result = rsp.data;
-                } else{
+                } else if(rsp.data.message){
+                    this.$message.closeAll();
                     this.$message({
                         message: rsp.data.message,
                         type: 'error',

@@ -80,9 +80,11 @@ export default {
       },
       initUserInfo(){
           const user = localStorage.getItem("userInfo"); 
-          this.userId = JSON.parse(user).userId;
-          this.userInfo = JSON.parse(user);
-          this.restaurantObj = this.cateenInfo;
+          if(user) {
+            this.userId = JSON.parse(user).userId;
+            this.userInfo = JSON.parse(user);
+            this.restaurantObj = this.cateenInfo;
+          }
        },
        // 批量充值
        someCharge(){
@@ -249,6 +251,7 @@ export default {
                           message: '删除成功！',
                           type: 'success',
                       });
+                    this.defaultProps.pageIndex = 1;
                     this.getTableData();
                   }else if(rsp.data.status == 0){
                       this.$message({
