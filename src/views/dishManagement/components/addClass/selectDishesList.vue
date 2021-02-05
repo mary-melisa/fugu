@@ -105,6 +105,7 @@
 <script>
 import axios from 'axios';
 export default {
+    name:'ssss',
     props: ['closeParentModule', 'parentMultipleSelection', 'parentSetMultiple', 'parentCloseModule', 'parentDishes', 'setNetContent'],
     data() {
         return {
@@ -351,16 +352,21 @@ export default {
                     if (rsp.data.status == 1) {
                         // 解决翻页的时候复选框被取消的问题
                         let rows = rsp.data.result;
-                        this.parentMultipleSelection.forEach(item => {
-                            if(item && item.materialUnit){
-                                let obj = rows.find(res => res.id === item.id);
-                                if(obj && Object.keys(obj).length){
-                                    obj['materialUnit'] = item.materialUnit;
-                                }
-                            }
+                        // this.parentMultipleSelection.forEach(item => {
+                        //     if(item && item.materialUnit){
+                        //         let obj = rows.find(res => res.id === item.id);
+                        //         if(obj && Object.keys(obj).length){
+                        //             obj['materialUnit'] = item.materialUnit;
+                        //         }
+                        //     }
+                        // })
+                        const selectlist = rows.map(x=>{
+                            let select = this.parentMultipleSelection.find(i=>i.id === x.id);
+                            if(select) return select;
+                            else return x;
                         })
                         this.resultObj = rsp.data;
-                        this.resultObj.result = rows;
+                        this.resultObj.result = selectlist;
                         // 重置表单字段
                         // let obj = {};
                         // Object.keys(this.conditionForm).forEach(key => {
