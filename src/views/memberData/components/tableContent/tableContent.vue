@@ -80,17 +80,11 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                        width="300px"
+                        width="400px"
                         label="操作"
                         fixed="right"
                     >
                     <template slot-scope="scope">
-                        <el-button
-                            class="editBtn"
-                            icon="el-icon-camera"
-                            @click="changePersonFace(scope.row)">
-                            完善人脸
-                            </el-button>
                          <el-button
                             class="editBtn"
                             icon="el-icon-edit"
@@ -102,6 +96,19 @@
                             icon="el-icon-delete"
                             @click="handleDelete(scope.row)">
                             删除
+                            </el-button>
+                        <el-button
+                            class="editBtn"
+                            icon="el-icon-camera"
+                            @click="changePersonFace(scope.row)">
+                            完善人脸
+                            </el-button>
+                        <el-button
+                            class="editBtn"
+                            icon="el-icon-delete"
+                            v-if="scope.row.facePhotos"
+                            @click="delFace(scope.row.facePhotos)">
+                            删除人脸
                             </el-button>
                     </template>
                     </el-table-column>
@@ -126,7 +133,7 @@
 <script>
 import moment from 'moment';
 export default {
-    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentHandleSizeChange','parentHandleCurrentChange','parentEdit','parentDel', 'changeFace'],
+    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentHandleSizeChange','parentHandleCurrentChange','parentEdit','parentDel', 'changeFace', 'delImg'],
     data() {
         return {
             currentPage: 1,
@@ -165,6 +172,10 @@ export default {
         // 删除
         handleDelete(rowObj) {
             this.$emit('parentDel', rowObj);
+        },
+        // 删除人脸
+        delFace(face) {
+            this.$emit('delImg', face);
         }
     }
 }

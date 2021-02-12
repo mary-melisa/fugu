@@ -9,7 +9,7 @@
                 <el-option
                 v-for="item in optionsList"
                 :key="item.id"
-                :label="item.equipmentName"
+                :label="item.equimentTypeName"
                 :value="item.id">
                 </el-option>
             </el-select>

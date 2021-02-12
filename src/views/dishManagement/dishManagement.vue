@@ -14,7 +14,7 @@
                 <span>关键字：</span>
                 <el-input placeholder="请输入关键字" class="commonInput" v-model="name" > </el-input>
             </div>
-            <el-button class="conditionBtn" @click.native="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click.native="select">查询</el-button>
             <el-button class="conditionBtn" @click.native="educe">导出</el-button>
         </div>
         <div class="operBtns">
@@ -83,6 +83,11 @@ export default {
            this.title = 1;
            this.dialogVisible = true;
          }
+        },
+        // 查询
+        select(){
+            this.defaultProps.pageIndex = 1;
+            this.getTableData();
         },
         formatJson(filterVal, jsonData) {
             return jsonData.map(v => filterVal.map(j => v[j]));
@@ -250,7 +255,8 @@ export default {
                         //     }
                         // })
                         // this.defaultProps = obj;
-                        this.result = JSON.parse(JSON.stringify(rsp.data));
+                        // this.result = JSON.parse(JSON.stringify(rsp.data));
+                        this.result = rsp.data;
                     } else{
                         this.$message({
                             message: rsp.data.message,

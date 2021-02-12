@@ -63,6 +63,7 @@ export default {
     methods:{
         select(){
             this.buttonClick = true;
+            this.defaultProps.pageIndex = 1;
             this.getTableData();
         },
         //获取表格数据

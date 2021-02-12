@@ -16,7 +16,7 @@
                     <el-option :value="defaultSelect" label="请选择">请选择</el-option>
                     <el-option v-for="item in adddishesList" :key="item.id" :label="item.categoryName" :value="item.id">{{item.categoryName}}</el-option>
                 </el-select>
-              <el-button class="conditionBtn" @click="getMaterialDetail">查询</el-button>
+              <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <!-- 表格 -->
         <div class="tableContent">
@@ -116,6 +116,11 @@ export default {
                     })
                 }
             })
+        },
+        // 查询
+        select(){
+            this.conditionForm.pageIndex = 1;
+            this.getMaterialDetail();
         },
          // 指定一个key标识这一行的数据
         getRowKey (row) {

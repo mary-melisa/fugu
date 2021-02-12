@@ -16,7 +16,7 @@
                 </el-select>
               <span style="margin-left:10px">菜品名称：</span>
               <el-input placeholder="请输入物料名称" class="commonInput" v-model="name" style="width: 200px;"> </el-input>
-              <el-button class="conditionBtn ml15"  @click="getTableData">查询</el-button>
+              <el-button class="conditionBtn ml15"  @click="select">查询</el-button>
               <el-button class="conditionBtn ml25" @click="tocreate" >添加菜品</el-button>
         </div>
         <!-- 表格 -->
@@ -31,7 +31,7 @@
                 :row-key="getRowKey"
                 stripe
                 border
-               @selection-change="handleSelectionChange($event, dishMultipleSelection)">
+               @selection-change="handleSelectionChange">
                 <el-table-column
                     type="selection"
                     :reserve-selection="true"
@@ -59,17 +59,17 @@
                     label="计划份数"
                     align="center">
                     <template slot-scope="scope">
-                        <el-input type="number" v-model="scope.row.quantity" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" placeholder='请输入重量'  @blur="handleSelectionChange(dishMultipleSelection, scope.row)"></el-input>
+                        <el-input type="number" v-model="scope.row.quantity" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" placeholder='请输入重量'></el-input>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <div class="pagination" style="position:relative;">
-            <!-- <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
-                <el-badge :value="dishMultipleSelection && dishMultipleSelection.length ? dishMultipleSelection.length : 0" class="item"  >
+            <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
+                <el-badge :value="changeTerpineList && changeTerpineList.length ? changeTerpineList.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
-            </div> -->
+            </div>
             <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -92,12 +92,12 @@
         title="菜品选择"
         :visible.sync="weightVisible"
         :append-to-body="true"
-        width="300px"
+        width="350px"
         :close-on-click-modal="false"
         :before-close="close1">
-        <el-row class="commonRow" v-for="(item) in dishMultipleSelection" :key="item.id">
+        <el-row class="commonRow" v-for="(item) in changeTerpineList" :key="item.id">
                 <el-col :span="10">{{item.dishesName}}</el-col>
-                <el-col :span="12"><el-input type="number" class="commonInput" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" style="width:80px;" v-model="item.quantity"  @blur="handleSelectionChange(dishMultipleSelection, item)"></el-input><span class="fl"> 份</span></el-col>
+                <el-col :span="12"><el-input type="number" class="commonInput" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" style="width:80px;" v-model="item.quantity"></el-input><span class="fl"> 份</span></el-col>
                 <el-col :span="2" ><a @click="delDish(item)"><i class=" el-icon-delete"></i></a></el-col>
         </el-row>
     </el-dialog>
@@ -137,6 +137,7 @@ export default {
             multipleSelection: [],
             bubble: 0,       //选中菜品的数量
             changeTerpineList: [],   //选中菜品集合
+            initMultipleSelection: [],
             freshFlag: false  
         }
     },
@@ -155,11 +156,18 @@ export default {
                 e.target.value = null;
             }
         },
+        // 查询
+        select(){
+            this.conditionForm.pageIndex = 1;
+            this.getTableData();
+        },
         // 编辑时初始化选中物料列表
         init(){
             if(this.dishMultipleSelection && this.dishMultipleSelection.length){
                 this.$nextTick(() => {
-                    this.$emit('parentSetMultiple', this.dishMultipleSelection);
+                    this.dishMultipleSelection.forEach(item => {
+                        this.initMultipleSelection.push(JSON.parse(JSON.stringify(item)));
+                    })
                     this.toggleSelection(this.dishMultipleSelection);
                 });
             }
@@ -189,16 +197,21 @@ export default {
                 if (rsp.data.status == 1) {
                      // 解决翻页的时候复选框被取消的问题
                         let rows = rsp.data.result;
-                        this.dishMultipleSelection.forEach(item => {
-                            if(item && item.quantity){
-                                let obj = rows.find(res => res.id === item.id);
-                                if(obj && Object.keys(obj).length){
-                                    obj['quantity'] = item.quantity;
-                                }
-                            }
+                        // this.dishMultipleSelection.forEach(item => {
+                        //     if(item && item.quantity){
+                        //         let obj = rows.find(res => res.id === item.id);
+                        //         if(obj && Object.keys(obj).length){
+                        //             obj['quantity'] = item.quantity;
+                        //         }
+                        //     }
+                        // })
+                        const selectList = rows.map(item => {
+                            const select = this.dishMultipleSelection.find(i => i.id === item.id);
+                            if(select) return select;
+                            else return item;
                         })
                         this.resultObj = rsp.data;
-                        this.resultObj.result = rows;
+                        this.resultObj.result = selectList;
                 } else if(rsp.data.message){
                     this.$message({
                         message: rsp.data.message,
@@ -235,7 +248,7 @@ export default {
             })
             console.log(newArr);
             this.toggleSelection(rows);
-            this.handleSelectionChange(newArr, {});
+            this.handleSelectionChange(newArr);
         },
          // 切换选中取消菜品
         toggleSelection(rows) {
@@ -257,21 +270,14 @@ export default {
             this.dialogVisible = false;
         },
         // 选择菜品
-        handleSelectionChange(val, row) {
-            let meals = val;
-            meals.forEach(item => {
-                if(item.id === row.id) {
-                    if(row.quantity) {
-                        item.quantity = row.quantity;
-                    }else {
-                        delete item.quantity;
-                    }
-                }
+        handleSelectionChange(val) {
+            const res = new Map();
+            let arr =  val.filter((val) => !res.has(val.id) && res.set(val.id, 1));
+            this.changeTerpineList.length = 0;
+            arr.forEach(item => {
+                this.changeTerpineList.push(item);
             })
-            
-            this.$nextTick(() => {
-                this.$emit('parentSetDishList', meals);
-            });
+            console.log(this.changeTerpineList);
         },
         checkSelect(row, index){
             this.changeTerpineList = row
@@ -305,8 +311,9 @@ export default {
                 }
             })        
             if(flag) {
+                this.$emit('parentSetDishList', this.initMultipleSelection);
                 this.weightVisible = false;
-                this.close();
+                // this.close();
             }      
           
         },
@@ -349,7 +356,7 @@ export default {
             //     return false;
             // }else {
                 let flag = true;
-                this.dishMultipleSelection.every(item => {
+                this.changeTerpineList.every(item => {
                     if(!item.quantity) {
                         this.$message.closeAll();
                         this.$message({
@@ -361,7 +368,8 @@ export default {
                     }
                 })        
                 if(flag) {
-                     this.$emit('closeParentModule', false);
+                    this.$emit('parentSetDishList', this.changeTerpineList);
+                    this.$emit('closeParentModule', false);
                 }       
             // }
         }

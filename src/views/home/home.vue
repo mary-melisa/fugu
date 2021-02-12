@@ -169,7 +169,7 @@
                           <router-link to="/organizational"><el-menu-item index="10-1">组织架构</el-menu-item></router-link>
                           <router-link to="/userManage"><el-menu-item index="10-2">角色管理</el-menu-item></router-link>
                           <router-link to="/userManagement"><el-menu-item index="10-3">用户管理</el-menu-item></router-link>
-                          <router-link to="/ruleConfiguration"><el-menu-item index="10-4">规则配置</el-menu-item></router-link>
+                          <router-link to="/building"><el-menu-item index="10-4">规则配置</el-menu-item></router-link>
                           <!-- <router-link to="/menuManagement"><el-menu-item index="7-5">菜单管理</el-menu-item></router-link> -->
                       </el-menu-item-group>
                   </el-submenu>

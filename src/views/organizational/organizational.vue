@@ -11,7 +11,9 @@
                 <el-tree :data="menus" :props="defaultProps" @node-click="handleNodeClick"  ref="tree"></el-tree>
             </div>
             <div class="organizationalRight">
-                <CanteenTable v-on:setFlag="selectFlag" :parentTableData="tableData" :parentTableData1="tableData1" :parentActiveName="activeName" :parentTableNo="tableNo" :parentDefaultPages="defaultPages" v-on:parentAdd="add" v-on:parentSelect="selectCurrent" v-on:parentSetPageSize="handleSizeChange" v-on:parentSetPageIndex="handleCurrentChange" v-on:parentDel="setOrgIds" v-on:parentOrgDels="parentOrgDels" v-on:parentCateeDels="parentCateeDels" v-on:parentDel1="setCateenIds" v-on:setIsOrg="setIsOrg" v-on:setCurrentOrgan="selectOrgan" v-on:setCurrentCanteen="selectCanteen" v-on:changeActive="selectActive" :cateenDefaultPages="cateenDefaultPages" :isorg="isorg" v-on:changeCateenPageSize="changeCateenPageSize" v-on:changeCateenPageIndex="changeCateenPageIndex"></CanteenTable>
+                <!-- <CanteenTable v-on:setFlag="selectFlag" :parentTableData="tableData" :parentTableData1="tableData1" :parentActiveName="activeName" :parentTableNo="tableNo" :parentDefaultPages="defaultPages" v-on:parentAdd="add" v-on:parentSelect="selectCurrent" v-on:parentSetPageSize="handleSizeChange" v-on:parentSetPageIndex="handleCurrentChange" v-on:parentDel="setOrgIds" v-on:parentOrgDels="parentOrgDels" v-on:parentCateeDels="parentCateeDels" v-on:parentDel1="setCateenIds" v-on:setIsOrg="setIsOrg" v-on:setCurrentOrgan="selectOrgan" v-on:setCurrentCanteen="selectCanteen" v-on:changeActive="selectActive" :cateenDefaultPages="cateenDefaultPages" :isorg="isorg" v-on:changeCateenPageSize="changeCateenPageSize" v-on:changeCateenPageIndex="changeCateenPageIndex"></CanteenTable> -->
+                <OrganizationTable v-if="tableNo === 1" v-on:setFlag="selectFlag" :parentTableData="tableData" :parentDefaultPages="defaultPages"  v-on:parentAdd="add"  v-on:parentSelect="selectCurrent" v-on:parentSetPageSize="handleSizeChange" v-on:parentSetPageIndex="handleCurrentChange" v-on:parentDel="setOrgIds" v-on:changeActive="selectActive"  :isorg="isorg" v-on:selectOrgan="selectOrgan"></OrganizationTable>
+                <CanteenTable v-else-if="tableNo === 2" v-on:setFlag="selectFlag" :parentTableData1="tableData1"  v-on:parentAdd="add" v-on:parentDel1="setCateenIds"  v-on:changeActive="selectActive" :parentCurrentCateen="parentCurrentCateen"  :cateenDefaultPages="cateenDefaultPages"  v-on:setIsOrg="setIsOrg" v-on:changeCateenPageSize="changeCateenPageSize" v-on:changeCateenPageIndex="changeCateenPageIndex" v-on:selectCanteen="selectCanteen"></CanteenTable>
             </div>
         </div>
         <AddOrganizational v-on:cancelModule="cancelModule" :parentActiveName="activeName" v-on:setActive="selectActive" v-if="dialogVisible" :parentFlag="flag" :parentCurrentOrgan="parentCurrentOrgan" :parentCurrentCateen="parentCurrentCateen" :treeNode="treeNode" v-on:getMenus="getMenus" v-on:getOrganizationPageList="getOrganizationPageList" v-on:getCanteens="getCanteens" :getCanteensData="getCanteensData" :defaultPages="defaultPages" :isorg="isorg" v-on:setPageIndexDefault="setPageIndexDefault"  v-on:changeCateenPageSize="changeCateenPageSize" v-on:changeCateenPageIndex="changeCateenPageIndex"></AddOrganizational>
@@ -21,12 +23,14 @@
 <script>
 import axios from 'axios';
 import BreadCrumb from '@/components/breadCrumb/breadCrumb.vue';
+import OrganizationTable from '@/views/organizational/components/organizationTable/organizationTable.vue';
 import CanteenTable from '@/views/organizational/components/canteenTable/canteenTable.vue';
 import AddOrganizational from '@/views/organizational/components/addOrganizational/addOrganizational.vue';
 import { RsaMixin } from '@/mixin/RsaMixin.js';
 export default {
     mixins:[RsaMixin],
     components: {
+        OrganizationTable,
         CanteenTable,
         AddOrganizational,
         BreadCrumb
@@ -152,29 +156,28 @@ export default {
         //  }
         // 判断不是一级组织架构
           if(this.treeNode.isorgshow===0) { 
+             this.tableNo = 2;
+             this.activeName="second";
              this.getCanteens(this.treeNode);
-                  this.tableNo = 2;
-                  this.activeName="second";
           }else {
-                this.getOrganizationPageList(this.treeNode);
-                this.tableNo = 1;
-                this.activeName="first";
+             this.tableNo = 1;
+             this.activeName="first";
+             this.getOrganizationPageList(this.treeNode);
           }
      },
     // 跳转到第几页
      handleCurrentChange(val) {
              // 判断不是一级组织架构
-               if(this.treeNode.isorgshow===0) { 
-                 this.tableNo = 2;
-                 this.activeName="second";
-                 this.defaultPages.pageIndex = val;
-                 this.getCanteens(this.treeNode);
-               }else {
+               this.defaultPages.pageIndex = val;
+            //    if(this.treeNode.isorgshow===0) { 
+            //      this.tableNo = 2;
+            //      this.activeName="second";
+            //      this.getCanteens(this.treeNode);
+            //    }else {
                  this.tableNo = 1;
                  this.activeName="first";
-                 this.defaultPages.pageIndex = val;
                  this.getOrganizationPageList(this.treeNode);
-               }
+            //    }
      },
      
     //获取当前树节点和其父级节点
@@ -246,50 +249,86 @@ export default {
           this.cateenDefaultPages.pageSize = val;
           this.cateenDefaultPages.pageIndex =  1;
            // 判断不是一级组织架构
-          if(this.treeNode.isorgshow===0) { 
+        //   if(this.treeNode.isorgshow===0) { 
              this.getCanteens(this.treeNode);
-                  this.tableNo = 2;
-                  this.activeName="second";
-          }else {
-                this.getOrganizationPageList(this.treeNode);
-                this.tableNo = 1;
-                this.activeName="first";
-          }
+             this.tableNo = 2;
+             this.activeName="second";
+        //   }else {
+        //         this.getOrganizationPageList(this.treeNode);
+        //         this.tableNo = 1;
+        //         this.activeName="first";
+        //   }
       },
       // 改变食堂列表的当前页
       changeCateenPageIndex(val) {
           this.cateenDefaultPages.pageIndex = val;
           console.log(this.treeNode.isorgshow);
            // 判断不是一级组织架构
-           if(this.treeNode.isorgshow===0) { 
-                this.getCanteens(this.treeNode);
-                this.tableNo = 2;
-                this.activeName="second";
-          }else {
-                this.getOrganizationPageList(this.treeNode);
-                this.tableNo = 1;
-                this.activeName="first";
-          }
+        //    if(this.treeNode.isorgshow===0) { 
+            this.tableNo = 2;
+            this.activeName="second";
+            this.getCanteens(this.treeNode);
+        //   }else {
+        //         this.getOrganizationPageList(this.treeNode);
+        //         this.tableNo = 1;
+        //         this.activeName="first";
+        //   }
       },
       // 获取组织架构下面的食堂列表
       getCanteens(item) {
+          const that = this;
           this.tableData1=[];
           console.log(item);
+          const url = window.$config  + `api/Restaurant/GetRestaurantServicePageList`;
+          let params = {};
           if (item.isshitang==1) {
-              console.log("11111111");
-             const url = window.$config  + `api/Restaurant/GetRestaurantServicePageList`;
-          const params = {
-              pageSize: this.cateenDefaultPages.pageSize,
-              pageIndex: this.cateenDefaultPages.pageIndex,
-              id:item.id
+            console.log("11111111");
+            params.pageSize = this.cateenDefaultPages.pageSize;
+            params.pageIndex = this.cateenDefaultPages.pageIndex;
+            params.id = item.id;
+            this.getCanteensData = params;            
+            // axios({ method: 'post', url: url,data:params })
+            //     .then(rsp => {
+            //         if (rsp.data.status == 1) {
+            //             console.log(rsp.data);
+            //             // 处理业务模式文字显示
+            //             let obj = {};
+            //             let arr = [];
+            //             if(rsp.data.result && rsp.data.result.length) {
+            //                 obj = rsp.data;
+            //                 arr = obj.result;
+            //                 arr.forEach(item1=>{
+            //                     item1["patternName"]= that.formatModule(item1.patternType);
+            //                 });
+            //                 obj.result = arr;
+            //             }
+            //             that.tableData1 = obj;
+            //             console.log(that.tableData1);
+            //         } else if(rsp.data.message){
+            //             this.$message.closeAll();
+            //             this.$message({
+            //                 message: rsp.data.message,
+            //                 type: 'error',
+            //             });
+            //         }
+            //     })
+            //     .catch(err => console.log(err));
+         }else{
+            item.children=[];
+            if(item.id) {
+                params.orgId =  item.id; 
+            }else if(item.orgId) {
+                params.orgId = item.orgId;
+            }
+            params.pageIndex = this.cateenDefaultPages.pageIndex;
+            params.pageSize = this.cateenDefaultPages.pageSize;
+            this.getCanteensData = params;
           }
-          this.getCanteensData=params;
-          const that = this;
-          axios({ method: 'post', url: url,data:params })
-                .then(rsp => {
-                    if (rsp.data.status == 1) {
-                        console.log(rsp.data);
-                        // 处理业务模式文字显示
+          axios({ method: 'post', url: url, data: params })
+            .then(rsp => {
+                if (rsp.data.status == 1) {
+                    if (item.isshitang==1) {
+                         // 处理业务模式文字显示
                         let obj = {};
                         let arr = [];
                         if(rsp.data.result && rsp.data.result.length) {
@@ -298,43 +337,17 @@ export default {
                             arr.forEach(item1=>{
                                 item1["patternName"]= that.formatModule(item1.patternType);
                             });
-                            obj.result = arr;
+                            const selectList = rsp.data.result.map(x => {
+                                const select = arr.find(i => i.id === x.id);
+                                if(select) return select;
+                                else return x;
+                            })
+                            obj.result = selectList;
                         }
-                        that.tableData1 = JSON.parse(JSON.stringify(obj));
-                        // that.$nextTick(() => {
-                        //     that.tableData1.result = JSON.parse(JSON.stringify(obj.result));
-                        // })
-                        // this.$forceUpdate()
+                        that.tableData1 = obj;
                         console.log(that.tableData1);
-                    } else if(rsp.data.message){
-                        this.$message.closeAll();
-                        this.$message({
-                            message: rsp.data.message,
-                            type: 'error',
-                        });
-                    }
-                })
-                .catch(err => console.log(err));
-         }else{
-             item.children=[];
-            const url = window.$config  + `api/Restaurant/GetRestaurantServicePageList`;
-            let params = {};
-          console.log(item);
-          console.log(params);
-            if(item.id) {
-                params.orgId =  item.id;
-                
-            }else if(item.orgId) {
-                params.orgId = item.orgId;
-            }
-            params.pageIndex = this.cateenDefaultPages.pageIndex;
-            params.pageSize = this.cateenDefaultPages.pageSize;
-          const that = this;
-          this.getCanteensData=params;
-            axios({ method: 'post', url: url, data: params })
-                .then(rsp => {
-                    if (rsp.data.status == 1) {
-                        var chil={};
+                    }else {
+                        let chil = {};
                         let obj = {};
                         let arr = [];
                         if(rsp.data.result && rsp.data.result.length) {
@@ -345,52 +358,30 @@ export default {
                                 chil={name:item1.restaurantName,id:item1.id,isorgshow:0,isshitang:1};
                                 item.children.push(chil);
                             });
-                            obj.result = arr;
+                            const selectList = rsp.data.result.map(x => {
+                                const select = arr.find(i => i.id === x.id);
+                                if(select) return select;
+                                else return x;
+                            })
+                            obj.result = selectList;
                         }
-                        // that.tableData1 = obj;
-                        that.tableData1 = JSON.parse(JSON.stringify(obj));
+                        that.tableData1 = obj;
                         item["isshitang"]=0;
-                        // that.$nextTick(() => {
-                        //     that.tableData1.result = JSON.parse(JSON.stringify(obj.result));
-                        // })
-                        // this.$forceUpdate()
                         console.log(that.tableData1);
                         console.log(item);
                         console.log(that.tableData1, this.menus);
-                    } else if(rsp.data.message){
-                        this.$message.closeAll();
-                        this.$message({
-                            message: rsp.data.message,
-                            type: 'error',
-                        });
                     }
-                })
-                .catch(err => console.log(err));
-          }
+                } else if(rsp.data.message){
+                    this.$message.closeAll();
+                    this.$message({
+                        message: rsp.data.message,
+                        type: 'error',
+                    });
+                }
+            })
+            .catch(err => console.log(err));
     
       },
-      // 根据组织获取食堂列表
-    //   getCanteenByOrgId(data) {
-    //        const url = window.$config + `api/Restaurant/GetRestaurantServiceListByOrgId?OrgId=`+data.id;
-    //         axios({ method: 'post', url: url })
-    //             .then(rsp => {
-    //                 if (rsp.data.status == 1) {
-    //                     const rspDatas = rsp.data.result;
-    //                     if(rspDatas.length) {
-    //                         rspDatas.forEach(item => {
-    //                             item['isCanteen'] = true;
-    //                         });
-    //                         data.children = rspDatas;
-    //                     }
-    //                 } else {
-    //                     this.$message({
-    //                         message: rsp.data.message,
-    //                         type: 'error',
-    //                     });
-    //                 }
-    //             })
-    //             .catch(err => console.log(err));
-    //   },
      //格式化业务模式
      formatModule(value) {
          if(value == 1) {

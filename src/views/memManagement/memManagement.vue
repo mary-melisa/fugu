@@ -14,7 +14,7 @@
               <!-- <span class="ml10">关键字：</span> -->
               <el-input placeholder="请输入工号/姓名/身份证号/手机号" class="commonInput" v-model="keyContent" style="width: 300px;"> </el-input>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
             <el-button class="conditionBtn" @click="educe">导出</el-button>
             <el-button class="conditionBtn" @click="importExcel">导入充值</el-button>
             <el-button class="conditionBtn" @click="someCharge">批量充值</el-button>
@@ -74,6 +74,11 @@ export default {
         this.getTableData();
     },
     methods:{
+      // 查询
+      select(){
+        this.defaultProps.pageIndex = 1;
+        this.getTableData();
+      },
       setSelection(arr){
         this.multipleSelection = arr;
         console.log(arr)

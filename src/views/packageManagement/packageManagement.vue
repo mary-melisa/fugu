@@ -14,7 +14,7 @@
                 <span>套餐名称：</span>
                 <el-input placeholder="请输入套餐名称" class="commonInput" v-model="name" style="width: 200px;"> </el-input>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
             <el-button class="conditionBtn" @click="educe">导出</el-button> 
         </div>
         <div  class="operBtns">
@@ -88,6 +88,11 @@ export default {
         this.getTableData();
     },
     methods:{
+        // 查询
+        select() {
+            this.defaultProps.pageIndex = 1;
+            this.getTableData();
+        },
         // 营养成分弹窗
         setVisible(row){
             // this.currentMeal = rowObj;

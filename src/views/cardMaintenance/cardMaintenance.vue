@@ -22,7 +22,7 @@
           maxlength="24">
         </el-input>
       </div>
-      <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+      <el-button class="conditionBtn" @click="select">查询</el-button>
       <el-button class="conditionBtn" @click="educe">导出</el-button>
     </div>
     <div class="table">
@@ -99,6 +99,11 @@ export default {
     setPassword (rowObj) {
       this.currentMeal = rowObj;
       this.passwordDialog = true;
+    },
+    // 查询
+    select(){
+      this.conditionForm.pageIndex = 1;
+      this.getTableData();
     },
     // 导出
     educe () {

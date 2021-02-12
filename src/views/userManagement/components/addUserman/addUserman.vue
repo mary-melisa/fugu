@@ -85,7 +85,7 @@
                 <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
                     <img v-if="imageUrl" :src="imageUrl" class="avatar" />
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
+                    <!-- <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div> -->
                 </el-upload>
             </el-form-item>
             <el-form-item class="btnsLine mt30">
@@ -352,6 +352,16 @@ export default {
         },
         // 切换图片
         handleChange(file) {
+          if(this.parentTitle === 1) {
+            if(!this.addMeal.name) {
+              this.$message.closeAll();
+              this.$message({
+                message: '请先输入姓名',
+                type: 'warn'
+              })
+              return false;
+            }
+           }
             console.log(file);
             if (file.name) {
                 this.imageUrl = URL.createObjectURL(file.raw);

@@ -16,7 +16,7 @@
                 </el-select>
               <span style="margin-left:10px">物料名称：</span>
               <el-input placeholder="请输入物料名称" class="commonInput" v-model="materialName" style="width: 200px;"> </el-input>
-              <el-button class="conditionBtn ml15"  @click="getMaterialDetail">查询</el-button>
+              <el-button class="conditionBtn ml15"  @click="select">查询</el-button>
               <el-button class="conditionBtn ml25" @click="tocreate">添加新物料</el-button>
         </div>
         <!-- 表格 -->
@@ -126,7 +126,8 @@ export default {
             resultObj: {},
             weight:0,
             bubble: 0,       //选中菜品的数量
-            changeTerpineList: []   //初始化菜品数组
+            changeTerpineList: [],   //初始化菜品数组
+            initMultipleSelection: [],
         }
     },
     mounted(){
@@ -150,17 +151,19 @@ export default {
             if(this.parentMultipleSelection && this.parentMultipleSelection.length){
                 //this.changeTerpineList = this.parentMultipleSelection;
                 await this.$nextTick(() => {
-                //     this.$emit('parentSetMultiple', this.parentMultipleSelection);
-                //     this.toggleSelection(this.changeTerpineList);
-                    this.parentMultipleSelection.forEach((item, index) => {
-                        // this.changeTerpineList[index] = item;
+                    this.parentMultipleSelection.forEach(item => {
+                        this.initMultipleSelection.push(JSON.parse(JSON.stringify(item)));
                         this.$refs.multipleTable.toggleRowSelection(item, true);
                     });
                     this.changeTerpineList = this.parentMultipleSelection;
                     console.log(this.changeTerpineList, 'changeTerpineList');
                 })  
-                //this.toggleSelection(this.changeTerpineList);
             }
+        },
+        // 查询
+        select(){
+            this.conditionForm.pageIndex = 1;
+            this.getMaterialDetail();
         },
          // 指定一个key标识这一行的数据
         getRowKey (row) {
@@ -202,7 +205,7 @@ export default {
             })
             console.log(newArr);
             this.toggleSelection(rows);
-            this.handleSelectionChange(newArr, {});
+            this.handleSelectionChange(newArr);
         },
         // 初始化数据
         initData(){
@@ -280,13 +283,13 @@ export default {
         },
          //关闭弹框
         close() {
-            console.log(this.changeTerpineList, 'changeTerpineList');
-            console.log(this.parentMultipleSelection);
-            // this.$emit('parentSetMultiple', this.changeTerpineList);
-            // this.$emit('closeParentModule', false);
+            // console.log(this.changeTerpineList, 'changeTerpineList');
+            // console.log(this.initMultipleSelection);
+            this.$emit('parentSetMultiple', this.initMultipleSelection);
+            this.$emit('closeParentModule', false);
         },
         //关闭菜品选择窗口
-        async close1() {
+        close1() {
             let flag = true;
              this.parentMultipleSelection.every(item => {
                 if(!item.materialUnit) {
@@ -300,17 +303,19 @@ export default {
                 }
             })
             if(flag) {
-                let weight = 0;
-                this.parentMultipleSelection.forEach(item => {
-                    weight += Number(item.materialUnit);
-                })
-                this.$emit('setNetContent', weight);
+                // let weight = 0;
+                // this.parentMultipleSelection.forEach(item => {
+                //     weight += Number(item.materialUnit);
+                // })
+                // this.$emit('setNetContent', weight);
+
+                console.log(this.parentMultipleSelection, this.changeTerpineList);
                 this.weightVisible = false;
                 // this.$emit('parentSetMultiple', []);
-                if(!this.changeTerpineList.length) {
-                    await this.getMaterialDetail();
-                    await this.init();
-                }
+                // if(!this.changeTerpineList.length) {
+                //     await this.getMaterialDetail();
+                //     await this.init();
+                // }
                // this.close();
             }
         },
@@ -351,14 +356,6 @@ export default {
                     if (rsp.data.status == 1) {
                         // 解决翻页的时候复选框被取消的问题
                         let rows = rsp.data.result;
-                        // this.parentMultipleSelection.forEach(item => {
-                        //     if(item && item.materialUnit){
-                        //         let obj = rows.find(res => res.id === item.id);
-                        //         if(obj && Object.keys(obj).length){
-                        //             obj['materialUnit'] = item.materialUnit;
-                        //         }
-                        //     }
-                        // })
                         const selectlist = rows.map(x=>{
                             let select = this.parentMultipleSelection.find(i=>i.id === x.id);
                             if(select) return select;

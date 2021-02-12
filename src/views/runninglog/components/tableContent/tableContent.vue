@@ -21,7 +21,7 @@
                         label="序号"
                         >
                         <template slot-scope="scope">
-                            {{ scope.$index + (parentDefault.pageIndex - 1) * parentDefault.pageSize + 1 }}
+                           {{ scope.$index + (parentDefault.pageIndex - 1) * parentDefault.pageSize + 1 }}
                         </template>
                     </el-table-column>
 

@@ -6,7 +6,7 @@
                 <span>关键字：</span>
                 <el-input placeholder="请输入关键字" v-model="defaultProps.name" class="commonInput"> </el-input>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <div class="operBtns">
             <el-button  icon="el-icon-plus" @click="add()">添加</el-button>
@@ -55,6 +55,11 @@ export default {
       },
       setPageIndexDefault(val){
         this.defaultProps.pageIndex = val;
+      },
+      select(){
+        // 查询
+        this.defaultProps.pageIndex = 1;
+        this.getTableData();
       },
         //获取表格数据
         getTableData(){

@@ -28,7 +28,7 @@
             <!-- <i class="el-icon-plus" v-if="imageUrl"></i> -->
             <img v-if="imageUrl" :src="imageUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-            <div class="delBar"  v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
+            <!-- <div class="delBar"  v-if="imageUrl" @click="delImg"><i class="el-icon-delete delIcon"></i></div> -->
         </el-upload>
     </div>    
     <div class="button">

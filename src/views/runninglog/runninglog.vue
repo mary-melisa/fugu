@@ -46,10 +46,10 @@
                     placeholder="结束时间">
                 </el-date-picker>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <div class="table">
-          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList"/>
+          <TableContent :parentTableData="result" :parentDefault="conditionForm" v-on:setCurrentMeal="selectMeal" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList"/>
         </div>
     </div>
 </template>
@@ -114,6 +114,11 @@ export default {
          this.getTableData();
     },
     methods:{
+        // 查询
+        select(){
+            this.conditionForm.pageIndex = 1;
+            this.getTableData();
+        },
         //获取设备类型
         getEquitypes(){
             const url = window.$config1 + `api/bdequitype/getequitype`;
@@ -194,13 +199,13 @@ export default {
         },
         handleSizeChange(val) {
         //console.log(`每页 ${val} 条`);
-        this.defaultProps.pageSize = val;
-        this.defaultProps.pageIndex = 1;
+        this.conditionForm.pageSize = val;
+        this.conditionForm.pageIndex = 1;
         this.getTableData();
       },
       handleCurrentChange(val) {
         //console.log(`当前页: ${val}`);
-        this.defaultProps.pageIndex = val;
+        this.conditionForm.pageIndex = val;
         this.getTableData();
       },
       // 关闭模态框回调

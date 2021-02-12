@@ -58,7 +58,12 @@
         <el-col :span="12" style="margin-left:-50px;margin-top:5px">
           <el-form-item label="菜品图片:">
             <div class="uploadImg">
-                <UploadImg :loading="loading" v-on:setLoading="setLoading" v-on:parentLoad="parentLoad" :datas="datas"  v-on:setPhotos="setPhotos"/>
+                <!-- <UploadImg :loading="loading" v-on:setLoading="setLoading" v-on:parentLoad="parentLoad" :datas="datas"  v-on:setPhotos="setPhotos"/> -->
+                <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
+                    <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    <!-- <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div> -->
+                </el-upload>
             </div>
           </el-form-item>
         </el-col>
@@ -151,12 +156,6 @@
     methods: {
       changeUserName(){
         this.datas.userName = this.addMeal.dishesName;
-      },
-      setLoading(val) {
-        this.loading = val;
-      },
-      setPhotos(val){
-        this.addMeal.dishesPictures = val;
       },
       onInput0(e) {
             this.$message.closeAll();
@@ -264,11 +263,6 @@
       closeDialog() {
         this.$emit('cancelModule', false);
       },
-      parentLoad(){
-        this.$nextTick(() => {
-          this.$emit('getParentTableData');
-        })
-      },
       closeModule(val) {
         this.dialogVis = val;
       },
@@ -280,15 +274,63 @@
         })
 
       },
+      handleRemove(file, fileList) {
+          console.log(file, fileList);
+          this.$refs.upload.clearFiles();
+      },
+      handlePictureCardPreview(file) {
+          this.dialogImageUrl = file.url;
+          this.dialogVisible = true;
+      },
       //选择物料
       selectDishes() {
         this.dialogVis = true;
       },
-      // 替换图片
-      handleChange(file, fileList){
-        if(this.$refs.upload.uploadFiles.length > 1){
-          this.$refs.upload.uploadFiles.shift();
-        }
+      // 切换图片
+      handleChange(file) {
+          if(this.parentTitle === 1) {
+            if(!this.addMeal.dishesName) {
+              this.$message.closeAll();
+              this.$message({
+                message: '请先输入菜品名称',
+                type: 'warn'
+              })
+              return false;
+            }
+          }
+          if (file.name) {
+              this.imageUrl = URL.createObjectURL(file.raw);
+              this.datas.UploadFile = file.raw;
+          }
+          this.loading = true;
+          let config = {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          };
+          let formData = new FormData();
+          if (Object.keys(this.datas).length) {
+              Object.keys(this.datas).forEach(key => {
+                  formData.append(key, this.datas[key]);
+              });
+          }
+          axios
+              .post(this.uploadUrl, formData, config)
+              .then(res => {
+                  this.loading = false;
+                  if (res.data.status === 1) {
+                  this.addMeal.dishesPictures = this.imgUrl + res.data.result;
+                      // this.$message.closeAll();
+                      // this.$message({
+                      //     message: '上传成功！',
+                      //     type: 'success',
+                      // });
+                      this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
+                  }
+              })
+              .catch(() => {
+                  that.$emit('setLoading', false);
+              });
       },
       //图片上传
         // handleAvatarSuccess(res, UploadFile) {
@@ -299,27 +341,27 @@
         //     this.datas.sourcePath = this.imageUrl;
         // },
         // // 封装一个判断图片文件后缀名的方法
-        // isImage(fileName) {
-        //     if (typeof fileName !== 'string') return;
-        //     let name = fileName.toLowerCase();
-        //     return name.endsWith('.jpg') || name.endsWith('.gif') || name.endsWith('.jpe') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.bmp');
-        // },
-        // beforeAvatarUpload(file) {
-        //     this.loading = true;
-        //     const isLt10M = file.size / 1024 / 1024 < 10;
+        isImage(fileName) {
+            if (typeof fileName !== 'string') return;
+            let name = fileName.toLowerCase();
+            return name.endsWith('.jpg') || name.endsWith('.gif') || name.endsWith('.jpe') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.bmp');
+        },
+        beforeAvatarUpload(file) {
+            this.loading = true;
+            const isLt10M = file.size / 1024 / 1024 < 10;
 
-        //     let type = this.isImage(file.name);
-        //     this.$message.closeAll();
-        //     if (!type) {
-        //         this.$message.error('只允许上传.jpg,.gif,.jpe,.jpeg,.png,.bmp图片');
-        //         return false;
-        //     }
-        //     if (!isLt10M) {
-        //         this.$message.error('上传头像图片大小不能超过 10MB!');
-        //         return false;
-        //     }
-        //     return true;
-        // },
+            let type = this.isImage(file.name);
+            this.$message.closeAll();
+            if (!type) {
+                this.$message.error('只允许上传.jpg,.gif,.jpe,.jpeg,.png,.bmp图片');
+                return false;
+            }
+            if (!isLt10M) {
+                this.$message.error('上传头像图片大小不能超过 10MB!');
+                return false;
+            }
+            return true;
+        },
         // 获取物料类别下拉列表
         getNutrients() {
            const url= window.$config1 + `api/bdmaterial/getmaterial`;

@@ -14,9 +14,11 @@
                     stripe
                     border>
                     <el-table-column
-                        prop="dayInfo"
                         label="日期"
                         >
+                        <template slot-scope="scope">
+                            {{ formateDate(scope.row.dayInfo) }}
+                        </template>
                     </el-table-column>
 
                     <el-table-column

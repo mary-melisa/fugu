@@ -16,7 +16,7 @@
                 </el-select>
               <span style="margin-left:10px">套餐名称：</span>
               <el-input placeholder="请输入套餐名称" class="commonInput" v-model="name" style="width: 200px;"> </el-input>
-              <el-button class="conditionBtn ml15"  @click="getTableData">查询</el-button>
+              <el-button class="conditionBtn ml15"  @click="select">查询</el-button>
               <el-button class="conditionBtn ml25" @click="tocreate" >添加套餐</el-button>
         </div>
         <!-- 表格 -->
@@ -31,7 +31,7 @@
                 :row-key="getRowKey"
                 stripe
                 border
-               @selection-change="handleSelectionChange($event, mealMultipleSelection)">
+               @selection-change="handleSelectionChange">
                 <el-table-column
                     type="selection"
                     :reserve-selection="true"
@@ -59,17 +59,17 @@
                     label="计划份数"
                     align="center">
                     <template slot-scope="scope">
-                        <el-input type="number" v-model="scope.row.quantity" placeholder='请输入重量' @blur="handleSelectionChange(mealMultipleSelection, scope.row)"></el-input>
+                        <el-input type="number" v-model="scope.row.quantity" placeholder='请输入重量'></el-input>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <div class="pagination" style="position:relative;">
-            <!-- <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
-                <el-badge :value="mealMultipleSelection && mealMultipleSelection.length ? mealMultipleSelection.length : 0" class="item"  >
+            <div style="position: absolute;left:140px;font-size:30px;" @click="terpineWeight">
+                <el-badge :value="changeTerpineList && changeTerpineList.length ? changeTerpineList.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
-            </div> -->
+            </div>
             <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -91,12 +91,12 @@
         title="套餐选择"
         :visible.sync="weightVisible"
         :append-to-body="true"
-        width="300px"
+        width="350px"
         :close-on-click-modal="false"
         :before-close="close1">
-        <el-row class="commonRow" v-for="(item, index) in mealMultipleSelection" :key="index">
+        <el-row class="commonRow" v-for="(item, index) in changeTerpineList" :key="index">
                 <el-col :span="10">{{item.setMealName}}</el-col>
-                <el-col :span="12"><el-input type="number" class="commonInput" style="width:80px;" v-model="item.quantity"  @blur="handleSelectionChange(mealMultipleSelection, item)"></el-input><span class="fl"> 份</span></el-col>
+                <el-col :span="12"><el-input type="number" class="commonInput" style="width:80px;" v-model="item.quantity"></el-input><span class="fl"> 份</span></el-col>
                 <el-col :span="2" ><a @click="delDish(item)"><i class=" el-icon-delete"></i></a></el-col>
         </el-row>
     </el-dialog>
@@ -133,7 +133,8 @@ export default {
             weight:0,
             multipleSelection: [],
             bubble: 0,       //选中菜品的数量
-            changeTerpineList: []   //选中菜品集合
+            changeTerpineList: [],   //选中菜品集合
+            initMultipleSelection: []
         }
     },
     mounted(){
@@ -152,10 +153,18 @@ export default {
         init(){
             if(this.mealMultipleSelection && this.mealMultipleSelection.length){
                 this.$nextTick(() => {
-                    this.$emit('parentSetMultiple', this.mealMultipleSelection);
+                    this.changeTerpineList = this.mealMultipleSelection;
+                    this.mealMultipleSelection.forEach(item => {
+                        this.initMultipleSelection.push(JSON.parse(JSON.stringify(item)));
+                    })
                     this.toggleSelection(this.mealMultipleSelection);
                 });
             }
+        },
+        // 查询
+        select(){
+            this.conditionForm.pageIndex = 1;
+            this.getTableData();
         },
         // 跳转到新增套餐路由
         tocreate() {
@@ -192,7 +201,7 @@ export default {
             })
             console.log(newArr);
             this.toggleSelection(rows);
-            this.handleSelectionChange(newArr, {});
+            this.handleSelectionChange(newArr);
         },
          // 切换选中取消菜品
         toggleSelection(rows) {
@@ -221,16 +230,21 @@ export default {
                 if (rsp.data.status == 1) {
                      // 解决翻页的时候复选框被取消的问题
                         let rows = rsp.data.result;
-                        this.mealMultipleSelection.forEach(item => {
-                            if(item && item.quantity){
-                                let obj = rows.find(res => res.id === item.id);
-                                if(obj && Object.keys(obj).length){
-                                    obj['quantity'] = item.quantity;
-                                }
-                            }
+                        // this.mealMultipleSelection.forEach(item => {
+                        //     if(item && item.quantity){
+                        //         let obj = rows.find(res => res.id === item.id);
+                        //         if(obj && Object.keys(obj).length){
+                        //             obj['quantity'] = item.quantity;
+                        //         }
+                        //     }
+                        // })
+                        const selectList = rows.map(x => {
+                            let select = this.mealMultipleSelection.find(i => i.id === x.id);
+                            if(select) return select;
+                            else return x;
                         })
                         this.resultObj = rsp.data;
-                        this.resultObj.result = rows;
+                        this.resultObj.result = selectList;
                 } else{
                     this.$message( {
                         message: rsp.data.message,
@@ -250,22 +264,14 @@ export default {
             this.dialogVisible = false;
         },
         // 选择菜品
-        handleSelectionChange(val, row) {
-            let meals = val;
-             
-            meals.forEach(item => {
-                if(item.id === row.id) {
-                    if(row.quantity) {
-                    item.quantity = row.quantity;
-                    }else {
-                        delete item.quantity;
-                    }
-                }
+        handleSelectionChange(val) {
+            const res = new Map();
+            let arr =  val.filter((val) => !res.has(val.id) && res.set(val.id, 1));
+            this.changeTerpineList.length = 0;
+            arr.forEach(item => {
+                this.changeTerpineList.push(item);
             })
-            
-            this.$nextTick(() => {
-                this.$emit('parentSetMealList', meals);
-            });
+            console.log(this.changeTerpineList);
         },
         checkSelect(row, index){
             this.changeTerpineList = row
@@ -282,12 +288,13 @@ export default {
         },
          //关闭弹框
         close() {
+            this.$emit('parentSetMealList', this.initMultipleSelection);
             this.$emit('closeParentModule', false);
         },
         //关闭菜品选择窗口
         close1() {
              let flag = true;
-            this.mealMultipleSelection.every(item => {
+            this.changeTerpineList.every(item => {
                 if(!item.quantity) {
                     this.$message({
                         message: '请输入选中的套餐的重量',
@@ -298,8 +305,8 @@ export default {
                 }
             })        
             if(flag) {
+                this.$emit('parentSetMealList', this.initMultipleSelection);
                 this.weightVisible = false;
-                this.close();
             }      
            
         },
@@ -335,7 +342,7 @@ export default {
             //     return false;
             // }else {
                 let flag = true;
-                this.mealMultipleSelection.every(item => {
+                this.changeTerpineList.every(item => {
                     if(!item.quantity) {
                         this.$message({
                             message: '请输入选中的套餐的重量',
@@ -346,7 +353,8 @@ export default {
                     }
                 })        
                 if(flag) {
-                        this.$emit('closeParentModule', false);
+                    this.$emit('parentSetMealList', this.changeTerpineList);
+                    this.$emit('closeParentModule', false);
                 }       
             // }
         }

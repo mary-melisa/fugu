@@ -17,7 +17,7 @@
                 </el-select>
               <span style="margin-left:10px">菜品名称：</span>
               <el-input placeholder="请输入菜品名称" class="commonInput" v-model="name" style="width: 200px;"> </el-input>
-              <el-button class="conditionBtn" @click="getDataTable">查询</el-button>
+              <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <!-- 表格 -->
         <div class="tableContent">
@@ -31,7 +31,7 @@
                 stripe
                 border
                 :row-key="getRowKey"
-               @selection-change="handleSelectionChange($event, parentMultipleSelection)">
+               @selection-change="handleSelectionChange">
                 <el-table-column
                     type="selection"
                     :reserve-selection="true"
@@ -54,7 +54,7 @@
                     align="center"
                 >
                     <template slot-scope="scope">
-                        <el-input type="number" style="width: 120px;" v-model="scope.row.quantity" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" placeholder='请输入数量' @blur="handleSelectionChange(parentMultipleSelection, scope.row)"></el-input>
+                        <el-input type="number" style="width: 120px;" v-model="scope.row.quantity" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" placeholder='请输入数量'></el-input>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -85,11 +85,11 @@
             </el-table>
         </div>
         <div class="pagination" style="position:relative;">
-            <!-- <div style="position: absolute;left:100px;font-size:30px;top: 10px;" @click="terpineWeight">
+            <div style="position: absolute;left:100px;font-size:30px;top: 10px;" @click="terpineWeight">
                 <el-badge :value="parentMultipleSelection && parentMultipleSelection.length ? parentMultipleSelection.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
-            </div> -->
+            </div>
             <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -144,7 +144,8 @@ export default {
             weight:0,
             multipleSelection: [],
             bubble: 0,       //选中菜品的数量
-            changeTerpineList: []   //选中菜品集合
+            changeTerpineList: [],   //选中菜品集合
+            initMultipleSelection: [], // 编辑时初始化复选框列表的值
         }
     },
     mounted(){
@@ -160,11 +161,18 @@ export default {
                 e.target.value = null;
             }
         },
+        // 查询
+        select() {
+            this.conditionForm.pageIndex = 1;
+            this.getDataTable();
+        },
         // 编辑时初始化选中物料列表
         init(){
             if(this.parentMultipleSelection && this.parentMultipleSelection.length){
                 this.$nextTick(() => {
-                    this.$emit('parentSetMultiple', this.parentMultipleSelection);
+                    this.parentMultipleSelection.forEach(item => {
+                        this.initMultipleSelection.push(JSON.parse(JSON.stringify(item)));
+                    })
                     this.toggleSelection(this.parentMultipleSelection);
                 });
             }
@@ -174,20 +182,14 @@ export default {
             return row.id
         },
         // 选择菜品
-        handleSelectionChange(val, row) {
-            let meals = val;
-            meals.forEach(item => {
-                if(item.id === row.id) {
-                        if(row.quantity) {
-                            item.quantity = row.quantity;
-                        }else{
-                            delete item.quantity;
-                        }
-                }
+        handleSelectionChange(val) {
+            const res = new Map();
+            let arr =  val.filter((val) => !res.has(val.id) && res.set(val.id, 1));
+            this.changeTerpineList.length = 0;
+            arr.forEach(item => {
+                this.changeTerpineList.push(item);
             })
-            this.$nextTick(() => {
-                this.$emit('parentSetMultiple', meals);
-            });
+            console.log(this.changeTerpineList);
         },
         //菜品重量设置弹窗
         terpineWeight(){
@@ -195,7 +197,7 @@ export default {
         },
          //关闭弹框
         close() {
-            // this.$emit('parentSetMultiple', []);
+            this.$emit('parentSetMultiple', this.initMultipleSelection);
             this.$emit('closeParentModule', false);
         },
         //关闭菜品选择窗口
@@ -212,8 +214,9 @@ export default {
                     }
                 })  
                 if(flag) {
+                    console.log(this.parentMultipleSelection);
                    this.weightVisible = false;
-                    this.close();
+                    // this.close();
                 }
         },
        // 删除物料选择
@@ -240,7 +243,7 @@ export default {
             })
             console.log(newArr);
             this.toggleSelection(rows);
-            this.handleSelectionChange(newArr, {});
+            this.handleSelectionChange(newArr);
         },
         toggleSelection(rows) {
             if (rows) {
@@ -271,16 +274,23 @@ export default {
                         
                         // 解决翻页的时候复选框被取消的问题
                         let rows = rsp.data.result;
-                        this.parentMultipleSelection.forEach(item => {
-                            if(item && item.quantity){
-                                let obj = rows.find(res => res.id === item.id);
-                                if(obj && Object.keys(obj).length){
-                                    obj['quantity'] = item.quantity;
-                                }
-                            }
+                        // this.parentMultipleSelection.forEach(item => {
+                        //     if(item && item.quantity){
+                        //         let obj = rows.find(res => res.id === item.id);
+                        //         if(obj && Object.keys(obj).length){
+                        //             obj['quantity'] = item.quantity;
+                        //         }
+                        //     }
+                        // })
+                        // this.resultObj = rsp.data;
+                        // this.resultObj.result = rows;
+                          const selectlist = rows.map(x=>{
+                            let select = this.parentMultipleSelection.find(i=>i.id === x.id);
+                            if(select) return select;
+                            else return x;
                         })
                         this.resultObj = rsp.data;
-                        this.resultObj.result = rows;
+                        this.resultObj.result = selectlist;
                     } else {
                         this.$message({
                             message: rsp.data.message,

@@ -26,7 +26,7 @@
               <!-- <span class="ml10">姓名：</span> -->
               <el-input placeholder="请输入姓名/班级/卡号" class="commonInput" v-model="keyContent" style="width: 300px;"> </el-input>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <div class="table">
           <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:setParentSelection="setSelection" v-on:setPageSize="setPageSize" v-on:setPageIndex="setPageIndex" v-on:parentChange="change"/>
@@ -79,6 +79,11 @@ export default {
     methods:{
         async init(){
             await this.initUserInfo();
+            this.getTableData();
+        },
+        // 查询
+        select(){
+            this.defaultProps.pageIndex = 1;
             this.getTableData();
         },
          // 初始化用户信息

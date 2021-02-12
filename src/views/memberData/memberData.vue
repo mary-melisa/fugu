@@ -14,7 +14,7 @@
               <!-- <span class="ml10">关键字：</span> -->
               <el-input placeholder="请输入工号/姓名/身份证号/手机号" class="commonInput" v-model="keyContent" style="width: 300px;"> </el-input>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
             <el-button class="conditionBtn" @click="educe">导出</el-button>
             <el-button class="conditionBtn" @click="importExcel">导入</el-button>
         </div>
@@ -23,7 +23,18 @@
             <el-button  icon="el-icon-delete" @click="delSome">批量删除</el-button>
         </div>
         <div class="table">
-          <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal" v-on:parentEdit="edit" v-on:parentDel="del" v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange" v-on:parentHandleCurrentChange="handleCurrentChange" v-on:changeFace="changeFace"/>
+          <TableContent 
+            :parentTableData="result" 
+            :parentDefault="defaultProps" 
+            v-on:setCurrentMeal="selectMeal" 
+            v-on:parentEdit="edit" 
+            v-on:parentDel="del" 
+            v-on:setParentSelection="setSelection" 
+            v-on:parentHandleSizeChange="handleSizeChange" 
+            v-on:parentHandleCurrentChange="handleCurrentChange" 
+            v-on:changeFace="changeFace"
+            v-on:delImg="delImg"
+            />
         </div>
         <AddMem v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndex="setPageIndex"></AddMem>
         <ExportModule v-if="exportVisible" v-on:getTableData="getTableData" v-on:parentClo="close" :restaurantObj="restaurantObj"></ExportModule>
@@ -82,6 +93,11 @@ export default {
         this.getTableData();
     },
     methods:{
+      // 查询
+      select(){
+        this.defaultProps.pageIndex = 1;
+        this.getTableData();
+      },
       setSelection(arr){
         this.multipleSelection = arr;
         console.log(arr)
@@ -94,6 +110,45 @@ export default {
           this.restaurantObj = this.cateenInfo;
           console.log(this.restaurantObj);
        },
+       // 删除人脸
+        delImg(imgPath) {
+            this.$confirm('删除后不可恢复，确认删除人脸吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.delFace(imgPath);
+            })
+        },
+        delFace(face){
+          this.loading = this.$loading({
+              lock: true,
+              text: '删除中...',
+              spinner: 'el-icon-loading',
+              background: 'rgba(0, 0, 0, 0.7)'
+          });
+          const url =  window.$facilityUrl + 'api/Facility/DeleteImage?imagePath=' + face;
+          axios({method: 'post',url: url})
+                .then(rsp=>{
+                    this.loading.close();
+                    if (rsp.data.status == 1) {
+                        this.$message.closeAll();
+                        this.$message({
+                          message: '删除人脸成功！',
+                          type: 'success'
+                        })
+                        this.defaultProps.pageIndex = 1;
+                        this.getTableData();
+                    } else if(rsp.data.message){
+                       this.$message.closeAll();
+                        this.$message({
+                            message: rsp.data.message,
+                            type: 'error',
+                        });
+                    }
+                })
+                .catch(err =>this.loading.close());
+        },
        // 导入
        importExcel(){
          this.exportVisible = true;

@@ -19,7 +19,7 @@
                     placeholder="备菜计划结束时间">
                 </el-date-picker>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
             <el-button class="conditionBtn" @click="educe">导出</el-button>
         </div>
         <el-row  class="operBtns">
@@ -71,6 +71,11 @@ export default {
     methods:{
         setPageIndex(val){
             this.defaultProps.pageIndex = val;
+        },
+        // 查询
+        select(){
+            this.defaultProps.pageIndex = 1;
+            this.getTableData();
         },
         //获取住页面表格数据
         getTableData(){

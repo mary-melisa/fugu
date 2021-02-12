@@ -35,7 +35,7 @@
                 <span>综合查询：</span>
                 <el-input placeholder="请输入" class="commonInput" v-model="conditionForm.KeyContent" style="width: 200px;"> </el-input>
             </div>
-            <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+            <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <el-row :span="24" class="operBtns">
             <el-button  icon="el-icon-plus" @click="add()">添加</el-button>
@@ -111,6 +111,11 @@ export default {
             await this.getEquitypes();
             // 获取分页表格信息
             await this.getTableData();
+        },
+        // 查询
+        select(){
+            this.conditionForm.PageIndex = 1;
+            this.getTableData();
         },
         //获取设备类型
         getEquitypes(){

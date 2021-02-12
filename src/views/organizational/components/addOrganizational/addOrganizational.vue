@@ -78,7 +78,7 @@
             <el-upload ref="upload" accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp" :action="uploadUrl" :data="datas" name="UploadFile" class="avatar-uploader" :auto-upload="false" :show-file-list="false" :on-change="handleChange" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
               <img v-if="imageUrl" :src="imageUrl" class="avatar" />
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-              <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div>
+              <!-- <div class="delBar" v-if="imageUrl"><i class="el-icon-delete delIcon"></i></div> -->
             </el-upload>
           </el-form-item>
           <el-form-item>
@@ -214,7 +214,7 @@ export default {
     this.initUserInfo();
     let that = this;
     this.$nextTick(() => {
-      this.mapBuild();
+      that.mapBuild();
     })
   },
   methods: {
@@ -227,10 +227,20 @@ export default {
       }
     },
       changeUserName(){
-        this.datas.userName = this.addOrgnForm.organizationName;
+        this.datas.userName = this.addCanteenForm.organizationName;
       },
       // 切换图片
       handleChange(file) {
+        if(this.parentFlag === 1) {
+          if(!this.addCanteenForm.restaurantName) {
+            this.$message.closeAll();
+            this.$message({
+              message: '请先输入食堂名称',
+              type: 'warn'
+            })
+            return false;
+          }
+        }
           console.log(file);
           if (file.name) {
               this.imageUrl = URL.createObjectURL(file.raw);
@@ -253,7 +263,7 @@ export default {
               .then(res => {
                   this.loading = false;
                   if (res.data.status === 1) {
-                    this.addMeal.facilityPictures = this.imgUrl + res.data.result;
+                    this.addCanteenForm.pictures = this.imgUrl + res.data.result;
                       // this.$message.closeAll();
                       // this.$message({
                       //     message: '上传成功！',
@@ -279,7 +289,7 @@ export default {
       let that = this;
       // setTimeout(function() {
       //if (that.mapGetshow) {
-      try {
+      // try {
         this.map = new BMapGL.Map("map");
         this.geoc = new BMapGL.Geocoder();
         let point = new BMapGL.Point(113.07298735689024, 28.221947752559746);
@@ -307,9 +317,9 @@ export default {
         //     },
         //     { enableHighAccuracy: true }
         // );
-      } catch (error) {
-        return Promise.reject(error);
-      }
+      // } catch (error) {
+      //   return Promise.reject(error);
+      // }
       //  }
       // }, 1000);
     },
@@ -511,18 +521,25 @@ export default {
     },
     //初始化表单
     initFormData () {
-      // 组织
-      this.addOrgnForm = JSON.parse(JSON.stringify(this.parentCurrentOrgan));
-      // 食堂
-      this.addCanteenForm = JSON.parse(JSON.stringify(this.parentCurrentCateen));
+      console.log('isOrg', this.isorg);
+      if(this.parentCurrentOrgan) {
+        // 组织
+        this.addOrgnForm = this.parentCurrentOrgan;
+        console.log(this.addOrgnForm);
+      }
+      if(this.parentCurrentCateen){
+        // 食堂
+        this.addCanteenForm = this.parentCurrentCateen;
+        console.log(this.addCanteenForm);
+      }
       if (this.parentActiveName === "second") {
         this.active = this.parentActiveName;
 
       } else {
         this.active = 'first';
       }
-      if(this.addOrgnForm.restaurantName) {
-        this.datas.userName = this.addOrgnForm.restaurantName;
+      if(this.addCanteenForm.restaurantName) {
+        this.datas.userName = this.addCanteenForm.restaurantName;
       }
       if (this.addCanteenForm.pictures) {
         this.imageUrl = this.addCanteenForm.pictures;

@@ -27,7 +27,7 @@
                 </el-row>
             </el-col>
             <el-col :span="6">
-              <el-button class="conditionBtn" @click.native="getTableData" >查询</el-button>
+              <el-button class="conditionBtn" @click.native="select" >查询</el-button>
               <el-button class="conditionBtn">导出</el-button>
             </el-col>
         </el-row>
@@ -72,6 +72,11 @@ export default {
         this.getTableData();
     },
     methods:{
+        // 查询
+        select(){
+            this.defaultProps.pageIndex = 1;
+            this.getTableData();
+        },
         //获取表格数据
         getTableData(){
             console.log("select");

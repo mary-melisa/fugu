@@ -5,7 +5,7 @@
           <div class="fieldItem">
             <div class="input">综合查询：<el-input class="commonInput" placeholder="请输入" v-model="keyContent" style="width:200px" clearable> </el-input></div>
           </div>
-           <el-button class="conditionBtn" @click="getTableData">查询</el-button>
+           <el-button class="conditionBtn" @click="select">查询</el-button>
         </div>
         <el-row  class="operBtns">
             <el-button  icon="el-icon-plus" @click="add">添加物料</el-button>
@@ -53,6 +53,11 @@ export default {
     methods:{
         setSelection(arr){
         this.multipleSelection = arr;
+      },
+      // 查询
+      select(){
+        this.defaultProps.pageIndex = 1;
+        this.getTableData();
       },
       // 初始化数据
         initData(){
