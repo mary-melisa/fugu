@@ -4,17 +4,15 @@
                 <el-table
                     ref="multipleTable"
                     :data="newTableData"
-                    class="commonTable"
+                    class="commonTable borderTable"
                     tooltip-effect="dark"
-                    height="100%"
                     style="width: 100%"
                     highlight-current-row
                     :span-method="objectSpanMethod"
-                    show-summary
-                    stripe
                     border>
                     <el-table-column
                         label="日期"
+                        align="center"
                         >
                         <template slot-scope="scope">
                             {{ formateDate(scope.row.dayInfo) }}
@@ -23,16 +21,19 @@
 
                     <el-table-column
                         prop="categoryName"
+                        align="center"
                         label="餐别"
                         >
                     </el-table-column>
                     <el-table-column
                         prop="countinfo"
+                        align="center"
                         label="笔数"
                     >
                     </el-table-column>
                     <el-table-column
                         prop="marketAmount"
+                        align="center"
                         label="营业额"
                     >
                     </el-table-column>
@@ -107,7 +108,8 @@ export default {
             }
         },
         formateDate(date){
-            return moment(date).format('YYYY/MM/DD');
+            if(date) return moment(date).format('YYYY/MM/DD');
+            else return "";
         },
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 0) {

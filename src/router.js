@@ -41,6 +41,12 @@ const router = {
                     component: () => import('@/views/mealSetting/mealSetting.vue'),
                 },
                 {
+                    //菜品类别
+                    path: '/foodCategory',
+                    name: 'foodCategory',
+                    component: () => import('@/views/foodCategory/foodCategory.vue'),
+                },
+                {
                     //物料类别
                     path: '/matCategory',
                     name: 'matCategory',

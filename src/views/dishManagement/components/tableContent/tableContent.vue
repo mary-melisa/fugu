@@ -46,7 +46,7 @@
                     </el-table-column>
                     <el-table-column
                         prop="netContent"
-                        label="菜品净含量"
+                        label="菜品净含量(g)"
                         align="center"
                     >
                     </el-table-column>

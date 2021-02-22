@@ -44,6 +44,7 @@
                     >
                     </el-input> -->
                     <el-tree id="floatTree"
+                        :check-strictly="true"
                         v-show="isShowSelect"
                         show-checkbox
                         node-key="id"
@@ -259,12 +260,13 @@ export default {
         selectClassfy(data) {
             console.log(this.$refs.selectTree.getCheckedNodes());
             this.addMeal.organization = [];
-            this.addMeal.organization.push({
-                id: this.list[0].id,
-                name: this.list[0].name
-            })
+            // this.addMeal.organization.push({
+            //     id: this.list[0].id,
+            //     name: this.list[0].name
+            // })
             this.organizationName = "";
-            let preName = this.list[0].name + ",";
+            // let preName = this.list[0].name + ",";
+            let preName = "";
             this.organizationName += preName;
             let arr = this.$refs.selectTree.getCheckedNodes();
             let treeKeys = [];

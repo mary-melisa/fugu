@@ -2,16 +2,7 @@
     <div class="memberData">
         <Breadcrumb :firstMenu="'会员管理'" :secondMenu="'会员数据'"/>
         <div class="search">
-            <!-- <div class="fieldItem">
-              <span>手机号：</span>
-              <el-input placeholder="请输入手机号" class="commonInput" v-model="mobile" style="width: 200px;"> </el-input>
-            </div>
             <div class="fieldItem">
-              <span class="ml10">姓名：</span>
-              <el-input placeholder="请输入姓名" class="commonInput" v-model="userName" style="width: 200px;"> </el-input>
-            </div> -->
-            <div class="fieldItem">
-              <!-- <span class="ml10">关键字：</span> -->
               <el-input placeholder="请输入工号/姓名/身份证号/手机号" class="commonInput" v-model="keyContent" style="width: 300px;"> </el-input>
             </div>
             <el-button class="conditionBtn" @click="select">查询</el-button>
@@ -34,11 +25,12 @@
             v-on:parentHandleCurrentChange="handleCurrentChange" 
             v-on:changeFace="changeFace"
             v-on:delImg="delImg"
+            v-on:lookFace="lookFace"
             />
         </div>
         <AddMem v-on:cancelModule="cancelModule" v-if="dialogVisible" v-on:getParentTableData="getTableData" :parentTitle="title" :parentCurrentMeal="currentMeal" v-on:setPageIndex="setPageIndex"></AddMem>
         <ExportModule v-if="exportVisible" v-on:getTableData="getTableData" v-on:parentClo="close" :restaurantObj="restaurantObj"></ExportModule>
-        <ChangeFace v-if="faceFlag" v-on:getParentTableData="getTableData" v-on:cancelModule="cancelModule" :parentCurrentMeal="currentMeal" :restaurantObj="restaurantObj"/>
+        <ChangeFace v-if="faceFlag" v-on:getParentTableData="getTableData" v-on:cancelModule="cancelModule" :parentCurrentMeal="currentMeal" :restaurantObj="restaurantObj" :faceStatus="faceStatus"/>
     </div>
 </template>
 
@@ -79,6 +71,7 @@ export default {
             dialogVisible: false,
             exportVisible: false,
             faceFlag: false,
+            faceStatus: 2, // 1代表查看人脸  2代表完善人脸
         }
     },
     computed: {
@@ -93,6 +86,12 @@ export default {
         this.getTableData();
     },
     methods:{
+      // 查看人脸
+      lookFace(row){
+        this.faceStatus = 1;
+        this.currentMeal = JSON.parse(JSON.stringify(row));
+        this.faceFlag = true;
+      },
       // 查询
       select(){
         this.defaultProps.pageIndex = 1;
@@ -111,24 +110,28 @@ export default {
           console.log(this.restaurantObj);
        },
        // 删除人脸
-        delImg(imgPath) {
+        delImg(row) {
             this.$confirm('删除后不可恢复，确认删除人脸吗？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                this.delFace(imgPath);
+                this.delFace(row);
             })
         },
-        delFace(face){
+        delFace(row){
           this.loading = this.$loading({
               lock: true,
               text: '删除中...',
               spinner: 'el-icon-loading',
               background: 'rgba(0, 0, 0, 0.7)'
           });
-          const url =  window.$facilityUrl + 'api/Facility/DeleteImage?imagePath=' + face;
-          axios({method: 'post',url: url})
+          const params = {
+            id: row.id,
+            facePhotos: ""
+          }
+          const url =  window.$moneyUrl + 'api/member/upfacephotos';
+          axios({method: 'post',url: url, data: params})
                 .then(rsp=>{
                     this.loading.close();
                     if (rsp.data.status == 1) {
@@ -318,7 +321,8 @@ export default {
         console.log(meal);
       },
       changeFace(row){
-         this.currentMeal = row;
+         this.faceStatus = 2;
+         this.currentMeal = JSON.parse(JSON.stringify(row));
          this.faceFlag = true;
       }
     },

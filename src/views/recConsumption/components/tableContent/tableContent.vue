@@ -74,7 +74,7 @@
                     
                     <el-table-column
                         prop="amount"
-                        label="消费金额"
+                        label="消费金额(元)"
                     >
                     </el-table-column>
                     

@@ -119,7 +119,8 @@ export default {
         'setIsOrg', 
         'changeCateenPageSize', 
         'changeCateenPageIndex',
-        'selectCanteen'
+        'selectCanteen',
+        'parentCateeDels'
     ],
     data() {
         return {

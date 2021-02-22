@@ -108,7 +108,8 @@ export default {
         'parentDel',
         'changeActive', 
         'isorg',
-        'selectOrgan'],
+        'selectOrgan',
+        'parentOrgDels'],
     data() {
         return {
             tableKey: Math.random(),

@@ -6,19 +6,19 @@
                 <div class="line"></div>
             </div>
             <div class="menu-box">
-                <div class="menu-item" @click="go('customerType')">
+                <div class="menu-item" @click="go('customerType', '9-4')">
                     <img class="icon" src="@/assets/images/business_1.png" alt=""/>
                     <div class="menu-name">用户类型</div>
                 </div>
-                <div class="menu-item" @click="go('matInformation')">
+                <div class="menu-item" @click="go('matInformation', '9-3')">
                     <img class="icon" src="@/assets/images/business_2.png" alt=""/>
                     <div class="menu-name">物料信息</div>
                 </div>
-                <div class="menu-item" @click="go('matCategory')">
+                <div class="menu-item" @click="go('matCategory', '9-2')">
                     <img class="icon" src="@/assets/images/business_3.png" alt=""/>
                     <div class="menu-name">物料类别</div>
                 </div>
-                <div class="menu-item" @click="go('nutrients')">
+                <div class="menu-item" @click="go('nutrients', '9-1')">
                     <img class="icon" src="@/assets/images/business_4.png" alt=""/>
                     <div class="menu-name">营养成分</div>
                 </div>
@@ -30,11 +30,11 @@
                 <div class="line"></div>
             </div>
             <div class="menu-box">
-                <div class="menu-item" @click="go('userManagement')">
+                <div class="menu-item" @click="go('userManagement', '10-3')">
                     <img class="icon" src="@/assets/images/business_5.png" alt=""/>
                     <div class="menu-name">用户管理</div>
                 </div>
-                <div class="menu-item" @click="go('organizational')">
+                <div class="menu-item" @click="go('organizational', '10-1')">
                     <img class="icon" src="@/assets/images/business_6.png" alt=""/>
                     <div class="menu-name">组织架构</div>
                 </div>
@@ -46,7 +46,7 @@
                 <div class="line"></div>
             </div>
             <div class="menu-box">
-                <div class="menu-item" @click="go('memberData')">
+                <div class="menu-item" @click="go('memberData', '5-3')">
                     <img class="icon" src="@/assets/images/business_7.png" alt=""/>
                     <div class="menu-name">会员数据</div>
                 </div>
@@ -58,19 +58,19 @@
                 <div class="line"></div>
             </div>
             <div class="menu-box">
-                <div class="menu-item" @click="go('memberData')">
+                <div class="menu-item" @click="go('memManagement', '4-1')">
                     <img class="icon" src="@/assets/images/business_8.png" alt=""/>
                     <div class="menu-name">账户信息</div>
                 </div>
-                <div class="menu-item" @click="go('recConsumption')">
+                <div class="menu-item" @click="go('recConsumption', '4-2')">
                     <img class="icon" src="@/assets/images/business_9.png" alt=""/>
                     <div class="menu-name">消费流水</div>
                 </div>
-                <div class="menu-item" @click="go('redRecord')">
+                <div class="menu-item" @click="go('redRecord', '4-3')">
                     <img class="icon" src="@/assets/images/business_10.png" alt=""/>
                     <div class="menu-name">冲红记录</div>
                 </div>
-                <div class="menu-item" @click="go('rechargeRecord')">
+                <div class="menu-item" @click="go('rechargeRecord', '4-4')">
                     <img class="icon" src="@/assets/images/business_11.png" alt=""/>
                     <div class="menu-name">充值记录</div>
                 </div>
@@ -89,9 +89,9 @@ export default {
 
     methods:{
         //跳转
-        go(name){
+        go(name, idx){
             console.log(name)
-            this.$router.push({name:name});
+            this.$router.push({name:name, params: {index: idx}});
         }
     }
 }

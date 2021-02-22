@@ -49,7 +49,7 @@
                     </el-table-column>
                     <el-table-column
                         prop="rechargeAmount"
-                        label="充值金额"
+                        label="充值金额(元)"
                     >
                     </el-table-column>
                     <el-table-column

@@ -1,6 +1,20 @@
 import SessionUtil from '@/utils/applicationStorage/sessionStorageUtil';
 import BMapGL from 'vue-baidu-map';
 import Vue from 'vue';
+import { JSEncrypt } from 'jsencrypt';
+
+// //JSEncrypt加密方法
+// Vue.prototype.$encryptedData = function(publicKey, data) {
+//     //new一个对象
+//     let encrypt = new JSEncrypt();
+//     //设置公钥
+//     encrypt.setPublicKey(publicKey);
+//     //data是要加密的数据,此处不用注意+号,因为rsa自己本身已经base64转码了,不存在+,全部是二进制数据
+//     let result = encrypt.encrypt(data);
+//     debugger
+//     return result;
+// }
+
 Vue.use(BMapGL, {
     // ak 是在百度地图开发者平台申请的密钥 详见 http://lbsyun.baidu.com/apiconsole/key */
     ak: 'Dw09ZpZG9VGhwlzHjwMp5ogOuEx9uAFO',
@@ -34,6 +48,28 @@ import(/*webpackChunkName:'familybucket'*/ 'vue')
                     window.$facilityUrl = null;
                     window.$moneyUrl = null; // 财务管理模块
                     window.$cardUrl = null; // 卡务管理模块
+                    const that = this;
+                    // 添加请求拦截器
+                    axios.interceptors.request.use(function (config) {
+                        config.headers['TimeSpan'] = new Date().getTime();
+                        const publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoQh0wEqx/R2H1v00IU12Oc30fosRC/frhH89L6G+fzeaqI19MYQhEPMU13wpeqRONCUta+2iC1sgCNQ9qGGf19yGdZUfueaB1Nu9rdueQKXgVurGHJ+5N71UFm+OP1XcnFUCK4wT5d7ZIifXxuqLehP9Ts6sNjhVfa+yU+VjF5HoIe69OJEPo7OxRZcRTe17khc93Ic+PfyqswQJJlY/bgpcLJQnM+QuHmxNtF7/FpAx9YEQsShsGpVo7JaKgLo+s6AFoJ4QldQKir2vbN9vcKRbG3piElPilWDpjXQkOJZhUloh/jd7QrKFimZFldJ1r6Q59QYUyGKZARUe0KZpMQIDAQAB";
+                        let rs = '';
+                        let encryption = new JSEncrypt()
+                        encryption.setPublicKey(publicKey);
+                        //传递的参数都进行加密
+                        if (config.data) {
+                            rs = encryption.encrypt(config.data);
+                        } else if (config.params) {
+                            rs = encryption.encrypt(config.params);
+                        }  
+                        config.headers['aeskey'] = rs;
+                        console.log(config);
+                        // 在发送请求之前做些什么
+                        return config;
+                    }, function (error) {
+                        // 对请求错误做些什么
+                        return Promise.reject(error);
+                    })
                     // 配置在这里，确保拦截相应只执行一次（遇到过配置在business，请求前面配置，相应会执行两次，导致错误返回引发bug）
                     axios.interceptors.response.use(
                         function(response) {
@@ -45,9 +81,13 @@ import(/*webpackChunkName:'familybucket'*/ 'vue')
                             return Promise.reject(error);
                         },
                     );
-                    axios.defaults.headers.post['Content-Type'] = 'application/json-patch+json';
+                    // axios.defaults.headers.post['Content-Type'] = 'application/json-patch+json';
 
                     Vue.prototype.$http = axios;
+                    // 存储省市区JSON
+                    axios.get('./config/address.json').then(res => {
+                        window.$addressList = res.data;                    
+                    });
                     return axios.get('./config/app.config.json');
                 })
                 .then(res => {

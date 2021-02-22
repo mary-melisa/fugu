@@ -50,7 +50,7 @@
                     </el-table-column>
                     <el-table-column
                         prop="rushRedAmount"
-                        label="冲红金额"
+                        label="冲红金额(元)"
                     >
                     </el-table-column>
                     <el-table-column

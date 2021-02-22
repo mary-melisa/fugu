@@ -288,6 +288,16 @@ i {
         @extend .el-table__body-wrapper;
     }
 }
+.borderTable.el-table {
+    border: 1px solid #EBEEF5;
+    .el-table__body-wrapper {
+        .el-table__body {
+            td {
+                border-right-color: #EBEEF5 !important;
+            }
+        }
+    }
+}
 // 错误图片背景色
 .el-image__error, .el-image__placeholder {
     background: transparent;

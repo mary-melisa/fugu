@@ -32,7 +32,7 @@
                 <el-row class="nutr"><el-col :span="10">热量:  </el-col><el-col :span="14">{{ nutrientInfo.heat }}</el-col></el-row>
                 <el-row class="nutr"><el-col :span="10">脂肪:  </el-col><el-col :span="14">{{ nutrientInfo.fat }}</el-col></el-row>
                 <el-row class="nutr"><el-col :span="10">蛋白质:  </el-col><el-col :span="14">{{ nutrientInfo.protein }}</el-col></el-row>
-                <el-row class="nutr"><el-col :span="10">碳水化合物:  </el-col><el-col :span="14">{{ nutrientInfo.carbohydrates }}</el-col></el-row>
+                <el-row class="nutr"><el-col :span="10">碳水化合物:  </el-col><el-col :span="14">{{ nutrientInfo.carbohydrat }}</el-col></el-row>
                 <el-row class="nutr"><el-col :span="10">膳食纤维:  </el-col><el-col :span="14">{{ nutrientInfo.dietaryFiber }}</el-col></el-row>
             </div>
         </el-dialog>
@@ -103,7 +103,23 @@ export default {
                 .then(rsp => {
                     if (rsp.data.status == 1) {
                         if(rsp.data.result && rsp.data.result.length) {
-                            this.nutrientInfo = rsp.data.result[0];
+                            // this.nutrientInfo = 
+                            let carbohydrateses = 0,  dietaryFiberes = 0, fates = 0, heates = 0, proteines = 0;
+                            rsp.data.result.forEach(item => {
+                                carbohydrateses += Number(item.carbohydrates);
+                                dietaryFiberes += Number(item.dietaryFiber);
+                                fates += Number(item.fat);
+                                heates += Number(item.heat);
+                                proteines += Number(item.protein);
+                            })
+                            this.nutrientInfo = {
+                                carbohydrat: carbohydrateses,
+                                dietaryFiber: dietaryFiberes,
+                                fat: fates,
+                                heat: heates,
+                                protein: proteines
+                            }
+                            console.log(this.nutrientInfo);
                         }
                         this.visible = true;
                     } else{

@@ -26,7 +26,7 @@
       <el-button class="conditionBtn" @click="educe">导出</el-button>
     </div>
     <div class="table">
-      <TableContent :parentTableData="result" :parentDefault="defaultProps" v-on:setCurrentMeal="selectMeal"
+      <TableContent :parentTableData="result" :parentDefault="conditionForm" v-on:setCurrentMeal="selectMeal"
         v-on:setParentSelection="setSelection" v-on:parentHandleSizeChange="handleSizeChange"
         v-on:parentHandleCurrentChange="handleCurrentChange" :parentOptionsList="optionsList"
         v-on:parentChangeStatus="changeStatus" />
@@ -108,15 +108,19 @@ export default {
     // 导出
     educe () {
       let arr = [];
+      let options = {};
+      const url = window.$cardUrl + `api/Card/Excel`;
       if (this.multipleSelection.length) {
         this.multipleSelection.forEach(item => {
-          arr.push(item.Id);
+          arr.push(item.id);
         })
+        let obj = {};
+        obj.listCardId = arr;
+        options = { method: 'post', url: url, responseType: 'blob', data: obj };
+      }else {
+        options = { method: 'post', url: url, responseType: 'blob', data: {}};
       }
-      let obj = {};
-      obj.listCardId = arr;
-      const url = window.$cardUrl + `api/Card/Excel`;
-      axios({ method: 'post', url: url, responseType: 'blob', data: obj })
+      axios(options)
         .then(rsp => {
           let elink = document.createElement('a');
           elink.download = "餐卡维护.xls";

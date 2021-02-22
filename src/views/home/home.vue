@@ -3,7 +3,7 @@
     <div class="home">
       <div class="header">
           <div class="headerLogo">
-              <img alt="logo" src="@/assets/images/logo.png" />
+              <img alt="logo" src="@/assets/images/logo.png" @click="toHome"/>
               <span>{{ title }}</span>
           </div>
           <div class="headerUser">
@@ -33,22 +33,22 @@
       </div>
       <div class="mainBox">
           <div class="sider">
-              <el-menu default-active="2" class="commonMenus" @open="handleOpen" @close="handleClose" background-color="#333333" text-color="#fff" active-text-color="#1890FF" unique-opened>
+              <el-menu :default-active="currentMenu" class="commonMenus" @open="handleOpen" @close="handleClose" background-color="#333333" text-color="#fff" active-text-color="#1890FF" unique-opened>
                   <el-submenu index="1">
                       <template slot="title">
                           <i class="el-icon-data-line"></i>
                           <span>运营数据</span>
                       </template>
                       <el-menu-item-group>
-                          <!-- <router-link to="/businessData"><el-menu-item index="1-1">营业数据</el-menu-item></router-link>
-                          <router-link to="/membershipData"><el-menu-item index="1-2">顾客数据</el-menu-item></router-link>
-                          <router-link to="/dishData"><el-menu-item index="1-3">菜品数据</el-menu-item></router-link>
-                          <router-link to="/rechargeData"><el-menu-item index="1-4">充值数据</el-menu-item></router-link> -->
-                          <router-link to="/businessData"><el-menu-item index="1-1">营业数据</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="1-2">顾客数据</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="1-3">菜品数据</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="1-4">充值数据</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="1-5">机器状态</el-menu-item></router-link>
+                          <!-- <router-link :to="{name: 'businessData',params:{index: ''}}"><el-menu-item index="1-1">营业数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'membershipData',params:{index: ''}}"><el-menu-item index="1-2">顾客数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'dishData',params:{index: ''}}"><el-menu-item index="1-3">菜品数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'rechargeData',params:{index: ''}}"><el-menu-item index="1-4">充值数据</el-menu-item></router-link> -->
+                          <router-link :to="{name: 'businessData',params:{index: '1-1'}}"><el-menu-item index="1-1">营业数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '1-2'}}"><el-menu-item index="1-2">顾客数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '1-3'}}"><el-menu-item index="1-3">菜品数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '1-4'}}"><el-menu-item index="1-4">充值数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '1-5'}}"><el-menu-item index="1-5">机器状态</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="2">
@@ -57,11 +57,11 @@
                           <span>备餐管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/mealSetting"><el-menu-item index="2-1">餐别设置</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="2-2">菜品类别</el-menu-item></router-link>
-                          <router-link to="/dishPreparation"><el-menu-item index="2-3">备菜计划</el-menu-item></router-link>
-                          <router-link to="/packageManagement"><el-menu-item index="2-4">套餐管理</el-menu-item></router-link>
-                          <router-link to="/dishManagement"><el-menu-item index="2-5">菜品管理</el-menu-item></router-link>
+                          <router-link :to="{name: 'mealSetting',params:{index: '2-1'}}"><el-menu-item index="2-1">餐别设置</el-menu-item></router-link>
+                          <router-link :to="{name: 'foodCategory',params:{index: '2-2'}}"><el-menu-item index="2-2">菜品类别</el-menu-item></router-link>
+                          <router-link :to="{name: 'dishPreparation',params:{index: '2-3'}}"><el-menu-item index="2-3">备菜计划</el-menu-item></router-link>
+                          <router-link :to="{name: 'packageManagement',params:{index: '2-4'}}"><el-menu-item index="2-4">套餐管理</el-menu-item></router-link>
+                          <router-link :to="{name: 'dishManagement',params:{index: '2-5'}}"><el-menu-item index="2-5">菜品管理</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="3">
@@ -70,11 +70,11 @@
                           <span>订餐管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/reservationManage"><el-menu-item index="3-1">预定数据</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="3-2">存餐记录</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="3-3">取餐记录</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="3-4">订单数据</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="3-5">异常订单</el-menu-item></router-link>
+                          <router-link :to="{name: 'reservationManage',params:{index: '3-1'}}"><el-menu-item index="3-1">预定数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '3-2'}}"><el-menu-item index="3-2">存餐记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '3-3'}}"><el-menu-item index="3-3">取餐记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '3-4'}}"><el-menu-item index="3-4">订单数据</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '3-5'}}"><el-menu-item index="3-5">异常订单</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="4">
@@ -83,14 +83,14 @@
                           <span>财务管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/memManagement"><el-menu-item index="4-1">账户信息</el-menu-item></router-link>
-                          <router-link to="/recConsumption"><el-menu-item index="4-2">消费流水</el-menu-item></router-link>
-                          <router-link to="/redRecord"><el-menu-item index="4-3">冲红记录</el-menu-item></router-link>
-                          <router-link to="/rechargeRecord"><el-menu-item index="4-4">充值记录</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="4-5">消费限制</el-menu-item></router-link>
-                          <router-link to="/setManagement"><el-menu-item index="4-6">结算管理</el-menu-item></router-link>
-                          <!-- <router-link to="/mealCard"><el-menu-item index="3-3">餐卡管理</el-menu-item></router-link>
-                          <router-link to="/orderManagement"><el-menu-item index="3-5">订单管理</el-menu-item></router-link> -->
+                          <router-link :to="{name: 'memManagement',params:{index: '4-1'}}"><el-menu-item index="4-1">账户信息</el-menu-item></router-link>
+                          <router-link :to="{name: 'recConsumption',params:{index: '4-2'}}"><el-menu-item index="4-2">消费流水</el-menu-item></router-link>
+                          <router-link :to="{name: 'redRecord',params:{index: '4-3'}}"><el-menu-item index="4-3">冲红记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'rechargeRecord',params:{index: '4-4'}}"><el-menu-item index="4-4">充值记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '4-5'}}"><el-menu-item index="4-5">消费限制</el-menu-item></router-link>
+                          <router-link :to="{name: 'setManagement',params:{index: '4-6'}}"><el-menu-item index="4-6">结算管理</el-menu-item></router-link>
+                          <!-- <router-link :to="{name: 'mealCard',params:{index: ''}}"><el-menu-item index="3-3">餐卡管理</el-menu-item></router-link>
+                          <router-link :to="{name: 'orderManagement',params:{index: ''}}"><el-menu-item index="3-5">订单管理</el-menu-item></router-link> -->
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="5">
@@ -99,13 +99,13 @@
                           <span>会员管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/building"><el-menu-item index="5-1">组织架构</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="5-2">职务维护</el-menu-item></router-link>
-                          <router-link to="/memberData"><el-menu-item index="5-3">会员数据</el-menu-item></router-link>
-                          <!-- <router-link to=""><el-menu-item index="3-4">消费限制</el-menu-item></router-link>
-                          <router-link to="/setManagement"><el-menu-item index="3-6">结算管理</el-menu-item></router-link> -->
-                          <!-- <router-link to="/mealCard"><el-menu-item index="3-3">餐卡管理</el-menu-item></router-link>
-                          <router-link to="/orderManagement"><el-menu-item index="3-5">订单管理</el-menu-item></router-link> -->
+                          <router-link :to="{name: 'building',params:{index: '5-1'}}"><el-menu-item index="5-1">组织架构</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '5-2'}}"><el-menu-item index="5-2">职务维护</el-menu-item></router-link>
+                          <router-link :to="{name: 'memberData',params:{index: '5-3'}}"><el-menu-item index="5-3">会员数据</el-menu-item></router-link>
+                          <!-- <router-link :to="{path: '',params:{index: ''}}"><el-menu-item index="3-4">消费限制</el-menu-item></router-link>
+                          <router-link :to="{name: 'setManagement',params:{index: ''}}"><el-menu-item index="3-6">结算管理</el-menu-item></router-link> -->
+                          <!-- <router-link :to="{name: 'mealCard',params:{index: ''}}"><el-menu-item index="3-3">餐卡管理</el-menu-item></router-link>
+                          <router-link :to="{name: 'orderManagement',params:{index: ''}}"><el-menu-item index="3-5">订单管理</el-menu-item></router-link> -->
                       </el-menu-item-group>
                   </el-submenu>
                    <el-submenu index="6">
@@ -114,13 +114,13 @@
                           <span>卡务管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/cardType"><el-menu-item index="6-1">餐卡类别</el-menu-item></router-link>
-                          <router-link to="/cardMaintenance"><el-menu-item index="6-2">餐卡维护</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="6-3">餐补发放</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="6-4">餐补记录</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="6-5">补卡记录</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="6-6">退卡记录</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="6-7">餐补规则</el-menu-item></router-link>
+                          <router-link :to="{name: 'cardType',params:{index: '6-1'}}"><el-menu-item index="6-1">餐卡类别</el-menu-item></router-link>
+                          <router-link :to="{name: 'cardMaintenance',params:{index: '6-2'}}"><el-menu-item index="6-2">餐卡维护</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '6-3'}}"><el-menu-item index="6-3">餐补发放</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '6-4'}}"><el-menu-item index="6-4">餐补记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '6-5'}}"><el-menu-item index="6-5">补卡记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '6-6'}}"><el-menu-item index="6-6">退卡记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '6-7'}}"><el-menu-item index="6-7">餐补规则</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="7">
@@ -129,8 +129,8 @@
                           <span>评价管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/dishEvaluation"><el-menu-item index="7-1">菜品评价</el-menu-item></router-link>
-                          <router-link to="/feedback"><el-menu-item index="7-2">意见反馈</el-menu-item></router-link>
+                          <router-link :to="{name: 'dishEvaluation',params:{index: '7-1'}}"><el-menu-item index="7-1">菜品评价</el-menu-item></router-link>
+                          <router-link :to="{name: 'feedback',params:{index: '7-2'}}"><el-menu-item index="7-2">意见反馈</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                    <el-submenu index="8">
@@ -139,10 +139,10 @@
                           <span>设备管理</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/equipmentType"><el-menu-item index="8-1">设备类型</el-menu-item></router-link>
-                          <router-link to="/facility"><el-menu-item index="8-2">设备列表</el-menu-item></router-link>
-                          <router-link to="/maintenanceRecord"><el-menu-item index="8-3">保养记录</el-menu-item></router-link>
-                          <router-link to="/runninglog"><el-menu-item index="8-4">运行日志</el-menu-item></router-link>
+                          <router-link :to="{name: 'equipmentType',params:{index: '8-1'}}"><el-menu-item index="8-1">设备类型</el-menu-item></router-link>
+                          <router-link :to="{name: 'facility',params:{index: '8-2'}}"><el-menu-item index="8-2">设备列表</el-menu-item></router-link>
+                          <router-link :to="{name: 'maintenanceRecord',params:{index: '8-3'}}"><el-menu-item index="8-3">保养记录</el-menu-item></router-link>
+                          <router-link :to="{name: 'runninglog',params:{index: '8-4'}}"><el-menu-item index="8-4">运行日志</el-menu-item></router-link>
                       </el-menu-item-group>
                   </el-submenu>
                   <el-submenu index="9">
@@ -151,10 +151,10 @@
                           <span>基础数据</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/nutrients"><el-menu-item index="9-1">营养成分</el-menu-item></router-link>
-                          <router-link to="/matCategory"><el-menu-item index="9-2">物料类别</el-menu-item></router-link>
-                          <router-link to="/matInformation"><el-menu-item index="9-3">物料信息</el-menu-item></router-link>
-                          <router-link to="/customerType"><el-menu-item index="9-4">用户类型</el-menu-item></router-link>
+                          <router-link :to="{name: 'nutrients',params:{index: '9-1'}}"><el-menu-item index="9-1">营养成分</el-menu-item></router-link>
+                          <router-link :to="{name: 'matCategory',params:{index: '9-2'}}"><el-menu-item index="9-2">物料类别</el-menu-item></router-link>
+                          <router-link :to="{name: 'matInformation',params:{index: '9-3'}}"><el-menu-item index="9-3">物料信息</el-menu-item></router-link>
+                          <router-link :to="{name: 'customerType',params:{index: '9-4'}}"><el-menu-item index="9-4">用户类型</el-menu-item></router-link>
                           
                          
                       </el-menu-item-group>
@@ -166,11 +166,11 @@
                           <span>系统设置</span>
                       </template>
                       <el-menu-item-group>
-                          <router-link to="/organizational"><el-menu-item index="10-1">组织架构</el-menu-item></router-link>
-                          <router-link to="/userManage"><el-menu-item index="10-2">角色管理</el-menu-item></router-link>
-                          <router-link to="/userManagement"><el-menu-item index="10-3">用户管理</el-menu-item></router-link>
-                          <router-link to="/building"><el-menu-item index="10-4">规则配置</el-menu-item></router-link>
-                          <!-- <router-link to="/menuManagement"><el-menu-item index="7-5">菜单管理</el-menu-item></router-link> -->
+                          <router-link :to="{name: 'organizational',params:{index: '10-1'}}"><el-menu-item index="10-1">组织架构</el-menu-item></router-link>
+                          <router-link :to="{name: 'userManage',params:{index: '10-2'}}"><el-menu-item index="10-2">角色管理</el-menu-item></router-link>
+                          <router-link :to="{name: 'userManagement',params:{index: '10-3'}}"><el-menu-item index="10-3">用户管理</el-menu-item></router-link>
+                          <router-link :to="{name: 'building',params:{index: '10-4'}}"><el-menu-item index="10-4">规则配置</el-menu-item></router-link>
+                          <!-- <router-link :to="{name: 'menuManagement',params:{index: ''}}"><el-menu-item index="7-5">菜单管理</el-menu-item></router-link> -->
                       </el-menu-item-group>
                   </el-submenu>
               </el-menu>
@@ -200,6 +200,7 @@ export default {
               role: '',
           },
           restaurantObj: {},
+          currentMenu: '1-1'
         };
     },
     mounted() {
@@ -211,6 +212,13 @@ export default {
             setCateenInfo: 'setCateenInfo',
             setAccountInfo: 'setAccountInfo'
         }),
+        getCurrentMenu () {
+		    // 获取当前页面 菜单刷新后能自动选中
+            let currentPage = this.$route.params.index;
+            if(currentPage) {
+                this.currentMenu = currentPage;
+            }
+        },
         Init(){
             const userInfo= localStorage.getItem("userInfo");
             console.log(1);
@@ -221,6 +229,10 @@ export default {
                 this.user.role = JSON.parse(userInfo).roleName;
             }
 
+        },
+        // 回到主页
+        toHome(){
+            this.$router.push({name: 'businessData'});
         },
         signOut(){
             this.user.name='';
@@ -283,7 +295,10 @@ export default {
                this.setCateenInfo(newValue);
             }
         }
-      }
+      },
+     '$route' (to, from) {
+        this.getCurrentMenu();
+     }
     }
 };
 </script>

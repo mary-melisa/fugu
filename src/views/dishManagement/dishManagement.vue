@@ -5,7 +5,7 @@
         <div class="search">
             <div class="fieldItem">
                 <span>类别：</span>
-                <el-select class="commonSelect" v-model="dishesCategoryId">
+                <el-select class="commonSelect" v-model="dishesCategoryId" @change="changeCategory">
                     <el-option :value="selectDefault" label="请选择">请选择</el-option>
                     <el-option v-for="item in cla" :key="item.id" :label="item.categoryName" :value="item.id">{{item.categoryName}}</el-option>
                 </el-select>
@@ -76,6 +76,12 @@ export default {
         this.getTableData();
     },
     methods:{
+        // 切换类别
+        changeCategory(){
+            if(this.dishesCategoryId === -1) {
+                if(this.defaultProps.dishesCategoryId) delete this.defaultProps.dishesCategoryId;
+            }
+        },
         // 初始化数据
         initData(){
           const flag = this.$route.params.flag;
@@ -239,23 +245,6 @@ export default {
                 .then(rsp => {
                     this.loading.close();
                     if (rsp.data.status == 1) {
-                        // let rows = rsp.data.result;
-                        //  let obj1 = rsp.data;
-                        //  if(rows.length) {
-                        //      rows.forEach(item => {
-                        //          obj1.result.push(JSON.parse(JSON.stringify(item)));
-                        //      })
-                        //      this.result = JSON.parse(JSON.stringify(obj1));
-                        //  }
-                        // // this.result = JSON.parse(JSON.stringify(rsp.data));
-                        // let obj = {};
-                        // Object.keys(this.defaultProps).forEach(key => {
-                        //     if(key === 'pageSize' || key === 'pageIndex') {
-                        //         obj[key] = this.defaultProps[key];
-                        //     }
-                        // })
-                        // this.defaultProps = obj;
-                        // this.result = JSON.parse(JSON.stringify(rsp.data));
                         this.result = rsp.data;
                     } else{
                         this.$message({

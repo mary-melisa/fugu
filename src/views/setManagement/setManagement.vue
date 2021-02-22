@@ -77,12 +77,32 @@ export default {
             }else{
                 obj.endtime = "";
             }
+            const that = this;
             const url = window.$moneyUrl + `api/settlementmanage/getsettlement?startime=`+ obj.startime + '&endtime=' + obj.endtime;
             axios({method: 'post', url: url})
             .then(rsp=>{
                 if (rsp.data.status == 1) {
                     // debugger
                     this.resultObj = rsp.data;
+                    const resultList = rsp.data.result.list;
+                    console.log(resultList);
+                    if(resultList.length) {
+                        resultList.forEach(item => {
+                            return that.sumClass(item);
+                        })
+                    }
+                    if(resultList.length) {
+                        // 合计
+                        resultList.push({
+                            dayInfo: '',
+                            detailList: [{
+                                categoryType: "合计",
+                                countinfo: rsp.data.result.totalCountinfo,
+                                dateInfo: "",
+                                marketAmount: rsp.data.result.totalMarketAmount
+                            }]
+                        })
+                    }
                 } else{
                     this.$message({
                         message: rsp.data.message,
@@ -90,6 +110,23 @@ export default {
                     });
                 }
             })
+        },
+        // 求分类合计
+        sumClass(item) {
+            if(item.detailList.length && item.dayInfo) {
+                let countinfoTotal = 0;
+                let marketAmountTotal = 0;
+                item.detailList.forEach(i => {
+                    countinfoTotal += Number(i.countinfo);
+                    marketAmountTotal += Number(i.marketAmount);
+                })
+                item.detailList.push({
+                  categoryName: '',
+                  countinfo:   '小计：' + countinfoTotal,
+                  dayInfo: item.detailList[0].dayInfo,
+                  marketAmount: '小计：' + marketAmountTotal
+                })
+            }
         },
         // 导出
         educe(){

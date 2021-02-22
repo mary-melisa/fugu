@@ -67,7 +67,7 @@
                         label="人脸入库状态"
                     >
                     </el-table-column>
-                    <el-table-column
+                    <!-- <el-table-column
                         label="人脸照片"
                     >
                         <template slot-scope="scope">
@@ -78,9 +78,9 @@
                                     </div>
                                 </el-image>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                     <el-table-column
-                        width="400px"
+                        width="500px"
                         label="操作"
                         fixed="right"
                     >
@@ -97,6 +97,13 @@
                             @click="handleDelete(scope.row)">
                             删除
                             </el-button>
+                         <el-button
+                            class="editBtn"
+                            icon="el-icon-picture"
+                            v-if="scope.row.facePhotos"
+                            @click="lookPicture(scope.row)">
+                            查看人脸
+                            </el-button>
                         <el-button
                             class="editBtn"
                             icon="el-icon-camera"
@@ -107,7 +114,7 @@
                             class="editBtn"
                             icon="el-icon-delete"
                             v-if="scope.row.facePhotos"
-                            @click="delFace(scope.row.facePhotos)">
+                            @click="delFace(scope.row)">
                             删除人脸
                             </el-button>
                     </template>
@@ -133,7 +140,7 @@
 <script>
 import moment from 'moment';
 export default {
-    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentHandleSizeChange','parentHandleCurrentChange','parentEdit','parentDel', 'changeFace', 'delImg'],
+    props:['parentTableData', 'parentDefault', 'setCurrentMeal', 'setParentSelection','parentHandleSizeChange','parentHandleCurrentChange','parentEdit','parentDel', 'changeFace', 'delImg', 'lookFace'],
     data() {
         return {
             currentPage: 1,
@@ -143,6 +150,10 @@ export default {
         }
     },
     methods: {
+        // 查看人脸
+        lookPicture(row){
+            this.$emit('lookFace', row);
+        },
         changePersonFace(row){
             this.$emit('changeFace', row);
         },

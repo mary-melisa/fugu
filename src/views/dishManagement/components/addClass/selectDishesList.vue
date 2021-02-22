@@ -398,9 +398,12 @@ export default {
             this.conditionForm.pageIndex = val;
             await this.getMaterialDetail();
         },
+        checkMaterialUnit(val) {
+            return val && val > 0;
+        },
         makeSure(){
              this.$message.closeAll();
-            if(!(this.parentMultipleSelection.length || this.changeTerpineList.length) ) {
+            if(!(this.changeTerpineList.length || this.changeTerpineList.length) ) {
                     this.$message.closeAll();
                     this.$message({
                         message: '请选择至少一种物料',
@@ -408,32 +411,22 @@ export default {
                     });
                     return false;
             }else {
-                let flag = true;
-                this.parentMultipleSelection.every(item => {
-                    if(!item.materialUnit) {
-                        flag = false;
-                        return false;
-                    }
-                })
-                if(flag === false) {
-                    this.changeTerpineList.every(item => {
-                        if(!item.materialUnit){
-                            this.$message.closeAll();
-                             this.$message({
-                                message: '请输入选中的物料的重量',
-                                type: 'warn'
-                            })
-                            return false;
-                        }
+                let flag = this.changeTerpineList.every(item => this.checkMaterialUnit(item.materialUnit));
+                if(!flag) {
+                    this.$message.closeAll();
+                        this.$message({
+                        message: '请输入选中的物料的重量',
+                        type: 'warn'
                     })
+                    return false;
                 }
                 if(flag) {
                     let weight = 0;
-                    if(this.parentMultipleSelection.length) {
-                        this.parentMultipleSelection.forEach(item => {
+                    if(this.changeTerpineList.length) {
+                        this.changeTerpineList.forEach(item => {
                             weight += Number(item.materialUnit);
                         })
-                        this.$emit('parentSetMultiple', this.parentMultipleSelection);
+                        this.$emit('parentSetMultiple', this.changeTerpineList);
                     }else if(this.changeTerpineList.length){
                          this.changeTerpineList.forEach(item => {
                             weight += Number(item.materialUnit);
@@ -441,7 +434,7 @@ export default {
                         this.$emit('parentSetMultiple', this.changeTerpineList);
                     }
                     this.$emit('setNetContent', weight);
-                    console.log(this.parentMultipleSelection);
+                    console.log(this.changeTerpineList);
                     this.$emit('parentCloseModule', false);
                 }
             }

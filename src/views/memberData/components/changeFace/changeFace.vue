@@ -1,7 +1,7 @@
 <template>
  <el-dialog
   class="commonDialog"
-  :title="'完善人脸'"
+  :title="faceStatus === 2 ? '完善人脸' : '查看人脸'"
   :visible.sync="visible"
   width="400px"
   v-loading="loading"
@@ -13,6 +13,7 @@
   :before-close="close">
     <div class="content">
        <el-upload
+            v-if="faceStatus === 2"
             ref="upload"
             accept=".jpg,.gif,.jpe,.jpeg,.png,.bmp"
             :action="uploadUrl"
@@ -30,10 +31,14 @@
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             <!-- <div class="delBar"  v-if="imageUrl" @click="delImg"><i class="el-icon-delete delIcon"></i></div> -->
         </el-upload>
+         <img v-if="faceStatus === 1" :src="imageUrl" class="avatar centerImg">
     </div>    
-    <div class="button">
+    <div class="button"  v-if="faceStatus === 2">
         <el-button class="commonButton" @click.native="close">取消</el-button>
         <el-button class="commonButton" @click="makeSure" >确认</el-button>
+    </div>
+     <div class="button"  v-if="faceStatus === 1">
+        <el-button class="commonButton" @click="close" >关闭</el-button>
     </div>
     <el-dialog :visible.sync="dialogVisible"  :append-to-body="true">
         <img width="100%" :src="dialogImageUrl" alt="">
@@ -43,7 +48,7 @@
 <script>
 import axios from 'axios';
 export default {
-    props: ['getParentTableData', 'cancelModule', 'parentCurrentMeal', 'restaurantObj'],
+    props: ['getParentTableData', 'cancelModule', 'parentCurrentMeal', 'restaurantObj', 'faceStatus'],
     data() {
         return {
             loading: false,
@@ -59,7 +64,14 @@ export default {
     },
     mounted(){
          this.visible = true;
-         this.init();
+         if(this.faceStatus === 2) {   // 完善人脸
+             this.init();
+         }else if(this.faceStatus === 1) { // 查看人脸
+            this.$nextTick(() => {
+                const obj = JSON.parse(JSON.stringify(this.parentCurrentMeal));
+                this.imageUrl = this.imgUrl +  obj.facePhotos;
+            })
+         }
     },
     methods: {
         init(){
@@ -95,6 +107,8 @@ export default {
                 this.imageUrl = URL.createObjectURL(file.raw);
                 this.datas.UploadFile = file.raw;
             }
+            // 强制刷新
+            this.$forceUpdate();
         },
         // 封装一个判断图片文件后缀名的方法
         isImage(fileName) {
@@ -140,6 +154,7 @@ export default {
                         formData.append(key, this.datas[key]);
                     })
                 }
+                let that = this;
                 axios.post(this.uploadUrl,formData,config).then(res=>{
                     this.loading = false;
                     if(res.data.status === 1) {
@@ -148,11 +163,11 @@ export default {
                             message: '完善人脸成功！',
                             type: 'success'
                         })
-                        this.$forceUpdate() //组件嵌套太深 无法自动更新 强制更新视图
-                        this.$nextTick(() => {
-                            this.$emit('getParentTableData');
-                            this.close();
-                        })
+                        // this.$nextTick(() => {
+                        this.$emit('getParentTableData');
+                        this.close();
+                        that.$forceUpdate() //组件嵌套太深 无法自动更新 强制更新视图
+                        // })
                     }
                 }).catch(() => {
                     this.loading = false;
@@ -173,6 +188,9 @@ export default {
                 }
             }
         }
+    }
+    .centerImg {
+        margin: 0 auto;
     }
     .content {
         width: 100%;

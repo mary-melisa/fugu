@@ -9,7 +9,7 @@
                     <el-option
                     v-for="item in optionsList"
                     :key="item.id"
-                    :label="item.equipmentName"
+                    :label="item.equimentTypeName"
                     :value="item.id">
                     </el-option>
                 </el-select>
@@ -108,21 +108,24 @@ export default {
         this.initUserInfo();
         // 获取设备地址和名称
         this.getAddresses();
-        // 获取设备类型
-        this.getEquitypes();
-        // 获取分页表格信息
-         this.getTableData();
+        this.init();
     },
     methods:{
+        async init(){
+             // 获取设备类型
+            await this.getEquitypes();
+            // 获取分页表格信息
+            await this.getTableData();
+        },
         // 查询
         select(){
             this.conditionForm.pageIndex = 1;
             this.getTableData();
         },
         //获取设备类型
-        getEquitypes(){
-            const url = window.$config1 + `api/bdequitype/getequitype`;
-            axios({method: 'post', url: url, data: this.defaultProps})
+        async getEquitypes(){
+            const url = window.$facilityUrl + `api/FaciliType/getequitype`;
+            await axios({method: 'post', url: url, data: this.defaultProps})
             .then(rsp=>{
                 if(rsp.data.status == 1){
                     this.optionsList = JSON.parse(JSON.stringify(rsp.data.result));
@@ -132,19 +135,19 @@ export default {
             })
             .catch(err=> console.log(err));
         },
-         //获取设备地址和类型
+         //获取设备名称
         getAddresses(){
-            let obj = {};
-            if(this.restaurantObj.id) {
-                obj.RestaurantId = this.restaurantObj.id;
-            }
-            const url = window.$facilityUrl + `api/Facility/FacilityGetAddress`;
-            axios({method: 'post', url: url, data: obj})
+            // let obj = {};
+            // if(this.restaurantObj.id) {
+            //     obj.RestaurantId = this.restaurantObj.id;
+            // }
+            const url = window.$facilityUrl + `api/Facility/FacilityGetFacilityName?RestaurantId=`+ this.restaurantObj.id;
+            axios({method: 'post', url: url})
             .then(rsp=>{
                 if(rsp.data.status == 1){
                     this.addressesList = rsp.data.result;
                 } else {
-                    console.log("获取设备名称和设备地址失败")
+                    console.log("获取设备名称失败")
                 }
             })
             .catch(err=> console.log(err));
@@ -163,7 +166,7 @@ export default {
 
         },
         //获取表格数据
-        getTableData(){
+        async getTableData(){
             let obj = {};
             if(this.conditionForm.equipmentId !== this.selectDefault) {
                 obj.equipmentId =  this.conditionForm.equipmentId;
@@ -183,7 +186,7 @@ export default {
             obj.pageIndex = this.conditionForm.pageIndex;
             obj.pageSize = this.conditionForm.pageSize;
             const url = window.$facilityUrl + `api/Facilityrunlog/FacilityrunlogSelectPaging`;
-            axios({method: 'post',url: url,data: obj})
+            await axios({method: 'post',url: url,data: obj})
             .then(rsp=>{
                 if (rsp.data.status == 1) {
                     this.result = rsp.data;
@@ -223,6 +226,7 @@ export default {
             handler(newValue){
                 this.restaurantObj = newValue;
                 this.conditionForm.restaurantId = this.restaurantObj.id;
+                this.getAddresses();
                 this.getTableData();
             },
             deep: true

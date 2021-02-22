@@ -403,7 +403,7 @@
             let dish = {};
             dish.id = item.id;
             if(item && Object.keys(item).length) {
-              that.dishesNames += (item.categoryName ? item.categoryName : "") + "," + item.name + ',' + item.suttle + "\n";
+              that.dishesNames += (item.categoryName ? item.categoryName : "") + "," + item.name + ',' + item.suttle + "g\n";
               dish.materialCategoryName = item.categoryName;
               dish.materialName = item.name;
               dish.materialUnit = item.suttle;
@@ -421,7 +421,7 @@
          handler: function (value) {
              this.dishesNames = "";
              value.forEach(item => {
-               this.dishesNames += item.materialCategoryName + "," + item.materialName + ',' + item.materialUnit + "\n";
+               this.dishesNames += item.materialCategoryName + "," + item.materialName + ',' + item.materialUnit + "g\n";
              })
           },
           deep: true

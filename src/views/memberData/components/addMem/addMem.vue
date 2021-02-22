@@ -26,7 +26,7 @@
       <el-form-item label="身份证号:" :required="usertype == 1 ? true : false">
         <el-input class="commonInput" placeholder="请输入身份证号" v-model="idNumber" maxlength="18"></el-input>
       </el-form-item>
-      <el-form-item label="工号:" :required="usertype == 1 ? true : false" v-if="parentTitle === 1">
+      <el-form-item label="工号:" :required="usertype == 1 ? true : false">
         <el-input class="commonInput" :placeholder="usertype === 1 ? '可输入学生编号、学籍号' : ''"
           v-model="employeeID" maxlength="20" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))"></el-input>
       </el-form-item>
@@ -36,8 +36,8 @@
       <el-form-item label="联系电话:" :required="usertype == 1 ? false : true">
         <el-input class="commonInput" v-model="mobile" maxlength="11"></el-input>
       </el-form-item>
-      <el-form-item v-if="parentTitle === 1" label="卡号:">
-        <el-input class="commonInput" v-model="cardNumber" maxlength="24"></el-input>
+      <el-form-item label="卡号:">
+        <el-input class="commonInput" onkeyup="this.value=this.value.replace(/[, ]/g,'')" v-model="cardNumber" maxlength="24"></el-input>
       </el-form-item>
       <el-form-item label="性别:">
         <template>
@@ -257,9 +257,16 @@ export default {
         this.addMeal.idNumber = obj.idNumber;
         this.idNumber = this.addMeal.idNumber;
       }
+      // 卡号
       if (Reflect.has(obj, 'cardNumber')) {
         this.addMeal.cardNumber = obj.cardNumber;
         this.cardNumber = this.addMeal.cardNumber;
+        this.addMeal.LastCardNumber = obj.cardNumber;
+      }
+      // 工号
+      if (Reflect.has(obj, 'employeeID')) {
+        this.addMeal.employeeID = obj.employeeID;
+        this.employeeID = this.addMeal.employeeID;
       }
       if (Reflect.has(obj, 'memberType')) {
         this.usertype = obj.memberType;
@@ -427,6 +434,10 @@ export default {
                 if (this.gender) {
                   this.addMeal.gender = this.gender;
                 }
+                 // 工号
+                if(this.employeeID) {
+                  this.addMeal.employeeID = this.employeeID;
+                }
                 // 卡号
                 if (this.cardNumber) {
                   this.addMeal.cardNumber = this.cardNumber;
@@ -473,6 +484,14 @@ export default {
                 // 性别
                 if (this.gender) {
                   this.addMeal.gender = this.gender;
+                }
+                // 工号
+                if(this.employeeID) {
+                  this.addMeal.employeeID = this.employeeID;
+                }
+                // 卡号
+                if (this.cardNumber) {
+                  this.addMeal.cardNumber = this.cardNumber;
                 }
                 this.mealEdit();
               }

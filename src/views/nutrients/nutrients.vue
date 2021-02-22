@@ -114,7 +114,6 @@ export default {
         dialogVisible: false,
         editDialogVisible: false,
         currentNutrient: {},
-        buttonClick: false, // 是否点击了查询按钮
       }
     },
     mounted(){
@@ -123,7 +122,6 @@ export default {
     methods: {
       // 点击查询按钮
       select(){
-        this.buttonClick = true;
         this.conditionForm.pageIndex = 1;
         this.getTableData();
       },
@@ -160,10 +158,9 @@ export default {
           let obj = {};
           obj.pageIndex = this.conditionForm.pageIndex;
           obj.pageSize = this.conditionForm.pageSize;
-          if(this.buttonClick && this.conditionForm.materialName) {
+          if(this.conditionForm.materialName) {
             obj.materialName = this.conditionForm.materialName;
           }
-          console.log(this.buttonClick);
           const url = this.urlPrev + `api/bddishes/getdishes`;
           axios({ method: 'post', url: url, data: obj })
               .then(rsp => {

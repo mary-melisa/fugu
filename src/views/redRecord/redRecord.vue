@@ -53,7 +53,6 @@ export default {
             currentMeal: {},
             multipleSelection: [],
             loading:null,
-            buttonClick: false, // 是否点击了查询按钮
             firstLoad: true,    // 第一次加载
         }
     },
@@ -62,7 +61,6 @@ export default {
     },
     methods:{
         select(){
-            this.buttonClick = true;
             this.defaultProps.pageIndex = 1;
             this.getTableData();
         },
@@ -72,16 +70,14 @@ export default {
             obj.pageSize = this.defaultProps.pageSize;
             obj.pageIndex = this.defaultProps.pageIndex;
             // 解决查询条件双向绑定问题，没点击查询的时候不传查询条件
-            if(this.buttonClick) {
-                if(this.keyContent) {
-                    obj.keyContent = this.keyContent;
-                }
-                if(this.startTime) {
-                    obj.startTime = moment(this.startTime).format('YYYY-MM-DD HH:mm:ss');
-                }
-                if(this.endTime) {
-                    obj.endTime = moment(this.endTime).format('YYYY-MM-DD HH:mm:ss');
-                }
+            if(this.keyContent) {
+                obj.keyContent = this.keyContent;
+            }
+            if(this.startTime) {
+                obj.startTime = moment(this.startTime).format('YYYY-MM-DD HH:mm:ss');
+            }
+            if(this.endTime) {
+                obj.endTime = moment(this.endTime).format('YYYY-MM-DD HH:mm:ss');
             }
             // 第一次加载页面需要传默认的时间条件
             if(this.firstLoad) {
@@ -102,7 +98,6 @@ export default {
             axios({method: 'post', url: url, data: obj})
             .then(rsp=>{
                 this.loading.close();
-                this.buttonClick = false;
                 this.firstLoad = false;
                 if (rsp.data.status == 1) {
                     this.resultObj = rsp.data;

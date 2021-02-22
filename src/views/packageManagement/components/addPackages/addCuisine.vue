@@ -86,7 +86,7 @@
         </div>
         <div class="pagination" style="position:relative;">
             <div style="position: absolute;left:100px;font-size:30px;top: 10px;" @click="terpineWeight">
-                <el-badge :value="parentMultipleSelection && parentMultipleSelection.length ? parentMultipleSelection.length : 0" class="item"  >
+                <el-badge :value="changeTerpineList && changeTerpineList.length ? changeTerpineList.length : 0" class="item"  >
                     <i class="el-icon-shopping-cart-2"></i>
                 </el-badge>
             </div>
@@ -114,7 +114,7 @@
         width="300px"
         :close-on-click-modal="false"
         :before-close="close1">
-        <el-row class="commonRow" v-for="(item, index) in parentMultipleSelection" :key="index">
+        <el-row class="commonRow" v-for="(item, index) in changeTerpineList" :key="index">
             <el-col :span="8">{{item.dishesName}}</el-col>
             <el-col :span="14"><el-input type="number" class="commonInput" style="width:80px;" :min="0" @input.native="onInput0" onKeypress="return (/[\d\.]/.test(String.fromCharCode(event.keyCode)))" v-model="item.quantity"  @blur="handleSelectionChange(parentMultipleSelection, item)"></el-input><span class="fl"> 份</span></el-col>
             <el-col :span="2" ><a @click="delDish(item)"><i class=" el-icon-delete"></i></a></el-col>
@@ -270,20 +270,9 @@ export default {
                 .then(rsp => {
                     if (rsp.data.status == 1) {
                         console.log(rsp.data)
-                        // this.resultObj = rsp.data;
                         
                         // 解决翻页的时候复选框被取消的问题
                         let rows = rsp.data.result;
-                        // this.parentMultipleSelection.forEach(item => {
-                        //     if(item && item.quantity){
-                        //         let obj = rows.find(res => res.id === item.id);
-                        //         if(obj && Object.keys(obj).length){
-                        //             obj['quantity'] = item.quantity;
-                        //         }
-                        //     }
-                        // })
-                        // this.resultObj = rsp.data;
-                        // this.resultObj.result = rows;
                           const selectlist = rows.map(x=>{
                             let select = this.parentMultipleSelection.find(i=>i.id === x.id);
                             if(select) return select;
@@ -309,31 +298,32 @@ export default {
             this.conditionForm.pageIndex = val;
             this.getDataTable();
         },
+        checkQuantity(val) {
+            return val && val > 0;
+        },
         makeSure(){
-             this.$message.closeAll();
-            if(!this.parentMultipleSelection.length) {
+            this.$message.closeAll();
+            if(!this.changeTerpineList.length) {
                  this.$message({
                     message: '请选择至少一种菜品',
                     type: 'warn',
                 });
                 return false;
-            }else {
-                let flag = true;
-                this.parentMultipleSelection.every(item => {
-                    if(!item.quantity) {
-                        this.$message.closeAll();
-                        this.$message({
-                            message: '请输入选中的菜品的数量',
-                            type: 'warn'
-                        })
-                        flag = false;
-                        return false;
-                    }
-                })  
-                if(flag) {
-                    console.log(this.parentMultipleSelection);
-                    this.$emit('closeParentModule', false);
-                }
+            }
+            let flag = this.changeTerpineList.every(item => this.checkQuantity(item.quantity));  
+            console.log(flag);
+            if(!flag) {
+                this.$message.closeAll();
+                this.$message({
+                    message: '请输入选中的菜品的数量',
+                    type: 'warn'
+                })
+                return false;
+            }
+            if(flag) {
+                console.log(this.changeTerpineList);
+                this.$emit('parentSetMultiple', this.changeTerpineList);
+                this.$emit('closeParentModule', false);
             }
         }
     }

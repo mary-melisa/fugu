@@ -74,6 +74,7 @@ export default {
             });
         },
         login(){
+             let that = this;
              this.loading = this.$loading({
                 lock: true,
                 text: '登录中...',
@@ -115,7 +116,7 @@ export default {
             }.bind(this))
             .catch(function (error) {
                 console.log(error);
-                this.loading.close();
+                that.loading.close();
             });
         }
     }

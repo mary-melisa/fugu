@@ -187,12 +187,7 @@ export default {
               type: 'success',
             });
             this.cancelModule(false);
-            // if(this.flag === 'add') {
-            //     this.$router.push({
-            //         name: 'nutrients'
-            //     })
-            // }
-          } else {
+          } else if(rsp.data.message){
             this.$message({
               message: rsp.data.message,
               type: 'error',

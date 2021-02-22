@@ -200,6 +200,12 @@ export default {
       mapGetshow: true,
       mapPointName: "",
       restaurantObj: {}, // 食堂对象
+      longitude: 113.07298735689024,  // 经度
+      latitude: 28.221947752559746,  // 纬度
+      provinceId: 0, //省份编号
+      cityId: 0, // 城市编号
+      countyId: 0, // 县区编号
+      addressList: [], // 省市区JSON
     }
   },
   computed: {
@@ -227,7 +233,7 @@ export default {
       }
     },
       changeUserName(){
-        this.datas.userName = this.addCanteenForm.organizationName;
+        this.datas.userName = this.addCanteenForm.restaurantName;
       },
       // 切换图片
       handleChange(file) {
@@ -246,35 +252,6 @@ export default {
               this.imageUrl = URL.createObjectURL(file.raw);
               this.datas.UploadFile = file.raw;
           }
-          this.loading = true;
-          let config = {
-              headers: {
-                  'Content-Type': 'multipart/form-data',
-              },
-          };
-          let formData = new FormData();
-          if (Object.keys(this.datas).length) {
-              Object.keys(this.datas).forEach(key => {
-                  formData.append(key, this.datas[key]);
-              });
-          }
-          axios
-              .post(this.uploadUrl, formData, config)
-              .then(res => {
-                  this.loading = false;
-                  if (res.data.status === 1) {
-                    this.addCanteenForm.pictures = this.imgUrl + res.data.result;
-                      // this.$message.closeAll();
-                      // this.$message({
-                      //     message: '上传成功！',
-                      //     type: 'success',
-                      // });
-                      this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
-                  }
-              })
-              .catch(() => {
-                  that.$emit('setLoading', false);
-              });
       },
       handleRemove(file, fileList) {
           console.log(file, fileList);
@@ -286,42 +263,50 @@ export default {
       },
     //地图显示
     mapBuild () {
-      let that = this;
-      // setTimeout(function() {
-      //if (that.mapGetshow) {
-      // try {
+        let that = this;
+        // 省市区JSON
+        this.addressList = window.$addressList;
+        console.log(this.addressList);
         this.map = new BMapGL.Map("map");
         this.geoc = new BMapGL.Geocoder();
-        let point = new BMapGL.Point(113.07298735689024, 28.221947752559746);
+        let point;
+        if(this.parentFlag === 2 && this.parentCurrentCateen.latitude && this.parentCurrentCateen.longitude){
+          point = new BMapGL.Point(this.parentCurrentCateen.longitude, this.parentCurrentCateen.latitude);
+        }else {
+          point = new BMapGL.Point(113.07298735689024, 28.221947752559746);
+        }
         this.map.centerAndZoom(point, 15);
         this.map.enableScrollWheelZoom(true);
-        // let geolocation = new BMapGL.Geolocation();
-        //定位
-        // geolocation.getCurrentPosition(
-        //     () => {
+
         let mk = new BMapGL.Marker(point);
         this.map.addOverlay(mk);
         this.map.panTo(point);
         this.geoc.getLocation(point, function (rs) {
           let addComp = rs.addressComponents;
           console.log(rs);
+          that.longitude = rs.point.lng;
+          that.latitude = rs.point.lat;
           that.mapPointName =
             addComp.province +
             addComp.city +
             addComp.district +
             addComp.street +
             addComp.streetNumber;
-          // that.loading = false;
-          // that.mapGetshow = false;
+          // 获取省市区
+          const addresses = that.addressList;
+          addresses.map(item => {
+            if(item.value === addComp.province) {
+              that.provinceId = item.code;
+            }
+            if(item.value === addComp.city) {
+              that.cityId = item.code;
+            }
+            if(item.value === addComp.district) {
+              that.countyId = item.code;
+            }
+          })
+          console.log(addComp.province,that.provinceId,addComp.city,that.cityId,addComp.district,that.countyId);
         });
-        //     },
-        //     { enableHighAccuracy: true }
-        // );
-      // } catch (error) {
-      //   return Promise.reject(error);
-      // }
-      //  }
-      // }, 1000);
     },
     //搜索地图
     mapNameChange () {
@@ -345,67 +330,36 @@ export default {
               this.geoc.getLocation(point, function (rs) {
                 let addComp = rs.addressComponents;
                 console.log(addComp);
+                that.longitude = rs.point.lng;
+                that.latitude = rs.point.lat;
                 that.mapPointName =
                   addComp.province +
-                  ", " +
                   addComp.city +
-                  ", " +
                   addComp.district +
-                  ", " +
                   addComp.street +
-                  ", " +
                   addComp.streetNumber;
-
+                // 获取省市区
+                const addresses = that.addressList;
+                addresses.map(item => {
+                  if(item.value === addComp.province) {
+                    that.provinceId = item.code;
+                  }
+                  if(item.value === addComp.city) {
+                    that.cityId = item.code;
+                  }
+                  if(item.value === addComp.district) {
+                    that.countyId = item.code;
+                  }
+                })
+                console.log(addComp.province,that.provinceId,addComp.city,that.cityId,addComp.district,that.countyId);
               });
               //鼠标点击
               this.map.addEventListener("click", function (e) {
                 let pt = e.point;
-                 that.mapPointName =
-                    addComp.province +
-                    addComp.city +
-                    addComp.district +
-                    addComp.street +
-                    addComp.streetNumber;
-                    console.log(pt, that.mapPointName);
-                // that.map.clearOverlays();
-                // let marker = new BMapGL.Marker(pt); // 创建标注
-                // that.map.addOverlay(marker);
-                // that.geoc.getLocation(pt, function(rs) {
-                //     let addComp = rs.addressComponents;
-                //     that.mapPointName =
-                //     addComp.province +
-                //     addComp.city +
-                //     addComp.district +
-                //     addComp.street +
-                //     addComp.streetNumber;
-                //     debugger
-                // });
-                // let gthat = this;
-                // let geolocation = new BMapGL.Geolocation(); //创建geolocation实例，返回用户当前的位置
-                // 开启SDK辅助定位
-                // that.geoc.enableSDKLocation();
-                // that.geoc.getCurrentPosition(function (r) { //返回用户当前位置。当定位成功时，回调函数的参数为GeolocationResult对象，否则为null
-                //   if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-                //     sessionStorage.setItem("SDKLng", pt.lng);
-                //     sessionStorage.setItem("SDKLat", pt.lat);
-                //     axios({
-                //       method: 'post',
-                //       url: 'http://api.map.baidu.com/geocoder/v2/?ak=Ya2nSaqjT3vNrIgba1v4nfWzSxGdtgZD&location=' + pt.lat + ',' + pt.lng + '&output=json',
-                //       dataType: 'jsonp',
-                //       callback: 'BMap._rd._cbk43398'
-                //     }).then(rsp => {
-                //       // debugger
-                //       //  var result = res.result,
-                //       //         addressComponent = result.addressComponent,
-                //       //         adcode = addressComponent.adcode
-                //     })
-                //       .catch(err => console.log(err));
-
-                //   }
-                //   else {
-                //     alert('failed' + this.getStatus());
-                //   }
-                // }, { enableHighAccuracy: true });
+                that.longitude = pt.lng;
+                that.latitude = pt.lat;
+                that.addCanteenForm.address = that.mapPointName;
+                console.log(that.longitude, that.latitude, that.addCanteenForm.address);
               });
             } else {
               this.$message.closeAll();
@@ -517,19 +471,18 @@ export default {
         this.addOrgnForm.parentId = this.treeNode.id;
         this.addCanteenForm.organizationId = this.treeNode.id;
       }
-      //debugger
     },
     //初始化表单
     initFormData () {
       console.log('isOrg', this.isorg);
       if(this.parentCurrentOrgan) {
         // 组织
-        this.addOrgnForm = this.parentCurrentOrgan;
+        this.addOrgnForm = JSON.parse(JSON.stringify(this.parentCurrentOrgan));
         console.log(this.addOrgnForm);
       }
       if(this.parentCurrentCateen){
         // 食堂
-        this.addCanteenForm = this.parentCurrentCateen;
+        this.addCanteenForm = JSON.parse(JSON.stringify(this.parentCurrentCateen));
         console.log(this.addCanteenForm);
       }
       if (this.parentActiveName === "second") {
@@ -556,7 +509,6 @@ export default {
         if (valid) {
           this.organizationSave();
         } else {
-          //console.log('提交错误!');
           return false;
         }
       });
@@ -572,8 +524,42 @@ export default {
         }
       });
     },
+    async uploadImage(){
+      this.loading = true;
+      let config = {
+          headers: {
+              'Content-Type': 'multipart/form-data',
+          },
+      };
+      let formData = new FormData();
+      if (Object.keys(this.datas).length) {
+          Object.keys(this.datas).forEach(key => {
+              formData.append(key, this.datas[key]);
+          });
+      }
+      await axios
+          .post(this.uploadUrl, formData, config)
+          .then(res => {
+              this.loading = false;
+              if (res.data.status === 1) {
+                this.addCanteenForm.pictures = this.imgUrl + res.data.result;
+                this.$forceUpdate(); //组件嵌套太深 无法自动更新 强制更新视图
+              }
+          })
+          .catch(() => {
+              that.$emit('setLoading', false);
+          });
+    },
     //添加食堂
-    submitCanteenForm (formName) {
+    async submitCanteenForm (formName) {
+      // 上传图片
+      await this.uploadImage();
+      console.log(this.latitude,this.longitude, this.provinceId, this.cityId, this.countyId, this.addCanteenForm.address);
+      this.addCanteenForm.longitude = this.longitude + '';
+      this.addCanteenForm.latitude = this.latitude + '';
+      this.addCanteenForm.provinceId = this.provinceId;
+      this.addCanteenForm.cityId = this.cityId;
+      this.addCanteenForm.countyId = this.countyId;
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.canteenSave();
@@ -584,7 +570,15 @@ export default {
       });
     },
     //编辑食堂
-    submitEditCanteenForm (formName) {
+    async submitEditCanteenForm (formName) {
+       // 上传图片
+      await this.uploadImage();
+      console.log(this.latitude,this.longitude, this.provinceId, this.cityId, this.countyId, this.addCanteenForm.address);
+      this.addCanteenForm.longitude = this.longitude + '';
+      this.addCanteenForm.latitude = this.latitude + '';
+      this.addCanteenForm.provinceId = this.provinceId;
+      this.addCanteenForm.cityId = this.cityId;
+      this.addCanteenForm.countyId = this.countyId;
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.cantEditSave();

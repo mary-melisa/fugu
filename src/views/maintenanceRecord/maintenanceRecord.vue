@@ -118,9 +118,9 @@ export default {
             this.getTableData();
         },
         //获取设备类型
-        getEquitypes(){
+        async getEquitypes(){
             const url = window.$facilityUrl + `api/FaciliType/getequitype`;
-            axios({method: 'post', url: url, data: this.defaultProps})
+            await axios({method: 'post', url: url, data: this.defaultProps})
             .then(rsp=>{
                 if(rsp.data.status == 1){
                     this.optionsList = rsp.data.result;
@@ -171,7 +171,7 @@ export default {
             this.conditionForm.PageIndex = val;
         },
         //获取表格数据
-        getTableData(){
+        async getTableData(){
             this.loading = this.$loading({
                 lock: true,
                 text: '查询中...',
@@ -194,7 +194,7 @@ export default {
             obj.PageIndex = this.conditionForm.PageIndex;
             obj.PageSize = this.conditionForm.PageSize;
             const url = window.$facilityUrl + `api/MaintenanceRecord/MaintenanceRecordSelectPaging`;
-            axios({method: 'post',url: url, data: obj})
+            await axios({method: 'post',url: url, data: obj})
             .then(rsp=>{
                 this.loading.close();
                 if (rsp.data.status == 1) {
